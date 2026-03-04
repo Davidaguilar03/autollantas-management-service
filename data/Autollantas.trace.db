@@ -1,0 +1,521 @@
+2026-01-26 23:20:15.022061-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "CONFIGURACION" no encontrada
+Table "CONFIGURACION" not found; SQL statement:
+-- 1. La contraseña maestra del sistema (si no la tenías ya)
+INSERT INTO configuracion (clave, valor) 
+VALUES ('admin_password', '1234') [42102-240]
+2026-01-26 23:20:15.028100-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "CONFIGURACION" no encontrada
+Table "CONFIGURACION" not found; SQL statement:
+-- 2. La pregunta de seguridad que le saldrá al usuario
+INSERT INTO configuracion (clave, valor) 
+VALUES ('recovery_pregunta', '¿Nombre de tu primera mascota?') [42102-240]
+2026-01-26 23:20:15.030100-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "CONFIGURACION" no encontrada
+Table "CONFIGURACION" not found; SQL statement:
+-- 3. La respuesta correcta (OJO: El código Java ignorará mayúsculas/minúsculas)
+INSERT INTO configuracion (clave, valor) 
+VALUES ('recovery_respuesta', 'Firulais') [42102-240]
+2026-01-26 23:21:40.666378-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "CLAVE" no encontrada
+Column "CLAVE" not found; SQL statement:
+-- 1. Asegurar la contraseña de administrador (si no existe ya)
+MERGE INTO CONFIGURACION_SISTEMA (CLAVE, VALOR) 
+KEY(CLAVE) 
+VALUES ('admin_password', '1234') [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:778)
+	at org.h2.command.Parser.parseColumn(Parser.java:1174)
+	at org.h2.command.Parser.parseColumnList(Parser.java:1159)
+	at org.h2.command.Parser.parseMergeInto(Parser.java:1439)
+	at org.h2.command.Parser.parseMerge(Parser.java:1425)
+	at org.h2.command.Parser.parsePrepared(Parser.java:706)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:559)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-01-26 23:21:40.676711-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "CLAVE" no encontrada
+Column "CLAVE" not found; SQL statement:
+-- 2. Insertar la pregunta de seguridad
+MERGE INTO CONFIGURACION_SISTEMA (CLAVE, VALOR) 
+KEY(CLAVE) 
+VALUES ('recovery_pregunta', '¿Cual es el nombre de tu primera mascota?') [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:778)
+	at org.h2.command.Parser.parseColumn(Parser.java:1174)
+	at org.h2.command.Parser.parseColumnList(Parser.java:1159)
+	at org.h2.command.Parser.parseMergeInto(Parser.java:1439)
+	at org.h2.command.Parser.parseMerge(Parser.java:1425)
+	at org.h2.command.Parser.parsePrepared(Parser.java:706)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:559)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-01-26 23:21:40.683376-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "CLAVE" no encontrada
+Column "CLAVE" not found; SQL statement:
+-- 3. Insertar la respuesta correcta (La validación ignorará mayúsculas)
+MERGE INTO CONFIGURACION_SISTEMA (CLAVE, VALOR) 
+KEY(CLAVE) 
+VALUES ('recovery_respuesta', 'Firulais') [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.table.Table.getColumn(Table.java:778)
+	at org.h2.command.Parser.parseColumn(Parser.java:1174)
+	at org.h2.command.Parser.parseColumnList(Parser.java:1159)
+	at org.h2.command.Parser.parseMergeInto(Parser.java:1439)
+	at org.h2.command.Parser.parseMerge(Parser.java:1425)
+	at org.h2.command.Parser.parsePrepared(Parser.java:706)
+	at org.h2.command.Parser.parse(Parser.java:584)
+	at org.h2.command.Parser.parse(Parser.java:559)
+	at org.h2.command.Parser.prepareCommand(Parser.java:487)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-06 11:44:25.902079-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "DETALLE" no encontrada
+Table "DETALLE" not found; SQL statement:
+select * from detalle ventas [42102-240]
+2026-02-06 11:44:40.252112-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete [*]* from detalle_ventas"; se esperaba "identifier"
+Syntax error in SQL statement "delete [*]* from detalle_ventas"; expected "identifier"; SQL statement:
+delete * from detalle_ventas [42001-240]
+2026-02-06 11:44:42.043910-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete [*]* from detalle_ventas"; se esperaba "identifier"
+Syntax error in SQL statement "delete [*]* from detalle_ventas"; expected "identifier"; SQL statement:
+delete * from detalle_ventas [42001-240]
+2026-02-06 11:44:42.733968-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete [*]* from detalle_ventas"; se esperaba "identifier"
+Syntax error in SQL statement "delete [*]* from detalle_ventas"; expected "identifier"; SQL statement:
+delete * from detalle_ventas [42001-240]
+2026-02-06 11:44:42.911548-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete [*]* from detalle_ventas"; se esperaba "identifier"
+Syntax error in SQL statement "delete [*]* from detalle_ventas"; expected "identifier"; SQL statement:
+delete * from detalle_ventas [42001-240]
+2026-02-06 11:44:43.075562-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete [*]* from detalle_ventas"; se esperaba "identifier"
+Syntax error in SQL statement "delete [*]* from detalle_ventas"; expected "identifier"; SQL statement:
+delete * from detalle_ventas [42001-240]
+2026-02-06 11:45:03.506393-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete [*]* from ventas"; se esperaba "identifier"
+Syntax error in SQL statement "delete [*]* from ventas"; expected "identifier"; SQL statement:
+delete * from ventas [42001-240]
+2026-02-06 16:05:57.244165-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "ESTADO" no encontrada
+Column "ESTADO" not found; SQL statement:
+delete from ventas where estado='ANULADA' [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.expression.ExpressionColumn.getColumnException(ExpressionColumn.java:244)
+	at org.h2.expression.ExpressionColumn.optimizeOther(ExpressionColumn.java:226)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:213)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:148)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:149)
+	at org.h2.command.dml.Delete.doPrepare(Delete.java:99)
+	at org.h2.command.dml.DataChangeStatement.prepare(DataChangeStatement.java:40)
+	at org.h2.command.Parser.prepareCommand(Parser.java:492)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-06 16:05:57.273397-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "ESTADO" no encontrada
+Column "ESTADO" not found; SQL statement:
+delete from ventas where estado='ANULADA' [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.expression.ExpressionColumn.getColumnException(ExpressionColumn.java:244)
+	at org.h2.expression.ExpressionColumn.optimizeOther(ExpressionColumn.java:226)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:213)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:148)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:149)
+	at org.h2.command.dml.Delete.doPrepare(Delete.java:99)
+	at org.h2.command.dml.DataChangeStatement.prepare(DataChangeStatement.java:40)
+	at org.h2.command.Parser.prepareCommand(Parser.java:492)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-06 16:05:57.426427-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "ESTADO" no encontrada
+Column "ESTADO" not found; SQL statement:
+delete from ventas where estado='ANULADA' [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.expression.ExpressionColumn.getColumnException(ExpressionColumn.java:244)
+	at org.h2.expression.ExpressionColumn.optimizeOther(ExpressionColumn.java:226)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:213)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:148)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:149)
+	at org.h2.command.dml.Delete.doPrepare(Delete.java:99)
+	at org.h2.command.dml.DataChangeStatement.prepare(DataChangeStatement.java:40)
+	at org.h2.command.Parser.prepareCommand(Parser.java:492)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-06 16:05:57.979356-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Columna "ESTADO" no encontrada
+Column "ESTADO" not found; SQL statement:
+delete from ventas where estado='ANULADA' [42122-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.expression.ExpressionColumn.getColumnException(ExpressionColumn.java:244)
+	at org.h2.expression.ExpressionColumn.optimizeOther(ExpressionColumn.java:226)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:213)
+	at org.h2.expression.condition.Comparison.optimize(Comparison.java:148)
+	at org.h2.expression.Expression.optimizeCondition(Expression.java:149)
+	at org.h2.command.dml.Delete.doPrepare(Delete.java:99)
+	at org.h2.command.dml.DataChangeStatement.prepare(DataChangeStatement.java:40)
+	at org.h2.command.Parser.prepareCommand(Parser.java:492)
+	at org.h2.engine.SessionLocal.prepareLocal(SessionLocal.java:647)
+	at org.h2.engine.SessionLocal.prepareCommand(SessionLocal.java:563)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1160)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:245)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1344)
+	at org.h2.server.web.WebApp.query(WebApp.java:1142)
+	at org.h2.server.web.WebApp.query(WebApp.java:1118)
+	at org.h2.server.web.WebApp.process(WebApp.java:244)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:176)
+	at org.h2.server.web.JakartaWebServlet.doGet(JakartaWebServlet.java:129)
+	at org.h2.server.web.JakartaWebServlet.doPost(JakartaWebServlet.java:166)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:653)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:723)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:128)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:199)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:107)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:77)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:341)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1778)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:946)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:480)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:57)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-02-06 16:06:39.064609-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete from ventas where estado_venta='ANULADA'\000d\000a\000d\000a[*]select * from detalles_venta"
+Syntax error in SQL statement "delete from ventas where estado_venta='ANULADA'\000d\000a\000d\000a[*]select * from detalles_venta"; SQL statement:
+delete from ventas where estado_venta='ANULADA'
+
+select * from detalles_venta [42000-240]
+2026-02-06 16:06:41.271966-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete from ventas where estado_venta='ANULADA'\000d\000a\000d\000a[*]select * from detalles_venta"
+Syntax error in SQL statement "delete from ventas where estado_venta='ANULADA'\000d\000a\000d\000a[*]select * from detalles_venta"; SQL statement:
+delete from ventas where estado_venta='ANULADA'
+
+select * from detalles_venta [42000-240]
+2026-02-06 16:06:51.192678-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete from ventas where estado_venta='ANULADA'\000d\000a\000d\000a[*]select * from detalle_ventas"
+Syntax error in SQL statement "delete from ventas where estado_venta='ANULADA'\000d\000a\000d\000a[*]select * from detalle_ventas"; SQL statement:
+delete from ventas where estado_venta='ANULADA'
+
+select * from detalle_ventas [42000-240]
+2026-02-06 16:09:25.726690-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete from detalle_ventas d [*]join ventas e on d.id_venta = e.id_venta where precio_venta='ANULADA'"
+Syntax error in SQL statement "delete from detalle_ventas d [*]join ventas e on d.id_venta = e.id_venta where precio_venta='ANULADA'"; SQL statement:
+delete from detalle_ventas d join ventas e on d.id_venta = e.id_venta where precio_venta='ANULADA' [42000-240]
+2026-02-06 16:09:43.331571-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "delete from detalle_ventas d [*]join ventas e on d.id_venta = e.id_venta where estado_venta='ANULADA'"
+Syntax error in SQL statement "delete from detalle_ventas d [*]join ventas e on d.id_venta = e.id_venta where estado_venta='ANULADA'"; SQL statement:
+delete from detalle_ventas d join ventas e on d.id_venta = e.id_venta where estado_venta='ANULADA' [42000-240]
+2026-02-06 16:12:23.626933-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "VENTA" no encontrada
+Table "VENTA" not found; SQL statement:
+select * from venta [42102-240]
+2026-02-21 11:03:07.731235-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "DELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE [*]FROM CLIENTES\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS"
+Syntax error in SQL statement "DELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE [*]FROM CLIENTES\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS"; SQL statement:
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CLIENTES
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS [42000-240]
+2026-02-21 11:03:11.387166-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "DELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE [*]FROM CLIENTES\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS"
+Syntax error in SQL statement "DELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE [*]FROM CLIENTES\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS"; SQL statement:
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CLIENTES
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS [42000-240]
+2026-02-21 11:03:12.502990-05:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Error de Sintaxis en sentencia SQL "DELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE [*]FROM CLIENTES\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS"
+Syntax error in SQL statement "DELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE [*]FROM CLIENTES\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS\000d\000aDELETE FROM CATEGORIA_PRODUCTOS"; SQL statement:
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CLIENTES
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS
+DELETE FROM CATEGORIA_PRODUCTOS [42000-240]

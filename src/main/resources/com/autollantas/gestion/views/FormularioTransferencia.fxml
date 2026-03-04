@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane styleClass="modal-overlay" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.controllers.FormularioTransferenciaController">
+
+    <VBox alignment="TOP_CENTER" maxHeight="400" maxWidth="650" spacing="10.0" styleClass="card-form">
+
+        <HBox alignment="CENTER_LEFT">
+            <VBox spacing="4">
+                <Label styleClass="lbl-titulo" text="Nueva Transferencia" />
+                <Label style="-fx-text-fill: #7f8c8d; -fx-font-size: 12px;" text="Mover dinero entre cuentas internas" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#cerrarModal" prefHeight="26.0" prefWidth="42.0" styleClass="btn-cerrar" text="✕" />
+        </HBox>
+
+        <Separator style="-fx-opacity: 0.5;" />
+
+        <GridPane hgap="25.0" vgap="20.0">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="95.0" minWidth="51.0" prefWidth="51.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="227.0" minWidth="131.0" prefWidth="196.0" />
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="102.0" minWidth="41.0" prefWidth="66.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="220.0" minWidth="145.0" prefWidth="182.0" />
+            </columnConstraints>
+
+            <Label styleClass="lbl-campo" text="Origen" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <ComboBox fx:id="comboOrigen" maxWidth="Infinity" promptText="Seleccione..." styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+            <Label styleClass="lbl-campo" text="Destino" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+            <ComboBox fx:id="comboDestino" maxWidth="Infinity" promptText="Seleccione..." styleClass="input-moderno" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+            <Label styleClass="lbl-campo" text="Monto" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <TextField fx:id="txtMonto" promptText="\$ 0.0" styleClass="input-moderno, input-total" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+            <Label styleClass="lbl-campo" text="Concepto" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <TextField fx:id="txtConcepto" promptText="Ej: Cierre de caja" styleClass="input-moderno" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+            <rowConstraints>
+                <RowConstraints />
+                <RowConstraints />
+            </rowConstraints>
+        </GridPane>
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 10 0 0 0;">
+            <Button cancelButton="true" onAction="#cerrarModal" styleClass="btn-secondary" text="Cancelar" />
+            <Button defaultButton="true" onAction="#guardarTransferencia" styleClass="btn-primary" text="Realizar Transferencia" />
+        </HBox>
+
+    </VBox>
+</StackPane>
