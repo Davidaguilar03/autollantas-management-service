@@ -2,8 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Cuenta;
 import com.autollantas.gestion.model.IngresoOcasional;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.IngresoOcasionalRepository;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,8 +33,7 @@ import java.util.Optional;
 @Component
 public class IngresoOcasionalController {
 
-    @Autowired private IngresoOcasionalRepository ingresoRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private TesoreriaService tesoreriaService;
     @Autowired
     private org.springframework.context.ApplicationContext springContext;
 
@@ -84,7 +82,7 @@ public class IngresoOcasionalController {
 
     private void cargarDatosDB() {
         Platform.runLater(() -> {
-            List<IngresoOcasional> lista = ingresoRepo.findAll();
+            List<IngresoOcasional> lista = tesoreriaService.findAllIngresosOcasionales();
             masterData.setAll(lista);
             actualizarLabelRegistros();
         });
@@ -170,12 +168,7 @@ public class IngresoOcasionalController {
             return;
         }
 
-        Cuenta c = nuevo.getCuenta();
-        Double saldoActual = (c.getSaldoActual() != null) ? c.getSaldoActual() : 0.0;
-        c.setSaldoActual(saldoActual + nuevo.getMontoIngreso());
-        cuentaRepo.save(c);
-
-        ingresoRepo.save(nuevo);
+        tesoreriaService.saveIngresoOcasional(nuevo, true);
 
         cargarDatosDB();
         mostrarAlerta("Éxito", "Ingreso registrado y saldo actualizado.");
@@ -194,14 +187,7 @@ public class IngresoOcasionalController {
             Optional<ButtonType> res = alert.showAndWait();
             if(res.isPresent() && res.get() == ButtonType.OK) {
 
-                Cuenta c = seleccionado.getCuenta();
-                if(c != null) {
-                    Double saldo = (c.getSaldoActual() != null) ? c.getSaldoActual() : 0.0;
-                    c.setSaldoActual(saldo - seleccionado.getMontoIngreso());
-                    cuentaRepo.save(c);
-                }
-
-                ingresoRepo.delete(seleccionado);
+                tesoreriaService.deleteIngresoOcasional(seleccionado);
                 masterData.remove(seleccionado);
                 actualizarLabelRegistros();
             }
@@ -339,7 +325,7 @@ public class IngresoOcasionalController {
     }
 
     private void configurarFiltrosUI() {
-        List<Cuenta> cuentas = cuentaRepo.findAll();
+        List<Cuenta> cuentas = tesoreriaService.findAllCuentas();
         comboCuenta.setConverter(getStringConverterCuenta());
         comboCuenta.getItems().setAll(cuentas);
     }

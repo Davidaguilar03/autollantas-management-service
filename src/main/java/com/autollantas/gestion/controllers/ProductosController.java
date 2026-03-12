@@ -1,7 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Producto;
-import com.autollantas.gestion.repository.ProductoRepository;
+import com.autollantas.gestion.service.InventarioService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class ProductosController {
 
     @Autowired
-    private ProductoRepository productoRepository;
+    private InventarioService inventarioService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private ComboBox<String> comboCategoria;
@@ -90,11 +90,10 @@ public class ProductosController {
     }
 
     private void cargarDatosDB() {
-        if (productoRepository == null) return;
-
+        if (inventarioService == null) return;
 
         new Thread(() -> {
-            List<Producto> productos = productoRepository.findAll();
+            List<Producto> productos = inventarioService.findAllProductos();
 
             Platform.runLater(() -> {
                 masterData.setAll(productos);
@@ -398,7 +397,7 @@ public class ProductosController {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 try {
-                    productoRepository.delete(p);
+                    inventarioService.deleteProducto(p);
                     masterData.remove(p);
                     actualizarInfoRegistros();
                     cargarCategoriasDesdeDatos();

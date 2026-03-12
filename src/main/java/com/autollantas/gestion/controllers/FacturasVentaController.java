@@ -1,13 +1,7 @@
 package com.autollantas.gestion.controllers;
 
-import com.autollantas.gestion.model.DetalleVenta;
-import com.autollantas.gestion.model.Producto;
 import com.autollantas.gestion.model.Venta;
-import com.autollantas.gestion.repository.DetalleVentaRepository;
-import com.autollantas.gestion.repository.ProductoRepository;
-import com.autollantas.gestion.repository.VentaRepository;
-import com.autollantas.gestion.repository.ClienteRepository;
-import com.autollantas.gestion.repository.CuentaRepository;
+import com.autollantas.gestion.service.VentasService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -46,12 +40,7 @@ import java.util.Optional;
 @Scope("prototype")
 public class FacturasVentaController {
 
-    @Autowired private VentaRepository ventaRepo;
-    @Autowired private ClienteRepository clienteRepo;
-    @Autowired private CuentaRepository cuentaRepo;
-
-    @Autowired private DetalleVentaRepository detalleRepo;
-    @Autowired private ProductoRepository productoRepo;
+    @Autowired private VentasService ventasService;
 
     @Autowired private ApplicationContext springContext;
 
@@ -133,7 +122,7 @@ public class FacturasVentaController {
     private void cargarDatosBaseDatos() {
         Platform.runLater(() -> {
             try {
-                List<Venta> ventasDB = ventaRepo.findAll();
+                List<Venta> ventasDB = ventasService.findAllVentas();
                 masterData.setAll(ventasDB);
                 actualizarLabelRegistros();
                 aplicarFiltros();
@@ -208,17 +197,7 @@ public class FacturasVentaController {
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 try {
-                    List<DetalleVenta> detalles = detalleRepo.findByVenta(sel);
-                    for (DetalleVenta det : detalles) {
-                        Producto p = det.getProducto();
-                        if (p != null) {
-                            p.setCantidad(p.getCantidad() + det.getCantidadVenta());
-                            productoRepo.save(p);
-                        }
-                    }
-
-                    sel.setEstadoVenta("ANULADA");
-                    ventaRepo.save(sel);
+                    ventasService.anularVenta(sel);
 
                     tablaFacturas.refresh();
                     aplicarFiltros();
@@ -550,3 +529,4 @@ public class FacturasVentaController {
         dpVencimientoDesde.setValue(null); dpVencimientoHasta.setValue(null);
     }
 }
+

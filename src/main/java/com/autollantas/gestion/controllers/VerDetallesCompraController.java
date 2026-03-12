@@ -2,7 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.DetalleCompra;
 import com.autollantas.gestion.model.Compra;
-import com.autollantas.gestion.repository.DetalleCompraRepository;
+import com.autollantas.gestion.service.ComprasService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -28,7 +28,7 @@ import java.util.Locale;
 public class VerDetallesCompraController {
 
     @Autowired
-    private DetalleCompraRepository detalleRepo;
+    private ComprasService comprasService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblProveedor;
@@ -113,7 +113,7 @@ public class VerDetallesCompraController {
     }
 
     private void cargarDetalles(Compra compra) {
-        List<DetalleCompra> detalles = detalleRepo.findByCompra(compra);
+        List<DetalleCompra> detalles = comprasService.findDetallesByCompra(compra);
         tablaDetalles.setItems(FXCollections.observableArrayList(detalles));
     }
 

@@ -2,8 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.CategoriaProducto;
 import com.autollantas.gestion.model.Producto;
-import com.autollantas.gestion.repository.CategoriaProductoRepository;
-import com.autollantas.gestion.repository.ProductoRepository;
+import com.autollantas.gestion.service.InventarioService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -21,9 +20,7 @@ import java.util.Locale;
 public class FormularioProductoController {
 
     @Autowired
-    private ProductoRepository productoRepository;
-    @Autowired
-    private CategoriaProductoRepository categoriaRepository;
+    private InventarioService inventarioService;
 
     @FXML private Label lblTitulo;
     @FXML private TextField txtCodigo;
@@ -168,7 +165,7 @@ public class FormularioProductoController {
             productoActual.setPrecioIvaProducto(total);
             productoActual.setCantidad(spinnerStock.getValue());
 
-            productoRepository.save(productoActual);
+            inventarioService.saveProducto(productoActual);
 
             guardado = true;
             cerrarVentana();
@@ -233,7 +230,7 @@ public class FormularioProductoController {
     }
 
     private void configurarComboCategorias() {
-        List<CategoriaProducto> categorias = categoriaRepository.findAll();
+        List<CategoriaProducto> categorias = inventarioService.findAllCategorias();
         comboCategoria.setItems(FXCollections.observableArrayList(categorias));
         comboCategoria.setConverter(new StringConverter<CategoriaProducto>() {
             @Override public String toString(CategoriaProducto cat) { return cat != null ? cat.getNombreCategoriaProducto() : ""; }

@@ -1,7 +1,9 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.*;
-import com.autollantas.gestion.repository.*;
+import com.autollantas.gestion.service.InventarioService;
+import com.autollantas.gestion.service.TesoreriaService;
+import com.autollantas.gestion.service.VentasService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -34,11 +36,9 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class FormularioVentaController {
 
-    @Autowired private VentaRepository ventaRepo;
-    @Autowired private DetalleVentaRepository detalleRepo;
-    @Autowired private ClienteRepository clienteRepo;
-    @Autowired private ProductoRepository productoRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private VentasService ventasService;
+    @Autowired private InventarioService inventarioService;
+    @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private VBox rootFormulario;
     @FXML private TextField txtNumeroFactura;
@@ -104,38 +104,17 @@ public class FormularioVentaController {
     }
 
     private void cargarDatosIniciales() {
-        todosLosClientes = FXCollections.observableArrayList(clienteRepo.findAll());
-        List<Producto> productosConStock = productoRepo.findAll().stream()
-                .filter(p -> p.getCantidad() != null && p.getCantidad() > 0)
-                .collect(Collectors.toList());
+        todosLosClientes = FXCollections.observableArrayList(ventasService.findAllClientes());
+        List<Producto> productosConStock = inventarioService.findProductosConStock();
         todosLosProductos = FXCollections.observableArrayList(productosConStock);
-        todasLasCuentas = FXCollections.observableArrayList(cuentaRepo.findAll());
+        todasLasCuentas = FXCollections.observableArrayList(tesoreriaService.findAllCuentas());
 
         generarSiguienteNumeroFactura();
     }
 
     private void generarSiguienteNumeroFactura() {
         try {
-            List<Venta> ventas = ventaRepo.findAll();
-            long maximo = 0;
-
-            for (Venta v : ventas) {
-                String numeroFactura = v.getNumeroFacturaVenta();
-                if (numeroFactura != null && !numeroFactura.isEmpty()) {
-                    String soloNumeros = numeroFactura.replaceAll("\\D+", "");
-                    if (!soloNumeros.isEmpty()) {
-                        long actual = Long.parseLong(soloNumeros);
-                        if (actual > maximo) {
-                            maximo = actual;
-                        }
-                    }
-                }
-            }
-
-            long siguienteNumero = maximo > 0 ? maximo + 1 : 1;
-
-            txtNumeroFactura.setText(String.format("VEN-%05d", siguienteNumero));
-
+            txtNumeroFactura.setText(ventasService.generarSiguienteNumeroFactura());
         } catch (Exception e) {
             e.printStackTrace();
             txtNumeroFactura.setText("VEN-00001");
@@ -223,7 +202,7 @@ public class FormularioVentaController {
 
         txtNotas.setText(venta.getNotasVenta());
 
-        List<DetalleVenta> detallesDB = detalleRepo.findByVenta(venta);
+        List<DetalleVenta> detallesDB = ventasService.findDetallesByVenta(venta);
         List<DetalleVentaRow> rows = new ArrayList<>();
 
         for (DetalleVenta d : detallesDB) {
@@ -662,41 +641,22 @@ public class FormularioVentaController {
 
             venta.setEstadoVenta("Crédito".equals(comboFormaPago.getValue()) ? "PENDIENTE" : "PAGADA");
 
-            Venta ventaGuardada = ventaRepo.save(venta);
 
-            if (modoEdicion) {
-                List<DetalleVenta> detallesAntiguos = detalleRepo.findByVenta(ventaGuardada);
-                for (DetalleVenta oldDet : detallesAntiguos) {
-                    Producto p = oldDet.getProducto();
-                    if (p != null) {
-                        p.setCantidad(p.getCantidad() + oldDet.getCantidadVenta());
-                        productoRepo.save(p);
-                    }
-                }
-                detalleRepo.deleteAll(detallesAntiguos);
-            }
+            List<DetalleVenta> detalles = listaDetalles.stream()
+                    .filter(r -> r.getProducto() != null)
+                    .map(row -> {
+                        DetalleVenta det = new DetalleVenta();
+                        det.setProducto(row.getProducto());
+                        det.setCantidadVenta(row.getCantidad());
+                        det.setPrecioVenta(row.getPrecio());
+                        det.setDescuentoVenta(row.getDescuento());
+                        det.setImpuestoVenta(row.getImpuesto());
+                        det.setSubtotalVenta(row.getTotalLinea());
+                        return det;
+                    })
+                    .toList();
 
-            for (DetalleVentaRow row : listaDetalles) {
-                if (row.getProducto() == null) continue;
-
-                DetalleVenta det = new DetalleVenta();
-                det.setVenta(ventaGuardada);
-                det.setProducto(row.getProducto());
-                det.setCantidadVenta(row.getCantidad());
-                det.setPrecioVenta(row.getPrecio());
-                det.setDescuentoVenta(row.getDescuento());
-                det.setImpuestoVenta(row.getImpuesto());
-                det.setSubtotalVenta(row.getTotalLinea());
-                detalleRepo.save(det);
-
-                Producto p = row.getProducto();
-                Optional<Producto> pOpt = productoRepo.findById(p.getIdProducto());
-                if(pOpt.isPresent()) {
-                    Producto pReal = pOpt.get();
-                    pReal.setCantidad(pReal.getCantidad() - row.getCantidad());
-                    productoRepo.save(pReal);
-                }
-            }
+            ventasService.guardarVentaConDetalles(venta, detalles, modoEdicion);
 
             mostrarAlerta("Éxito", "Venta guardada correctamente.");
             navegarHaciaAtras();
@@ -712,22 +672,13 @@ public class FormularioVentaController {
         String nombreEscrito = comboCliente.getEditor().getText();
         String docEscrito = txtDocumento.getText();
 
-        if (seleccionado != null && seleccionado.getNombreCliente().equalsIgnoreCase(nombreEscrito)) {
-            seleccionado.setNumeroDocumentoCliente(docEscrito);
-            seleccionado.setCorreoCliente(txtCorreo.getText());
-            seleccionado.setCelularCliente(txtCelular.getText());
-            return clienteRepo.save(seleccionado);
-        }
-
-        Optional<Cliente> existente = clienteRepo.findByNumeroDocumentoCliente(docEscrito);
-        Cliente c = existente.orElse(new Cliente());
-
-        c.setNombreCliente(nombreEscrito);
-        c.setNumeroDocumentoCliente(docEscrito);
-        c.setCorreoCliente(txtCorreo.getText());
-        c.setCelularCliente(txtCelular.getText());
-
-        return clienteRepo.save(c);
+        return ventasService.guardarOActualizarCliente(
+                seleccionado,
+                nombreEscrito,
+                docEscrito,
+                txtCorreo.getText(),
+                txtCelular.getText()
+        );
     }
 
     @FXML void btnCancelarClick(ActionEvent event) { navegarHaciaAtras(); }

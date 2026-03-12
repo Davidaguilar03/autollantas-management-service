@@ -1,7 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Compra;
-import com.autollantas.gestion.repository.CompraRepository;
+import com.autollantas.gestion.service.ComprasService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
@@ -40,7 +40,7 @@ import java.util.Locale;
 @Component
 public class PagosController {
 
-    @Autowired private CompraRepository compraRepo;
+    @Autowired private ComprasService comprasService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtNumero;
@@ -165,10 +165,10 @@ public class PagosController {
     }
 
     private void cargarDatosDB() {
-        if (compraRepo == null) return;
+        if (comprasService == null) return;
         Platform.runLater(() -> {
             try {
-                List<Compra> lista = compraRepo.findAll();
+                List<Compra> lista = comprasService.findAllCompras();
                 masterData.setAll(lista);
                 actualizarInfoRegistros();
             } catch (Exception e) {

@@ -1,7 +1,9 @@
 package com.autollantas.gestion.controllers;
 
-import com.autollantas.gestion.model.*;
-import com.autollantas.gestion.repository.*;
+import com.autollantas.gestion.model.GastoOperativo;
+import com.autollantas.gestion.model.IngresoOcasional;
+import com.autollantas.gestion.model.Movimiento;
+import com.autollantas.gestion.service.DashboardService;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -44,12 +46,7 @@ import java.util.Locale;
 @Component
 public class PanelControlController {
 
-    @Autowired private VentaRepository ventaRepo;
-    @Autowired private CompraRepository compraRepo;
-    @Autowired private GastoOperativoRepository gastoRepo;
-    @Autowired private IngresoOcasionalRepository ingresoOcasionalRepo;
-    @Autowired private ProductoRepository productoRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private DashboardService dashboardService;
 
     @Autowired private ApplicationContext springContext;
 
@@ -127,61 +124,7 @@ public class PanelControlController {
         LocalDate inicio = dateDesde.getValue();
         LocalDate fin = dateHasta.getValue();
 
-        List<Movimiento> listaUnificada = new ArrayList<>();
-
-        List<Venta> ventas = ventaRepo.findByFechaVentaBetween(inicio, fin);
-        for (Venta v : ventas) {
-            Movimiento mov = new Movimiento(
-                    v.getFechaVenta(),
-                    v.getIdVenta(),
-                    "Venta",
-                    v.getTotalVenta(),
-                    v.getCuenta()
-            );
-            mov.setTablaOrigenMovimiento("VENTA");
-            listaUnificada.add(mov);
-        }
-
-        List<Compra> compras = compraRepo.findByFechaCompraBetween(inicio, fin);
-        for (Compra c : compras) {
-            Movimiento mov = new Movimiento(
-                    c.getFechaCompra(),
-                    c.getIdCompra(),
-                    "Costo",
-                    c.getTotalCompra(),
-                    c.getCuenta()
-            );
-            mov.setTablaOrigenMovimiento("COMPRA");
-            listaUnificada.add(mov);
-        }
-
-        List<GastoOperativo> gastos = gastoRepo.findByFechaGastoBetween(inicio, fin);
-        for (GastoOperativo g : gastos) {
-            Movimiento mov = new Movimiento(
-                    g.getFechaGasto(),
-                    g.getIdGasto(),
-                    "Gasto",
-                    g.getMontoGasto(),
-                    g.getCuenta()
-            );
-            mov.setTablaOrigenMovimiento("GASTO: " + g.getConceptoGasto());
-            listaUnificada.add(mov);
-        }
-
-        List<IngresoOcasional> ingresos = ingresoOcasionalRepo.findByFechaIngresoBetween(inicio, fin);
-        for (IngresoOcasional i : ingresos) {
-            Movimiento mov = new Movimiento(
-                    i.getFechaIngreso(),
-                    i.getIdIngreso(),
-                    "Ingreso",
-                    i.getMontoIngreso(),
-                    i.getCuenta()
-            );
-            mov.setTablaOrigenMovimiento("OTRO: " + i.getConceptoIngreso());
-            listaUnificada.add(mov);
-        }
-
-        listaUnificada.sort((m1, m2) -> m2.getFechaMovimiento().compareTo(m1.getFechaMovimiento()));
+        List<Movimiento> listaUnificada = dashboardService.obtenerMovimientos(inicio, fin);
         masterData.setAll(listaUnificada);
 
         recalcularTotales();
@@ -190,29 +133,12 @@ public class PanelControlController {
 
     private void cargarKPIsGlobales() {
         Platform.runLater(() -> {
-            double totalPorCobrar = ventaRepo.findAll().stream()
-                    .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstadoVenta()))
-                    .mapToDouble(Venta::getTotalVenta)
-                    .sum();
+            DashboardService.DashboardKpis kpis = dashboardService.obtenerKpisGlobales();
 
-            double totalPorPagar = compraRepo.findAll().stream()
-                    .filter(c -> "PENDIENTE".equalsIgnoreCase(c.getEstadoCompra()))
-                    .mapToDouble(Compra::getTotalCompra)
-                    .sum();
-
-            double saldoTotal = cuentaRepo.findAll().stream()
-                    .mapToDouble(c -> c.getSaldoActual() != null ? c.getSaldoActual() : 0.0)
-                    .sum();
-
-            long numAlertas = productoRepo.findAll().stream()
-                    .filter(p -> p.getCategoria() != null &&
-                            p.getCantidad() <= p.getCategoria().getStockMinAmarillo())
-                    .count();
-
-            actualizarLabelInteligente(lblPorCobrar, totalPorCobrar);
-            actualizarLabelInteligente(lblPorPagar, totalPorPagar);
-            actualizarLabelInteligente(lblSaldo, saldoTotal);
-            if (lblAlertas != null) lblAlertas.setText(numAlertas + " Productos");
+            actualizarLabelInteligente(lblPorCobrar, kpis.getTotalPorCobrar());
+            actualizarLabelInteligente(lblPorPagar, kpis.getTotalPorPagar());
+            actualizarLabelInteligente(lblSaldo, kpis.getSaldoTotal());
+            if (lblAlertas != null) lblAlertas.setText(kpis.getNumeroAlertas() + " Productos");
         });
     }
 

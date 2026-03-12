@@ -3,9 +3,7 @@ package com.autollantas.gestion.controllers;
 import com.autollantas.gestion.model.Compra;
 import com.autollantas.gestion.model.DetalleCompra;
 import com.autollantas.gestion.model.Producto;
-import com.autollantas.gestion.repository.CompraRepository;
-import com.autollantas.gestion.repository.DetalleCompraRepository;
-import com.autollantas.gestion.repository.ProductoRepository;
+import com.autollantas.gestion.service.ComprasService;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -44,9 +42,7 @@ import java.util.Locale;
 @Component
 public class FacturasCompraController {
 
-    @Autowired private CompraRepository compraRepo;
-    @Autowired private DetalleCompraRepository detalleRepo;
-    @Autowired private ProductoRepository productoRepo;
+    @Autowired private ComprasService comprasService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtNumero;
@@ -113,10 +109,10 @@ public class FacturasCompraController {
     }
 
     private void cargarDatosDB() {
-        if (compraRepo == null) return;
+        if (comprasService == null) return;
         Platform.runLater(() -> {
             try {
-                List<Compra> lista = compraRepo.findAll();
+                List<Compra> lista = comprasService.findAllCompras();
                 masterData.setAll(lista);
                 actualizarLabelRegistros();
             } catch (Exception e) {
@@ -201,17 +197,7 @@ public class FacturasCompraController {
 
             if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
                 try {
-                    List<DetalleCompra> detalles = detalleRepo.findByCompra(sel);
-                    for (DetalleCompra det : detalles) {
-                        Producto p = det.getProducto();
-                        if (p != null) {
-                            p.setCantidad(p.getCantidad() - det.getCantidadCompra());
-                            productoRepo.save(p);
-                        }
-                    }
-
-                    sel.setEstadoCompra("ANULADA");
-                    compraRepo.save(sel);
+                    comprasService.anularCompra(sel);
 
                     tablaFacturasCompra.refresh();
                     aplicarFiltros();
