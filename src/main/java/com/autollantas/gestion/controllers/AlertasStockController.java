@@ -1,7 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Producto;
-import com.autollantas.gestion.repository.ProductoRepository;
+import com.autollantas.gestion.service.InventarioService;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -22,7 +22,7 @@ import java.util.*;
 public class AlertasStockController {
 
     @Autowired
-    private ProductoRepository productoRepository;
+    private InventarioService inventarioService;
 
     @FXML private Label lblKpiCritico;
     @FXML private Label lblKpiAdvertencia;
@@ -70,11 +70,11 @@ public class AlertasStockController {
     }
 
     private void cargarDatosDB() {
-        if (productoRepository == null) return;
+        if (inventarioService == null) return;
         if (loaderScroll != null) loaderScroll.setVisible(true);
 
         new Thread(() -> {
-            List<Producto> productosDB = productoRepository.findAll();
+            List<Producto> productosDB = inventarioService.findAllProductos();
             List<ProductAlertDTO> dtos = new ArrayList<>();
             Set<String> categoriasEncontradas = new HashSet<>();
 

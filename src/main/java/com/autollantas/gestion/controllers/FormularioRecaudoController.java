@@ -3,9 +3,8 @@ package com.autollantas.gestion.controllers;
 import com.autollantas.gestion.model.Cuenta;
 import com.autollantas.gestion.model.Recaudo;
 import com.autollantas.gestion.model.Venta;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.RecaudoRepository;
-import com.autollantas.gestion.repository.VentaRepository;
+import com.autollantas.gestion.service.TesoreriaService;
+import com.autollantas.gestion.service.VentasService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,9 +24,8 @@ import java.util.Locale;
 @Component
 public class FormularioRecaudoController {
 
-    @Autowired private VentaRepository ventaRepo;
-    @Autowired private CuentaRepository cuentaRepo;
-    @Autowired private RecaudoRepository recaudoRepo;
+    @Autowired private VentasService ventasService;
+    @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblCliente;
@@ -51,7 +49,7 @@ public class FormularioRecaudoController {
     }
 
     private void cargarCombos() {
-        comboCuenta.getItems().addAll(cuentaRepo.findAll());
+        comboCuenta.getItems().addAll(tesoreriaService.findAllCuentas());
         comboCuenta.setConverter(new StringConverter<>() {
             @Override public String toString(Cuenta c) { return c != null ? c.getNombreCuenta() : ""; }
             @Override public Cuenta fromString(String s) { return null; }
@@ -126,33 +124,11 @@ public class FormularioRecaudoController {
                 return;
             }
 
-            Recaudo nuevoRecaudo = new Recaudo();
-            nuevoRecaudo.setVenta(ventaActual);
-            nuevoRecaudo.setCuenta(cuentaDestino);
-            nuevoRecaudo.setFechaRecaudo(fechaPago);
-            nuevoRecaudo.setMetodoPagoRecaudo(metodoPago);
-            nuevoRecaudo.setValorRecaudo(montoAbono);
-
-            recaudoRepo.save(nuevoRecaudo);
-
-            double saldoCuenta = cuentaDestino.getSaldoActual() != null ? cuentaDestino.getSaldoActual() : 0.0;
-            cuentaDestino.setSaldoActual(saldoCuenta + montoAbono);
-            cuentaRepo.save(cuentaDestino);
+            ventasService.registrarRecaudo(ventaActual, cuentaDestino, fechaPago, metodoPago, montoAbono);
 
             double nuevoSaldo = deudaActual - montoAbono;
             if (nuevoSaldo < 0) nuevoSaldo = 0.0;
 
-            ventaActual.setSaldoPendiente(nuevoSaldo);
-            ventaActual.setCuenta(cuentaDestino);
-            ventaActual.setMedioPagoVenta(metodoPago);
-
-            if (nuevoSaldo <= 0) {
-                ventaActual.setEstadoVenta("PAGADA");
-            } else {
-                ventaActual.setEstadoVenta("PENDIENTE");
-            }
-
-            ventaRepo.save(ventaActual);
 
             guardado = true;
 

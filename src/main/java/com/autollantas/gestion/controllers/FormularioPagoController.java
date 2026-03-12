@@ -2,10 +2,8 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Compra;
 import com.autollantas.gestion.model.Cuenta;
-import com.autollantas.gestion.model.Pago;
-import com.autollantas.gestion.repository.CompraRepository;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.PagoRepository;
+import com.autollantas.gestion.service.ComprasService;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,9 +23,8 @@ import java.util.Locale;
 @Component
 public class FormularioPagoController {
 
-    @Autowired private CompraRepository compraRepo;
-    @Autowired private CuentaRepository cuentaRepo;
-    @Autowired private PagoRepository pagoRepo;
+    @Autowired private ComprasService comprasService;
+    @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblProveedor;
@@ -52,7 +49,7 @@ public class FormularioPagoController {
     }
 
     private void cargarCombos() {
-        comboCuenta.getItems().addAll(cuentaRepo.findAll());
+        comboCuenta.getItems().addAll(tesoreriaService.findAllCuentas());
         comboCuenta.setConverter(new StringConverter<>() {
             @Override public String toString(Cuenta c) { return c != null ? c.getNombreCuenta() : ""; }
             @Override public Cuenta fromString(String s) { return null; }
@@ -129,33 +126,11 @@ public class FormularioPagoController {
                 return;
             }
 
-            Pago nuevoPago = new Pago();
-            nuevoPago.setCompra(compraActual);
-            nuevoPago.setCuenta(cuentaOrigen);
-            nuevoPago.setFechaPago(fecha);
-            nuevoPago.setMetodoPagoPago(metodo);
-            nuevoPago.setValorPago(montoPago);
-
-            pagoRepo.save(nuevoPago);
-
-            double saldoCuenta = cuentaOrigen.getSaldoActual() != null ? cuentaOrigen.getSaldoActual() : 0.0;
-            cuentaOrigen.setSaldoActual(saldoCuenta - montoPago);
-            cuentaRepo.save(cuentaOrigen);
+            comprasService.registrarPago(compraActual, cuentaOrigen, fecha, metodo, montoPago);
 
             double nuevoSaldo = deudaActual - montoPago;
             if (nuevoSaldo < 0) nuevoSaldo = 0.0;
 
-            compraActual.setSaldoPendiente(nuevoSaldo);
-            compraActual.setCuenta(cuentaOrigen);
-            compraActual.setMedioPagoCompra(metodo);
-
-            if (nuevoSaldo <= 0) {
-                compraActual.setEstadoCompra("PAGADA");
-            } else {
-                compraActual.setEstadoCompra("PENDIENTE");
-            }
-
-            compraRepo.save(compraActual);
 
             guardado = true;
             mostrarExitoPersonalizado("¡Pago Registrado!",

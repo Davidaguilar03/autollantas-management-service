@@ -3,9 +3,7 @@ package com.autollantas.gestion.controllers;
 import com.autollantas.gestion.model.Cuenta;
 import com.autollantas.gestion.model.Movimiento;
 import com.autollantas.gestion.model.Transferencia;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.MovimientoRepository;
-import com.autollantas.gestion.repository.TransferenciaRepository;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -36,9 +34,7 @@ import java.util.Locale;
 @Component
 public class CuentasController {
 
-    @Autowired private CuentaRepository cuentaRepository;
-    @Autowired private MovimientoRepository movimientoRepository;
-    @Autowired private TransferenciaRepository transferenciaRepository;
+    @Autowired private TesoreriaService tesoreriaService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private Label lblTotalGlobal;
@@ -93,10 +89,10 @@ public class CuentasController {
     }
 
     private void cargarDatosDB() {
-        if (cuentaRepository == null) return;
+        if (tesoreriaService == null) return;
 
         new Thread(() -> {
-            List<Cuenta> cuentas = cuentaRepository.findAll();
+            List<Cuenta> cuentas = tesoreriaService.findAllCuentas();
             cuentaCaja = cuentas.stream().filter(c -> c.getNombreCuenta().toUpperCase().contains("CAJA") || c.getNombreCuenta().toUpperCase().contains("EFECTIVO")).findFirst().orElse(null);
             cuentaBanco = cuentas.stream().filter(c -> c.getNombreCuenta().toUpperCase().contains("BANCO") || c.getNombreCuenta().toUpperCase().contains("COLOMBIA")).findFirst().orElse(null);
 
@@ -123,7 +119,7 @@ public class CuentasController {
 
     private void cargarMovimientosDeCuenta(Integer idCuenta, ObservableList<MovimientoDTO> lista, Label lblInfo) {
         lista.clear();
-        List<Movimiento> movimientos = movimientoRepository.findByCuenta_IdCuentaOrderByFechaMovimientoDesc(idCuenta);
+        List<Movimiento> movimientos = tesoreriaService.findMovimientosByCuentaId(idCuenta);
         for (Movimiento m : movimientos) {
             lista.add(new MovimientoDTO(m));
         }
@@ -132,7 +128,7 @@ public class CuentasController {
 
     private void cargarTransferenciasDeCuenta(Integer idCuenta, ObservableList<TransferenciaDTO> lista, Label lblInfo) {
         lista.clear();
-        List<Transferencia> transferencias = transferenciaRepository.findByCuentaOrigen_IdCuentaOrCuentaDestino_IdCuentaOrderByFechaTransferenciaDesc(idCuenta, idCuenta);
+        List<Transferencia> transferencias = tesoreriaService.findTransferenciasByCuentaId(idCuenta);
         for (Transferencia t : transferencias) {
             lista.add(new TransferenciaDTO(t));
         }

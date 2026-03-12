@@ -1,9 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Cuenta;
-import com.autollantas.gestion.model.Transferencia;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.TransferenciaRepository;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,8 +22,7 @@ import java.util.Locale;
 @Component
 public class FormularioTransferenciaController {
 
-    @Autowired private CuentaRepository cuentaRepository;
-    @Autowired private TransferenciaRepository transferenciaRepository;
+    @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private ComboBox<Cuenta> comboOrigen;
     @FXML private ComboBox<Cuenta> comboDestino;
@@ -74,7 +71,7 @@ public class FormularioTransferenciaController {
     }
 
     private void cargarCuentas() {
-        List<Cuenta> cuentas = cuentaRepository.findAll();
+        List<Cuenta> cuentas = tesoreriaService.findAllCuentas();
         comboOrigen.getItems().setAll(cuentas);
         comboDestino.getItems().setAll(cuentas);
     }
@@ -113,18 +110,7 @@ public class FormularioTransferenciaController {
                 return;
             }
 
-            origen.setSaldoActual(origen.getSaldoActual() - monto);
-            destino.setSaldoActual(destino.getSaldoActual() + monto);
-
-            Transferencia t = new Transferencia();
-            t.setFechaTransferencia(LocalDate.now());
-            t.setMontoTransferencia(monto);
-            t.setCuentaOrigen(origen);
-            t.setCuentaDestino(destino);
-
-            cuentaRepository.save(origen);
-            cuentaRepository.save(destino);
-            transferenciaRepository.save(t);
+            tesoreriaService.registrarTransferencia(origen, destino, monto, LocalDate.now());
 
             guardado = true;
             cerrarModal(event);

@@ -2,8 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Cuenta;
 import com.autollantas.gestion.model.GastoOperativo;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.GastoOperativoRepository;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -40,8 +39,7 @@ import java.util.Optional;
 @Component
 public class GastosOperativosController {
 
-    @Autowired private GastoOperativoRepository gastoRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private TesoreriaService tesoreriaService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtConcepto;
@@ -84,10 +82,10 @@ public class GastosOperativosController {
     }
 
     private void cargarDatosDB() {
-        if (gastoRepo == null) return;
+        if (tesoreriaService == null) return;
         Platform.runLater(() -> {
             masterData.clear();
-            List<GastoOperativo> lista = gastoRepo.findAll();
+            List<GastoOperativo> lista = tesoreriaService.findAllGastosOperativos();
             masterData.setAll(lista);
             actualizarInfoRegistros();
         });
@@ -221,8 +219,8 @@ public class GastosOperativosController {
     }
 
     private void configurarComboCuentas() {
-        if (cuentaRepo == null) return;
-        List<Cuenta> cuentas = cuentaRepo.findAll();
+        if (tesoreriaService == null) return;
+        List<Cuenta> cuentas = tesoreriaService.findAllCuentas();
         comboCuenta.getItems().clear();
 
         Cuenta todas = new Cuenta();
@@ -303,7 +301,7 @@ public class GastosOperativosController {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 try {
-                    gastoRepo.delete(seleccionado);
+                    tesoreriaService.deleteGastoOperativo(seleccionado);
                     masterData.remove(seleccionado);
                     actualizarInfoRegistros();
                 } catch (Exception e) {

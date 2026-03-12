@@ -1,7 +1,9 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.*;
-import com.autollantas.gestion.repository.*;
+import com.autollantas.gestion.service.ComprasService;
+import com.autollantas.gestion.service.InventarioService;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -33,11 +35,9 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class FormularioCompraController {
 
-    @Autowired private CompraRepository compraRepo;
-    @Autowired private DetalleCompraRepository detalleRepo;
-    @Autowired private ProveedorRepository proveedorRepo;
-    @Autowired private ProductoRepository productoRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private ComprasService comprasService;
+    @Autowired private InventarioService inventarioService;
+    @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private VBox rootFormulario;
     @FXML private TextField txtNumeroFactura;
@@ -103,35 +103,16 @@ public class FormularioCompraController {
     }
 
     private void cargarDatosIniciales() {
-        todosLosProveedores = FXCollections.observableArrayList(proveedorRepo.findAll());
-        todosLosProductos = FXCollections.observableArrayList(productoRepo.findAll());
-        todasLasCuentas = FXCollections.observableArrayList(cuentaRepo.findAll());
+        todosLosProveedores = FXCollections.observableArrayList(comprasService.findAllProveedores());
+        todosLosProductos = FXCollections.observableArrayList(inventarioService.findAllProductos());
+        todasLasCuentas = FXCollections.observableArrayList(tesoreriaService.findAllCuentas());
 
         generarSiguienteNumeroFactura();
     }
 
     private void generarSiguienteNumeroFactura() {
         try {
-            List<Compra> compras = compraRepo.findAll();
-            long maximo = 0;
-
-            for (Compra c : compras) {
-                String numeroFactura = c.getNumeroFacturaCompra();
-                if (numeroFactura != null && !numeroFactura.isEmpty()) {
-                    String soloNumeros = numeroFactura.replaceAll("\\D+", "");
-                    if (!soloNumeros.isEmpty()) {
-                        long actual = Long.parseLong(soloNumeros);
-                        if (actual > maximo) {
-                            maximo = actual;
-                        }
-                    }
-                }
-            }
-
-            long siguienteNumero = maximo > 0 ? maximo + 1 : 1;
-
-            txtNumeroFactura.setText(String.format("FAC-%05d", siguienteNumero));
-
+            txtNumeroFactura.setText(comprasService.generarSiguienteNumeroFactura());
         } catch (Exception e) {
             e.printStackTrace();
             txtNumeroFactura.setText("FAC-00001");
@@ -293,7 +274,7 @@ public class FormularioCompraController {
 
         txtNotas.setText(compra.getNotasCompra());
 
-        List<DetalleCompra> detallesDB = detalleRepo.findByCompra(compra);
+        List<DetalleCompra> detallesDB = comprasService.findDetallesByCompra(compra);
         List<DetalleCompraRow> rows = new ArrayList<>();
 
         for (DetalleCompra d : detallesDB) {
@@ -374,41 +355,22 @@ public class FormularioCompraController {
             compra.setSaldoPendiente("Crédito".equals(comboFormaPago.getValue()) ? totalFinal : 0.0);
             compra.setEstadoCompra("Crédito".equals(comboFormaPago.getValue()) ? "PENDIENTE" : "PAGADA");
 
-            Compra compraGuardada = compraRepo.save(compra);
 
-            if (modoEdicion) {
-                List<DetalleCompra> detallesAntiguos = detalleRepo.findByCompra(compraGuardada);
-                for (DetalleCompra oldDet : detallesAntiguos) {
-                    Producto p = oldDet.getProducto();
-                    if (p != null) {
-                        p.setCantidad(p.getCantidad() - oldDet.getCantidadCompra());
-                        productoRepo.save(p);
-                    }
-                }
-                detalleRepo.deleteAll(detallesAntiguos);
-            }
+            List<DetalleCompra> detalles = listaDetalles.stream()
+                    .filter(r -> r.getProducto() != null)
+                    .map(row -> {
+                        DetalleCompra det = new DetalleCompra();
+                        det.setProducto(row.getProducto());
+                        det.setCantidadCompra(row.getCantidad());
+                        det.setPrecioCompra(row.getPrecio());
+                        det.setDescuentoCompra(row.getDescuento());
+                        det.setImpuestoCompra(row.getImpuesto());
+                        det.setSubtotalCompra(row.getTotalLinea());
+                        return det;
+                    })
+                    .toList();
 
-            for (DetalleCompraRow row : listaDetalles) {
-                if (row.getProducto() == null) continue;
-
-                DetalleCompra det = new DetalleCompra();
-                det.setCompra(compraGuardada);
-                det.setProducto(row.getProducto());
-                det.setCantidadCompra(row.getCantidad());
-                det.setPrecioCompra(row.getPrecio());
-                det.setDescuentoCompra(row.getDescuento());
-                det.setImpuestoCompra(row.getImpuesto());
-                det.setSubtotalCompra(row.getTotalLinea());
-                detalleRepo.save(det);
-
-                Producto p = row.getProducto();
-                Optional<Producto> pOpt = productoRepo.findById(p.getIdProducto());
-                if(pOpt.isPresent()) {
-                    Producto pReal = pOpt.get();
-                    pReal.setCantidad(pReal.getCantidad() + row.getCantidad());
-                    productoRepo.save(pReal);
-                }
-            }
+            comprasService.guardarCompraConDetalles(compra, detalles, modoEdicion);
 
             mostrarAlerta("Éxito", "Compra guardada correctamente.");
             navegarHaciaAtras();
@@ -424,22 +386,13 @@ public class FormularioCompraController {
         String nombreEscrito = comboProveedor.getEditor().getText();
         String nitEscrito = txtNit.getText();
 
-        if (seleccionado != null && seleccionado.getNombreProveedor().equalsIgnoreCase(nombreEscrito)) {
-            seleccionado.setNumeroNitProveedor(nitEscrito);
-            seleccionado.setCorreoProveedor(txtCorreo.getText());
-            seleccionado.setCelularProveedor(txtCelular.getText());
-            return proveedorRepo.save(seleccionado);
-        }
-
-        Optional<Proveedor> existente = proveedorRepo.findByNumeroNitProveedor(nitEscrito);
-        Proveedor p = existente.orElse(new Proveedor());
-
-        p.setNombreProveedor(nombreEscrito);
-        p.setNumeroNitProveedor(nitEscrito);
-        p.setCorreoProveedor(txtCorreo.getText());
-        p.setCelularProveedor(txtCelular.getText());
-
-        return proveedorRepo.save(p);
+        return comprasService.guardarOActualizarProveedor(
+                seleccionado,
+                nombreEscrito,
+                nitEscrito,
+                txtCorreo.getText(),
+                txtCelular.getText()
+        );
     }
 
     @FXML void btnCancelarClick(ActionEvent event) { navegarHaciaAtras(); }

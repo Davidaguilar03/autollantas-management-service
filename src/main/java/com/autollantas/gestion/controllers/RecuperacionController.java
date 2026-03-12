@@ -1,7 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Configuracion;
-import com.autollantas.gestion.repository.ConfiguracionRepository;
+import com.autollantas.gestion.service.ConfiguracionService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -28,7 +28,7 @@ import java.util.Optional;
 public class RecuperacionController {
 
     @Autowired
-    private ConfiguracionRepository configRepo;
+    private ConfiguracionService configuracionService;
 
     @Autowired
     private ApplicationContext springContext;
@@ -135,7 +135,7 @@ public class RecuperacionController {
     }
 
     private void configurarPregunta(String clavePregunta, String claveRespuesta, ObservableList<String> lista) {
-        Optional<Configuracion> conf = configRepo.findByClave(clavePregunta);
+        Optional<Configuracion> conf = configuracionService.findByClave(clavePregunta);
         if (conf.isPresent()) {
             String textoPregunta = conf.get().getValor();
             lista.add(textoPregunta);
@@ -155,7 +155,7 @@ public class RecuperacionController {
         }
 
         String claveRespuestaBD = mapaPreguntaClave.get(preguntaSeleccionada);
-        Optional<Configuracion> configRespuestaReal = configRepo.findByClave(claveRespuestaBD);
+        Optional<Configuracion> configRespuestaReal = configuracionService.findByClave(claveRespuestaBD);
 
         if (configRespuestaReal.isPresent() &&
                 configRespuestaReal.get().getValor().equalsIgnoreCase(respuestaUsuario)) {
@@ -210,11 +210,11 @@ public class RecuperacionController {
             return;
         }
 
-        Optional<Configuracion> configPass = configRepo.findByClave("admin_password");
+        Optional<Configuracion> configPass = configuracionService.findByClave("admin_password");
         if (configPass.isPresent()) {
             Configuracion c = configPass.get();
             c.setValor(p1);
-            configRepo.save(c);
+            configuracionService.guardar(c);
             mostrarAlertaExito();
         } else {
             mostrarError("Error técnico: Configuración no encontrada.");

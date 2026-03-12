@@ -1,7 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Configuracion;
-import com.autollantas.gestion.repository.ConfiguracionRepository;
+import com.autollantas.gestion.service.ConfiguracionService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -26,7 +26,7 @@ import java.util.Optional;
 public class LoginController {
 
     @Autowired
-    private ConfiguracionRepository configRepo;
+    private ConfiguracionService configuracionService;
 
     @Autowired
     private ApplicationContext springContext;
@@ -86,7 +86,7 @@ public class LoginController {
                 return;
             }
 
-            Optional<Configuracion> configOpt = configRepo.findByClave("admin_password");
+            Optional<Configuracion> configOpt = configuracionService.findByClave("admin_password");
 
             if (configOpt.isPresent()) {
                 String passwordRealBD = configOpt.get().getValor();

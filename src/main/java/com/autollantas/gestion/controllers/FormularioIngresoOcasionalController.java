@@ -2,8 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Cuenta;
 import com.autollantas.gestion.model.IngresoOcasional;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.IngresoOcasionalRepository;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -21,8 +20,7 @@ import java.util.Locale;
 @Component
 public class FormularioIngresoOcasionalController {
 
-    @Autowired private IngresoOcasionalRepository ingresoRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private Label lblTitulo;
     @FXML private TextField txtConcepto;
@@ -102,14 +100,7 @@ public class FormularioIngresoOcasionalController {
             double monto = montoStr.isEmpty() ? 0 : Double.parseDouble(montoStr);
             ingresoActual.setMontoIngreso(monto);
 
-            if (esNuevo) {
-                Cuenta c = comboCuenta.getValue();
-                double saldo = c.getSaldoActual() != null ? c.getSaldoActual() : 0.0;
-                c.setSaldoActual(saldo + monto);
-                cuentaRepo.save(c);
-            }
-
-            ingresoRepo.save(ingresoActual);
+            tesoreriaService.saveIngresoOcasional(ingresoActual, esNuevo);
             guardado = true;
             cerrarVentana();
 
@@ -142,7 +133,7 @@ public class FormularioIngresoOcasionalController {
     }
 
     private void configurarComboCuentas() {
-        List<Cuenta> cuentas = cuentaRepo.findAll();
+        List<Cuenta> cuentas = tesoreriaService.findAllCuentas();
         comboCuenta.setItems(FXCollections.observableArrayList(cuentas));
         comboCuenta.setConverter(new StringConverter<Cuenta>() {
             @Override public String toString(Cuenta c) { return c != null ? c.getNombreCuenta() : ""; }

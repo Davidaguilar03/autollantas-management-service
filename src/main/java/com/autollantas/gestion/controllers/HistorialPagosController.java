@@ -2,7 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Compra;
 import com.autollantas.gestion.model.Pago;
-import com.autollantas.gestion.repository.PagoRepository;
+import com.autollantas.gestion.service.ComprasService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -22,7 +22,7 @@ import java.util.Locale;
 @Component
 public class HistorialPagosController {
 
-    @Autowired private PagoRepository pagoRepo;
+    @Autowired private ComprasService comprasService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblProveedor;
@@ -84,7 +84,7 @@ public class HistorialPagosController {
         if (compraActual == null) return;
 
         Platform.runLater(() -> {
-            List<Pago> listaPagos = pagoRepo.findByCompra(compraActual);
+            List<Pago> listaPagos = comprasService.findPagosByCompra(compraActual);
             tablaHistorial.setItems(FXCollections.observableArrayList(listaPagos));
 
             double totalPagado = listaPagos.stream().mapToDouble(Pago::getValorPago).sum();

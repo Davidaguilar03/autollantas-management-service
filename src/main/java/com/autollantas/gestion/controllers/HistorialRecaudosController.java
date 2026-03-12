@@ -2,7 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Recaudo;
 import com.autollantas.gestion.model.Venta;
-import com.autollantas.gestion.repository.RecaudoRepository;
+import com.autollantas.gestion.service.VentasService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -23,7 +23,7 @@ import java.util.Locale;
 public class HistorialRecaudosController {
 
     @Autowired
-    private RecaudoRepository recaudoRepo;
+    private VentasService ventasService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblCliente;
@@ -86,7 +86,7 @@ public class HistorialRecaudosController {
         if (ventaActual == null) return;
 
         Platform.runLater(() -> {
-            List<Recaudo> listaPagos = recaudoRepo.findByVenta(ventaActual);
+            List<Recaudo> listaPagos = ventasService.findRecaudosByVenta(ventaActual);
             tablaHistorial.setItems(FXCollections.observableArrayList(listaPagos));
 
             double totalPagado = listaPagos.stream()

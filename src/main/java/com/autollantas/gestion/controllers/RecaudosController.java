@@ -1,8 +1,7 @@
 package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Venta;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.VentaRepository;
+import com.autollantas.gestion.service.VentasService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
@@ -39,8 +38,7 @@ import java.util.Locale;
 @Component
 public class RecaudosController {
 
-    @Autowired private VentaRepository ventaRepo;
-    @Autowired private CuentaRepository cuentaRepo;
+    @Autowired private VentasService ventasService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtNumero;
@@ -102,7 +100,7 @@ public class RecaudosController {
 
     private void cargarDatosDB() {
         Platform.runLater(() -> {
-            List<Venta> lista = ventaRepo.findAll();
+            List<Venta> lista = ventasService.findAllVentas();
             masterData.setAll(lista);
             aplicarFiltros();
         });

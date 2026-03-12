@@ -2,8 +2,7 @@ package com.autollantas.gestion.controllers;
 
 import com.autollantas.gestion.model.Cuenta;
 import com.autollantas.gestion.model.GastoOperativo;
-import com.autollantas.gestion.repository.CuentaRepository;
-import com.autollantas.gestion.repository.GastoOperativoRepository;
+import com.autollantas.gestion.service.TesoreriaService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -22,9 +21,7 @@ import java.util.Locale;
 public class FormularioGastoOperativoController {
 
     @Autowired
-    private GastoOperativoRepository gastoRepository;
-    @Autowired
-    private CuentaRepository cuentaRepository;
+    private TesoreriaService tesoreriaService;
 
     @FXML private Label lblTitulo;
     @FXML private TextField txtConcepto;
@@ -119,7 +116,7 @@ public class FormularioGastoOperativoController {
             double monto = Double.parseDouble(montoStr);
             gastoActual.setMontoGasto(monto);
 
-            gastoRepository.save(gastoActual);
+            tesoreriaService.saveGastoOperativo(gastoActual);
 
             guardado = true;
             cerrarVentana();
@@ -188,7 +185,7 @@ public class FormularioGastoOperativoController {
     }
 
     private void configurarComboCuentas() {
-        List<Cuenta> cuentas = cuentaRepository.findAll();
+        List<Cuenta> cuentas = tesoreriaService.findAllCuentas();
         comboCuenta.setItems(FXCollections.observableArrayList(cuentas));
         comboCuenta.setConverter(new StringConverter<Cuenta>() {
             @Override public String toString(Cuenta c) { return c != null ? c.getNombreCuenta() : ""; }
