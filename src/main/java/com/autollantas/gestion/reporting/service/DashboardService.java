@@ -1,10 +1,14 @@
 package com.autollantas.gestion.reporting.service;
 
 import com.autollantas.gestion.purchases.model.Compra;
+import com.autollantas.gestion.purchases.service.ComprasService;
 import com.autollantas.gestion.treasury.model.GastoOperativo;
 import com.autollantas.gestion.treasury.model.IngresoOcasional;
 import com.autollantas.gestion.treasury.model.Movimiento;
+import com.autollantas.gestion.treasury.service.TesoreriaService;
 import com.autollantas.gestion.sales.model.Venta;
+import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.inventory.service.InventarioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

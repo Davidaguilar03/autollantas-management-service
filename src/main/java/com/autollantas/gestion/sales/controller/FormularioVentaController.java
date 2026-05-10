@@ -10,6 +10,7 @@ import com.autollantas.gestion.treasury.model.Recaudo;
 import com.autollantas.gestion.inventory.service.InventarioService;
 import com.autollantas.gestion.treasury.service.TesoreriaService;
 import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;

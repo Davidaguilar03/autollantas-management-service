@@ -25,7 +25,7 @@ import com.autollantas.gestion.treasury.repository.RecaudoRepository;
 import com.autollantas.gestion.purchases.repository.CompraRepository;
 import com.autollantas.gestion.purchases.repository.DetalleCompraRepository;
 import com.autollantas.gestion.purchases.repository.ProveedorRepository;
-import com.autollantas.gestion.purchases.repository.PagoRepository;
+import com.autollantas.gestion.treasury.repository.PagoRepository;
 import com.autollantas.gestion.treasury.repository.CuentaRepository;
 import com.autollantas.gestion.treasury.repository.TransferenciaRepository;
 import com.autollantas.gestion.treasury.repository.GastoOperativoRepository;

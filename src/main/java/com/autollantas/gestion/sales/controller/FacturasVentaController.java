@@ -2,6 +2,7 @@ package com.autollantas.gestion.sales.controller;
 
 import com.autollantas.gestion.sales.model.Venta;
 import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
