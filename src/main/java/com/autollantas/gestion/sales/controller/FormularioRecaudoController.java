@@ -1,10 +1,9 @@
 package com.autollantas.gestion.sales.controller;
 
-import com.autollantas.gestion.treasury.model.Cuenta;
-import com.autollantas.gestion.treasury.model.Recaudo;
-import com.autollantas.gestion.sales.model.Venta;
-import com.autollantas.gestion.treasury.service.TesoreriaService;
-import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.treasury.model.Account;
+import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.sales.service.SalesService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,19 +22,19 @@ import java.util.Locale;
 @Component
 public class FormularioRecaudoController {
 
-    @Autowired private VentasService ventasService;
-    @Autowired private TesoreriaService tesoreriaService;
+    @Autowired private SalesService salesService;
+    @Autowired private TreasuryService treasuryService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblCliente;
     @FXML private Label lblTotalPendiente;
     @FXML private DatePicker dpFechaPago;
-    @FXML private ComboBox<Cuenta> comboCuenta;
+    @FXML private ComboBox<Account> comboCuenta;
     @FXML private ComboBox<String> comboMetodoPago;
     @FXML private TextField txtValor;
 
-    private Venta ventaActual;
-    @Getter private boolean guardado = false;
+    private Sale currentSale;
+    private boolean saved = false;
 
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
     private final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(new Locale("es", "CO"));
@@ -44,20 +42,20 @@ public class FormularioRecaudoController {
     @FXML
     public void initialize() {
         dpFechaPago.setValue(LocalDate.now());
-        cargarCombos();
-        configurarInputMoneda();
+        loadCombos();
+        configureAmountInput();
     }
 
-    private void cargarCombos() {
-        comboCuenta.getItems().addAll(tesoreriaService.findAllCuentas());
+    private void loadCombos() {
+        comboCuenta.getItems().addAll(treasuryService.findAllAccounts());
         comboCuenta.setConverter(new StringConverter<>() {
-            @Override public String toString(Cuenta c) { return c != null ? c.getNombreCuenta() : ""; }
-            @Override public Cuenta fromString(String s) { return null; }
+            @Override public String toString(Account a) { return a != null ? a.getName() : ""; }
+            @Override public Account fromString(String s) { return null; }
         });
         comboMetodoPago.getItems().addAll("Efectivo", "Tarjeta Crédito", "Tarjeta Débito", "Transferencia", "Nequi/Daviplata", "Cheque");
     }
 
-    private void configurarInputMoneda() {
+    private void configureAmountInput() {
         txtValor.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getControlNewText().isEmpty()) return change;
             if (!change.getControlNewText().matches("[0-9.,$ ]*")) return null;
@@ -84,86 +82,87 @@ public class FormularioRecaudoController {
         });
     }
 
-    public void setVenta(Venta venta) {
-        this.ventaActual = venta;
-        if (venta != null) {
-            lblNumeroFactura.setText(venta.getNumeroFacturaVenta());
-            lblCliente.setText(venta.getCliente() != null ? venta.getCliente().getNombreCliente() : "N/A");
+    public void setSale(Sale sale) {
+        this.currentSale = sale;
+        if (sale != null) {
+            lblNumeroFactura.setText(sale.getInvoiceNumber());
+            lblCliente.setText(sale.getCustomer() != null ? sale.getCustomer().getName() : "N/A");
 
-            double saldo = (venta.getSaldoPendiente() != null) ? venta.getSaldoPendiente() : venta.getTotalVenta();
+            double balance = (sale.getPendingBalance() != null) ? sale.getPendingBalance() : sale.getTotal();
 
-            if ("PAGADA".equalsIgnoreCase(venta.getEstadoVenta())) saldo = 0.0;
+            if ("PAGADA".equalsIgnoreCase(sale.getStatus())) balance = 0.0;
 
-            lblTotalPendiente.setText(currencyFormat.format(saldo));
-            txtValor.setText(String.valueOf((long) saldo));
+            lblTotalPendiente.setText(currencyFormat.format(balance));
+            txtValor.setText(String.valueOf((long) balance));
         }
     }
 
-    private double obtenerValorNumerico() {
+    private double getNumericValue() {
         String text = txtValor.getText().replaceAll("[^0-9]", "");
         return text.isEmpty() ? 0.0 : Double.parseDouble(text);
     }
 
     @FXML
     void btnGuardarClick(ActionEvent event) {
-        if (!validarFormulario()) return;
+        if (!validateForm()) return;
 
         try {
-            double montoAbono = obtenerValorNumerico();
-            Cuenta cuentaDestino = comboCuenta.getValue();
-            LocalDate fechaPago = dpFechaPago.getValue();
-            String metodoPago = comboMetodoPago.getValue();
+            double amount = getNumericValue();
+            Account destinationAccount = comboCuenta.getValue();
+            LocalDate paymentDate = dpFechaPago.getValue();
+            String paymentMethod = comboMetodoPago.getValue();
 
-            double deudaActual = (ventaActual.getSaldoPendiente() != null)
-                    ? ventaActual.getSaldoPendiente()
-                    : ventaActual.getTotalVenta();
+            double currentDebt = (currentSale.getPendingBalance() != null)
+                    ? currentSale.getPendingBalance()
+                    : currentSale.getTotal();
 
-            if (montoAbono > (deudaActual + 1.0)) {
-                mostrarAlerta("Monto Excedido", "El abono ($" + decimalFormat.format(montoAbono) +
-                        ") supera la deuda actual ($" + decimalFormat.format(deudaActual) + ").");
+            if (amount > (currentDebt + 1.0)) {
+                showAlert("Monto Excedido", "El abono ($" + decimalFormat.format(amount) +
+                        ") supera la deuda actual ($" + decimalFormat.format(currentDebt) + ").");
                 return;
             }
 
-            ventasService.registrarRecaudo(ventaActual, cuentaDestino, fechaPago, metodoPago, montoAbono);
+            salesService.registerCollection(currentSale, destinationAccount, paymentDate, paymentMethod, amount);
 
-            double nuevoSaldo = deudaActual - montoAbono;
-            if (nuevoSaldo < 0) nuevoSaldo = 0.0;
+            double newBalance = currentDebt - amount;
+            if (newBalance < 0) newBalance = 0.0;
 
+            saved = true;
 
-            guardado = true;
+            showSuccessDialog("¡Pago Exitoso!",
+                    "Se registró el pago de " + currencyFormat.format(amount) +
+                            "\nNuevo saldo pendiente: " + currencyFormat.format(newBalance));
 
-            mostrarExitoPersonalizado("¡Pago Exitoso!",
-                    "Se registró el pago de " + currencyFormat.format(montoAbono) +
-                            "\nNuevo saldo pendiente: " + currencyFormat.format(nuevoSaldo));
-
-            cerrarModal();
+            closeModal();
 
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "No se pudo registrar: " + e.getMessage());
+            showAlert("Error", "No se pudo registrar: " + e.getMessage());
         }
     }
 
-    private boolean validarFormulario() {
+    private boolean validateForm() {
         if (comboCuenta.getValue() == null || comboMetodoPago.getValue() == null) {
-            mostrarAlerta("Datos incompletos", "Seleccione cuenta y método de pago.");
+            showAlert("Datos incompletos", "Seleccione cuenta y método de pago.");
             return false;
         }
-        if (obtenerValorNumerico() <= 0) {
-            mostrarAlerta("Valor inválido", "El monto debe ser mayor a 0.");
+        if (getNumericValue() <= 0) {
+            showAlert("Valor inválido", "El monto debe ser mayor a 0.");
             return false;
         }
         return true;
     }
 
-    @FXML void btnCancelarClick(ActionEvent event) { cerrarModal(); }
+    @FXML void btnCancelarClick(ActionEvent event) { closeModal(); }
 
-    private void cerrarModal() {
+    private void closeModal() {
         Stage stage = (Stage) txtValor.getScene().getWindow();
         if (stage != null) stage.close();
     }
 
-    private void mostrarAlerta(String titulo, String contenido) {
+    public boolean isSaved() { return saved; }
+
+    private void showAlert(String titulo, String contenido) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
@@ -171,7 +170,7 @@ public class FormularioRecaudoController {
         alert.showAndWait();
     }
 
-    private void mostrarExitoPersonalizado(String titulo, String contenido) {
+    private void showSuccessDialog(String titulo, String contenido) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Gestión de Pagos");
         alert.setHeaderText(titulo);
@@ -180,7 +179,6 @@ public class FormularioRecaudoController {
         alert.initStyle(StageStyle.UTILITY);
 
         DialogPane dialogPane = alert.getDialogPane();
-
         dialogPane.setStyle(
                 "-fx-background-color: #FFFFFF;" +
                         "-fx-font-family: 'Segoe UI', sans-serif;" +
@@ -204,9 +202,7 @@ public class FormularioRecaudoController {
         }
 
         javafx.scene.Node content = dialogPane.lookup(".content");
-        if (content != null) {
-            content.setStyle("-fx-padding: 20px;");
-        }
+        if (content != null) content.setStyle("-fx-padding: 20px;");
 
         Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
         okButton.setText("Aceptar");
@@ -237,7 +233,6 @@ public class FormularioRecaudoController {
         ));
 
         alert.setGraphic(null);
-
         alert.showAndWait();
     }
 }

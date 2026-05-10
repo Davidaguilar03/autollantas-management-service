@@ -1,5 +1,5 @@
 package com.autollantas.gestion.sales.model;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.inventory.model.Product;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Table(name = "DETALLE_VENTAS")
 public class DetalleVenta {
-    public DetalleVenta(Integer cantidadVenta, Double descuentoVenta, Integer idDetalleVenta, Double impuestoVenta, Double precioVenta, Producto producto, Double subtotalVenta, Venta venta) {
+    public DetalleVenta(Integer cantidadVenta, Double descuentoVenta, Integer idDetalleVenta, Double impuestoVenta, Double precioVenta, Product producto, Double subtotalVenta, Venta venta) {
         this.cantidadVenta = cantidadVenta;
         this.descuentoVenta = descuentoVenta;
         this.idDetalleVenta = idDetalleVenta;
@@ -29,7 +29,7 @@ public class DetalleVenta {
 
     @ManyToOne
     @JoinColumn(name = "id_producto")
-    private Producto producto;
+    private Product producto;
 
     @ManyToOne
     @JoinColumn(name = "id_venta")

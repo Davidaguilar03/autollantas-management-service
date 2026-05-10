@@ -1,7 +1,7 @@
 package com.autollantas.gestion.auth.controller;
 
-import com.autollantas.gestion.config.model.Configuracion;
-import com.autollantas.gestion.config.service.ConfiguracionService;
+import com.autollantas.gestion.config.model.SystemConfig;
+import com.autollantas.gestion.config.service.SystemConfigService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -28,7 +28,7 @@ import java.util.Optional;
 public class RecuperacionController {
 
     @Autowired
-    private ConfiguracionService configuracionService;
+    private SystemConfigService configurationService;
 
     @Autowired
     private ApplicationContext springContext;
@@ -135,9 +135,9 @@ public class RecuperacionController {
     }
 
     private void configurarPregunta(String clavePregunta, String claveRespuesta, ObservableList<String> lista) {
-        Optional<Configuracion> conf = configuracionService.findByClave(clavePregunta);
+        Optional<SystemConfig> conf = configurationService.findByKey(clavePregunta);
         if (conf.isPresent()) {
-            String textoPregunta = conf.get().getValor();
+            String textoPregunta = conf.get().getValue();
             lista.add(textoPregunta);
             mapaPreguntaClave.put(textoPregunta, claveRespuesta);
         }
@@ -155,10 +155,10 @@ public class RecuperacionController {
         }
 
         String claveRespuestaBD = mapaPreguntaClave.get(preguntaSeleccionada);
-        Optional<Configuracion> configRespuestaReal = configuracionService.findByClave(claveRespuestaBD);
+        Optional<SystemConfig> configRespuestaReal = configurationService.findByKey(claveRespuestaBD);
 
         if (configRespuestaReal.isPresent() &&
-                configRespuestaReal.get().getValor().equalsIgnoreCase(respuestaUsuario)) {
+                configRespuestaReal.get().getValue().equalsIgnoreCase(respuestaUsuario)) {
             activarModoCambioContrasena();
         } else {
             mostrarError("La respuesta no coincide con nuestros registros.");
@@ -210,11 +210,11 @@ public class RecuperacionController {
             return;
         }
 
-        Optional<Configuracion> configPass = configuracionService.findByClave("admin_password");
+        Optional<SystemConfig> configPass = configurationService.findByKey("admin_password");
         if (configPass.isPresent()) {
-            Configuracion c = configPass.get();
-            c.setValor(p1);
-            configuracionService.guardar(c);
+            SystemConfig c = configPass.get();
+            c.setValue(p1);
+            configurationService.save(c);
             mostrarAlertaExito();
         } else {
             mostrarError("Error técnico: Configuración no encontrada.");

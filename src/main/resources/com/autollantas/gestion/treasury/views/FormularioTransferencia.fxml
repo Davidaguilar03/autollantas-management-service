@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.treasury.controller.FormularioTransferenciaController">
+<StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.treasury.controller.TransferFormController">
 
     <VBox alignment="TOP_CENTER" maxHeight="400" maxWidth="650" spacing="10.0" styleClass="card-form">
 

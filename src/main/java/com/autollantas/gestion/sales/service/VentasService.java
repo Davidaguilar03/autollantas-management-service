@@ -3,13 +3,13 @@ package com.autollantas.gestion.sales.service;
 import com.autollantas.gestion.sales.model.Cliente;
 import com.autollantas.gestion.treasury.model.Cuenta;
 import com.autollantas.gestion.sales.model.DetalleVenta;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.treasury.model.Recaudo;
 import com.autollantas.gestion.sales.model.Venta;
 import com.autollantas.gestion.sales.repository.ClienteRepository;
 import com.autollantas.gestion.treasury.repository.CuentaRepository;
 import com.autollantas.gestion.sales.repository.DetalleVentaRepository;
-import com.autollantas.gestion.inventory.repository.ProductoRepository;
+import com.autollantas.gestion.inventory.repository.ProductRepository;
 import com.autollantas.gestion.treasury.repository.RecaudoRepository;
 import com.autollantas.gestion.sales.repository.VentaRepository;
 import org.springframework.stereotype.Service;
@@ -25,14 +25,14 @@ public class VentasService {
     private final VentaRepository ventaRepository;
     private final DetalleVentaRepository detalleVentaRepository;
     private final ClienteRepository clienteRepository;
-    private final ProductoRepository productoRepository;
+    private final ProductRepository productoRepository;
     private final RecaudoRepository recaudoRepository;
     private final CuentaRepository cuentaRepository;
 
     public VentasService(VentaRepository ventaRepository,
                          DetalleVentaRepository detalleVentaRepository,
                          ClienteRepository clienteRepository,
-                         ProductoRepository productoRepository,
+                         ProductRepository productoRepository,
                          RecaudoRepository recaudoRepository,
                          CuentaRepository cuentaRepository) {
         this.ventaRepository = ventaRepository;
@@ -119,9 +119,9 @@ public class VentasService {
         if (modoEdicion) {
             List<DetalleVenta> detallesAntiguos = detalleVentaRepository.findByVenta(ventaGuardada);
             for (DetalleVenta detalleAntiguo : detallesAntiguos) {
-                Producto producto = detalleAntiguo.getProducto();
+                Product producto = detalleAntiguo.getProducto();
                 if (producto != null) {
-                    producto.setCantidad(producto.getCantidad() + detalleAntiguo.getCantidadVenta());
+                    producto.setQuantity(producto.getQuantity() + detalleAntiguo.getCantidadVenta());
                     productoRepository.save(producto);
                 }
             }
@@ -132,13 +132,13 @@ public class VentasService {
             detalle.setVenta(ventaGuardada);
             detalleVentaRepository.save(detalle);
 
-            Producto producto = detalle.getProducto();
-            if (producto == null || producto.getIdProducto() == null) {
+            Product producto = detalle.getProducto();
+            if (producto == null || producto.getId() == null) {
                 continue;
             }
 
-            productoRepository.findById(producto.getIdProducto()).ifPresent(productoReal -> {
-                productoReal.setCantidad(productoReal.getCantidad() - detalle.getCantidadVenta());
+            productoRepository.findById(producto.getId()).ifPresent(productoReal -> {
+                productoReal.setQuantity(productoReal.getQuantity() - detalle.getCantidadVenta());
                 productoRepository.save(productoReal);
             });
         }
@@ -150,9 +150,9 @@ public class VentasService {
     public void anularVenta(Venta venta) {
         List<DetalleVenta> detalles = detalleVentaRepository.findByVenta(venta);
         for (DetalleVenta detalle : detalles) {
-            Producto producto = detalle.getProducto();
+            Product producto = detalle.getProducto();
             if (producto != null) {
-                producto.setCantidad(producto.getCantidad() + detalle.getCantidadVenta());
+                producto.setQuantity(producto.getQuantity() + detalle.getCantidadVenta());
                 productoRepository.save(producto);
             }
         }

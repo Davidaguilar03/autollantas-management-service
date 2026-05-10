@@ -1,14 +1,13 @@
 package com.autollantas.gestion.purchases.controller;
 
-import com.autollantas.gestion.inventory.model.CategoriaProducto;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.model.Compra;
 import com.autollantas.gestion.purchases.model.DetalleCompra;
 import com.autollantas.gestion.purchases.model.Proveedor;
 import com.autollantas.gestion.treasury.model.Cuenta;
 import com.autollantas.gestion.treasury.model.Pago;
 import com.autollantas.gestion.purchases.service.ComprasService;
-import com.autollantas.gestion.inventory.service.InventarioService;
+import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
 import com.autollantas.gestion.treasury.service.TesoreriaService;
 import javafx.application.Platform;
@@ -43,7 +42,7 @@ import java.util.stream.Collectors;
 public class FormularioCompraController {
 
     @Autowired private ComprasService comprasService;
-    @Autowired private InventarioService inventarioService;
+    @Autowired private InventoryService inventarioService;
     @Autowired private TesoreriaService tesoreriaService;
 
     @FXML private VBox rootFormulario;
@@ -63,8 +62,8 @@ public class FormularioCompraController {
     @FXML private Button btnGuardar;
 
     @FXML private TableView<DetalleCompraRow> tablaDetalles;
-    @FXML private TableColumn<DetalleCompraRow, Producto> colCodigo;
-    @FXML private TableColumn<DetalleCompraRow, Producto> colDescripcion;
+    @FXML private TableColumn<DetalleCompraRow, Product> colCodigo;
+    @FXML private TableColumn<DetalleCompraRow, Product> colDescripcion;
     @FXML private TableColumn<DetalleCompraRow, Integer> colCantidad;
     @FXML private TableColumn<DetalleCompraRow, Double> colPrecio;
     @FXML private TableColumn<DetalleCompraRow, Double> colDescuento;
@@ -78,7 +77,7 @@ public class FormularioCompraController {
 
     private ObservableList<DetalleCompraRow> listaDetalles;
     private ObservableList<Proveedor> todosLosProveedores;
-    private ObservableList<Producto> todosLosProductos;
+    private ObservableList<Product> todosLosProductos;
     private ObservableList<Cuenta> todasLasCuentas;
 
     private Compra compraEnEdicion;
@@ -111,7 +110,7 @@ public class FormularioCompraController {
 
     private void cargarDatosIniciales() {
         todosLosProveedores = FXCollections.observableArrayList(comprasService.findAllProveedores());
-        todosLosProductos = FXCollections.observableArrayList(inventarioService.findAllProductos());
+        todosLosProductos = FXCollections.observableArrayList(inventarioService.findAllProducts());
         todasLasCuentas = FXCollections.observableArrayList(tesoreriaService.findAllCuentas());
 
         generarSiguienteNumeroFactura();
@@ -506,7 +505,7 @@ public class FormularioCompraController {
         }
         private void restaurarPrecioOriginal(DetalleCompraRow row) {
             if (row.getProducto() != null) {
-                row.setPrecio(row.getProducto().getPrecioBrutoProducto());
+                row.setPrecio(row.getProducto().getBasePrice());
                 textField.setText(monedaFormat.format(row.getPrecio()));
             } else textField.setText(monedaFormat.format(0));
         }
@@ -556,12 +555,12 @@ public class FormularioCompraController {
         }
     }
 
-    private class ProductoComboCell extends TableCell<DetalleCompraRow, Producto> {
-        private final ComboBox<Producto> comboBox;
-        private final FilteredList<Producto> filteredItems;
+    private class ProductoComboCell extends TableCell<DetalleCompraRow, Product> {
+        private final ComboBox<Product> comboBox;
+        private final FilteredList<Product> filteredItems;
         private boolean isUpdating = false;
 
-        public ProductoComboCell(ObservableList<Producto> allProductos, boolean porCodigo) {
+        public ProductoComboCell(ObservableList<Product> allProductos, boolean porCodigo) {
             this.filteredItems = new FilteredList<>(allProductos, p -> true);
             this.comboBox = new ComboBox<>(filteredItems);
             this.comboBox.setEditable(true);
@@ -569,11 +568,11 @@ public class FormularioCompraController {
             this.comboBox.setStyle("-fx-background-color: transparent; -fx-text-fill: black;");
 
             this.comboBox.setConverter(new StringConverter<>() {
-                @Override public String toString(Producto p) {
+                @Override public String toString(Product p) {
                     if (p == null) return "";
-                    return porCodigo ? p.getCodigoProducto() : p.getDescripcion();
+                    return porCodigo ? p.getCode() : p.getDescription();
                 }
-                @Override public Producto fromString(String s) { return comboBox.getValue(); }
+                @Override public Product fromString(String s) { return comboBox.getValue(); }
             });
 
             this.comboBox.getEditor().textProperty().addListener((obs, oldTxt, newTxt) -> {
@@ -583,7 +582,7 @@ public class FormularioCompraController {
                     filteredItems.setPredicate(p -> {
                         if (newTxt == null || newTxt.isEmpty()) return true;
                         String lower = newTxt.toLowerCase();
-                        return p.getDescripcion().toLowerCase().contains(lower) || p.getCodigoProducto().toLowerCase().contains(lower);
+                        return p.getDescription().toLowerCase().contains(lower) || p.getCode().toLowerCase().contains(lower);
                     });
                     if (!comboBox.isShowing() && !filteredItems.isEmpty() && comboBox.isFocused()) {
                         comboBox.show();
@@ -596,13 +595,13 @@ public class FormularioCompraController {
 
         private void confirmarSeleccion() {
             if (isUpdating) return;
-            Producto p = comboBox.getValue();
+            Product p = comboBox.getValue();
             if (p != null) {
                 DetalleCompraRow row = getTableRow().getItem();
                 if (row != null && row.getProducto() != p) {
                     row.setProducto(p);
-                    row.setPrecio(p.getPrecioBrutoProducto());
-                    row.setImpuesto(p.getIvaProducto() != null ? p.getIvaProducto() : 0.0);
+                    row.setPrecio(p.getBasePrice());
+                    row.setImpuesto(p.getTaxAmount() != null ? p.getTaxAmount() : 0.0);
                     row.setDescuento(0.0);
                     row.setCantidad(1);
                     tablaDetalles.refresh();
@@ -611,7 +610,7 @@ public class FormularioCompraController {
         }
 
         @Override
-        protected void updateItem(Producto item, boolean empty) {
+        protected void updateItem(Product item, boolean empty) {
             super.updateItem(item, empty);
             if (empty) setGraphic(null);
             else {
@@ -625,7 +624,7 @@ public class FormularioCompraController {
 }
 
 class DetalleCompraRow {
-    private final ObjectProperty<Producto> producto = new SimpleObjectProperty<>();
+    private final ObjectProperty<Product> producto = new SimpleObjectProperty<>();
     private final DoubleProperty precio = new SimpleDoubleProperty(0.0);
     private final IntegerProperty cantidad = new SimpleIntegerProperty(1);
     private final DoubleProperty descuento = new SimpleDoubleProperty(0.0);
@@ -645,9 +644,9 @@ class DetalleCompraRow {
 
     public double getTotalLinea() { return totalBinding().get(); }
 
-    public ObjectProperty<Producto> productoProperty() { return producto; }
-    public Producto getProducto() { return producto.get(); }
-    public void setProducto(Producto p) { this.producto.set(p); }
+    public ObjectProperty<Product> productoProperty() { return producto; }
+    public Product getProducto() { return producto.get(); }
+    public void setProducto(Product p) { this.producto.set(p); }
 
     public DoubleProperty precioProperty() { return precio; }
     public double getPrecio() { return precio.get(); }

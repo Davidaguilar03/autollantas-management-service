@@ -118,8 +118,8 @@ public class VerDetallesCompraController {
     }
 
     private void configurarTabla() {
-        colCodigo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProducto().getCodigoProducto()));
-        colProducto.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProducto().getDescripcion()));
+        colCodigo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProducto().getCode()));
+        colProducto.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProducto().getDescription()));
         colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadCompra"));
         colPrecio.setCellValueFactory(cell -> new SimpleStringProperty(monedaFormat.format(cell.getValue().getPrecioCompra())));
         colDescuento.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.0f%%", cell.getValue().getDescuentoCompra())));

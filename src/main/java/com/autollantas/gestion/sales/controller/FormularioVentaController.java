@@ -1,15 +1,13 @@
 package com.autollantas.gestion.sales.controller;
 
-import com.autollantas.gestion.inventory.model.CategoriaProducto;
-import com.autollantas.gestion.inventory.model.Producto;
-import com.autollantas.gestion.sales.model.Cliente;
-import com.autollantas.gestion.sales.model.Venta;
-import com.autollantas.gestion.sales.model.DetalleVenta;
-import com.autollantas.gestion.treasury.model.Cuenta;
-import com.autollantas.gestion.treasury.model.Recaudo;
-import com.autollantas.gestion.inventory.service.InventarioService;
-import com.autollantas.gestion.treasury.service.TesoreriaService;
-import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.inventory.model.Product;
+import com.autollantas.gestion.sales.model.Customer;
+import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.sales.model.SaleDetail;
+import com.autollantas.gestion.treasury.model.Account;
+import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -30,27 +28,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @Scope("prototype")
 public class FormularioVentaController {
 
-    @Autowired private VentasService ventasService;
-    @Autowired private InventarioService inventarioService;
-    @Autowired private TesoreriaService tesoreriaService;
+    @Autowired private SalesService salesService;
+    @Autowired private InventoryService inventarioService;
+    @Autowired private TreasuryService treasuryService;
 
     @FXML private VBox rootFormulario;
     @FXML private TextField txtNumeroFactura;
 
-    @FXML private ComboBox<Cliente> comboCliente;
+    @FXML private ComboBox<Customer> comboCliente;
     @FXML private ComboBox<String> comboTipoDoc;
     @FXML private TextField txtDocumento;
     @FXML private TextField txtCorreo;
@@ -60,29 +55,29 @@ public class FormularioVentaController {
     @FXML private DatePicker dpFechaVencimiento;
     @FXML private ComboBox<String> comboFormaPago;
     @FXML private ComboBox<String> comboMedioPago;
-    @FXML private ComboBox<Cuenta> comboCuenta;
+    @FXML private ComboBox<Account> comboCuenta;
     @FXML private TextArea txtNotas;
 
-    @FXML private TableView<DetalleVentaRow> tablaDetalles;
-    @FXML private TableColumn<DetalleVentaRow, Producto> colCodigo;
-    @FXML private TableColumn<DetalleVentaRow, Producto> colDescripcion;
-    @FXML private TableColumn<DetalleVentaRow, Integer> colCantidad;
-    @FXML private TableColumn<DetalleVentaRow, Double> colPrecio;
-    @FXML private TableColumn<DetalleVentaRow, Double> colDescuento;
-    @FXML private TableColumn<DetalleVentaRow, Double> colImpuesto;
-    @FXML private TableColumn<DetalleVentaRow, String> colSubtotal;
-    @FXML private TableColumn<DetalleVentaRow, Void> colAccion;
+    @FXML private TableView<SaleDetailRow> tablaDetalles;
+    @FXML private TableColumn<SaleDetailRow, Product> colCodigo;
+    @FXML private TableColumn<SaleDetailRow, Product> colDescripcion;
+    @FXML private TableColumn<SaleDetailRow, Integer> colCantidad;
+    @FXML private TableColumn<SaleDetailRow, Double> colPrecio;
+    @FXML private TableColumn<SaleDetailRow, Double> colDescuento;
+    @FXML private TableColumn<SaleDetailRow, Double> colImpuesto;
+    @FXML private TableColumn<SaleDetailRow, String> colSubtotal;
+    @FXML private TableColumn<SaleDetailRow, Void> colAccion;
 
     @FXML private Label lblSubtotal;
     @FXML private Label lblDescuentos;
     @FXML private Label lblTotalGeneral;
 
-    private ObservableList<DetalleVentaRow> listaDetalles;
-    private ObservableList<Cliente> todosLosClientes;
-    private ObservableList<Producto> todosLosProductos;
-    private ObservableList<Cuenta> todasLasCuentas;
+    private ObservableList<SaleDetailRow> listaDetalles;
+    private ObservableList<Customer> todosLosClientes;
+    private ObservableList<Product> todosLosProductos;
+    private ObservableList<Account> todasLasCuentas;
 
-    private Venta ventaEnEdicion;
+    private Sale saleForEditing;
     private boolean modoEdicion = false;
 
     private final NumberFormat monedaFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
@@ -91,19 +86,19 @@ public class FormularioVentaController {
     public void initialize() {
         cargarDatosIniciales();
 
-        listaDetalles = FXCollections.observableArrayList(row -> new javafx.beans.Observable[] {
-                row.productoProperty(),
-                row.precioProperty(),
-                row.cantidadProperty(),
-                row.descuentoProperty(),
-                row.impuestoProperty()
+        listaDetalles = FXCollections.observableArrayList(row -> new javafx.beans.Observable[]{
+                row.productProperty(),
+                row.priceProperty(),
+                row.quantityProperty(),
+                row.discountProperty(),
+                row.taxProperty()
         });
 
         configurarTablaAvanzada();
         configurarBuscadorCliente();
         configurarFechasYCombos();
 
-        listaDetalles.addListener((ListChangeListener<DetalleVentaRow>) c -> recalcularTotalesGenerales());
+        listaDetalles.addListener((ListChangeListener<SaleDetailRow>) c -> recalcularTotalesGenerales());
 
         if (!modoEdicion) {
             agregarLinea();
@@ -111,17 +106,15 @@ public class FormularioVentaController {
     }
 
     private void cargarDatosIniciales() {
-        todosLosClientes = FXCollections.observableArrayList(ventasService.findAllClientes());
-        List<Producto> productosConStock = inventarioService.findProductosConStock();
-        todosLosProductos = FXCollections.observableArrayList(productosConStock);
-        todasLasCuentas = FXCollections.observableArrayList(tesoreriaService.findAllCuentas());
-
+        todosLosClientes = FXCollections.observableArrayList(salesService.findAllCustomers());
+        todosLosProductos = FXCollections.observableArrayList(inventarioService.findProductsWithStock());
+        todasLasCuentas = FXCollections.observableArrayList(treasuryService.findAllAccounts());
         generarSiguienteNumeroFactura();
     }
 
     private void generarSiguienteNumeroFactura() {
         try {
-            txtNumeroFactura.setText(ventasService.generarSiguienteNumeroFactura());
+            txtNumeroFactura.setText(salesService.generateNextInvoiceNumber());
         } catch (Exception e) {
             e.printStackTrace();
             txtNumeroFactura.setText("VEN-00001");
@@ -132,27 +125,27 @@ public class FormularioVentaController {
         tablaDetalles.setItems(listaDetalles);
         tablaDetalles.setEditable(true);
 
-        colCodigo.setCellValueFactory(cell -> cell.getValue().productoProperty());
+        colCodigo.setCellValueFactory(cell -> cell.getValue().productProperty());
         colCodigo.setCellFactory(col -> new ProductoComboCell(todosLosProductos, true));
 
-        colDescripcion.setCellValueFactory(cell -> cell.getValue().productoProperty());
+        colDescripcion.setCellValueFactory(cell -> cell.getValue().productProperty());
         colDescripcion.setCellFactory(col -> new ProductoComboCell(todosLosProductos, false));
 
-        colCantidad.setCellValueFactory(cell -> cell.getValue().cantidadProperty().asObject());
+        colCantidad.setCellValueFactory(cell -> cell.getValue().quantityProperty().asObject());
         colCantidad.setCellFactory(col -> new CantidadCell());
 
-        colPrecio.setCellValueFactory(cell -> cell.getValue().precioProperty().asObject());
+        colPrecio.setCellValueFactory(cell -> cell.getValue().priceProperty().asObject());
         colPrecio.setCellFactory(col -> new PrecioCell());
 
-        colDescuento.setCellValueFactory(cell -> cell.getValue().descuentoProperty().asObject());
+        colDescuento.setCellValueFactory(cell -> cell.getValue().discountProperty().asObject());
         colDescuento.setCellFactory(col -> new PercentageCell());
 
         colImpuesto.setCellValueFactory(cell ->
                 Bindings.createObjectBinding(() -> {
-                    double unitario = cell.getValue().getImpuesto();
-                    int cant = cell.getValue().getCantidad();
+                    double unitario = cell.getValue().getTax();
+                    int cant = cell.getValue().getQuantity();
                     return unitario * cant;
-                }, cell.getValue().impuestoProperty(), cell.getValue().cantidadProperty())
+                }, cell.getValue().taxProperty(), cell.getValue().quantityProperty())
         );
         colImpuesto.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
@@ -175,7 +168,7 @@ public class FormularioVentaController {
                 btn.setStyle("-fx-text-fill: white; -fx-background-color: #e74c3c; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 3;");
                 btn.setPrefSize(25, 25);
                 btn.setOnAction(e -> {
-                    DetalleVentaRow row = getTableView().getItems().get(getIndex());
+                    SaleDetailRow row = getTableView().getItems().get(getIndex());
                     getTableView().getItems().remove(row);
                 });
             }
@@ -186,39 +179,37 @@ public class FormularioVentaController {
         });
     }
 
-    public void setVentaParaEdicion(Venta venta) {
-        this.ventaEnEdicion = venta;
+    public void setSaleForEditing(Sale sale) {
+        this.saleForEditing = sale;
         this.modoEdicion = true;
 
-        txtNumeroFactura.setText(venta.getNumeroFacturaVenta());
+        txtNumeroFactura.setText(sale.getInvoiceNumber());
         txtNumeroFactura.setDisable(true);
 
-        comboCliente.setValue(venta.getCliente());
-        if(venta.getCliente() != null){
-            txtDocumento.setText(venta.getCliente().getNumeroDocumentoCliente());
-            txtCorreo.setText(venta.getCliente().getCorreoCliente());
-            txtCelular.setText(venta.getCliente().getCelularCliente());
+        comboCliente.setValue(sale.getCustomer());
+        if (sale.getCustomer() != null) {
+            txtDocumento.setText(sale.getCustomer().getDocumentNumber());
+            txtCorreo.setText(sale.getCustomer().getEmail());
+            txtCelular.setText(sale.getCustomer().getPhone());
         }
 
-        comboCuenta.setValue(venta.getCuenta());
+        comboCuenta.setValue(sale.getAccount());
+        dpFechaCreacion.setValue(sale.getSaleDate());
+        dpFechaVencimiento.setValue(sale.getDueDate());
+        comboFormaPago.setValue(sale.getPaymentType());
+        comboMedioPago.setValue(sale.getPaymentMethod());
+        txtNotas.setText(sale.getNotes());
 
-        dpFechaCreacion.setValue(venta.getFechaVenta());
-        dpFechaVencimiento.setValue(venta.getFechaVencimientoVenta());
-        comboFormaPago.setValue(venta.getFormaPagoVenta());
-        comboMedioPago.setValue(venta.getMedioPagoVenta());
+        List<SaleDetail> detailsDB = salesService.findSaleDetailsBySale(sale);
+        List<SaleDetailRow> rows = new ArrayList<>();
 
-        txtNotas.setText(venta.getNotasVenta());
-
-        List<DetalleVenta> detallesDB = ventasService.findDetallesByVenta(venta);
-        List<DetalleVentaRow> rows = new ArrayList<>();
-
-        for (DetalleVenta d : detallesDB) {
-            DetalleVentaRow r = new DetalleVentaRow();
-            r.setProducto(d.getProducto());
-            r.setCantidad(d.getCantidadVenta());
-            r.setPrecio(d.getPrecioVenta());
-            r.setDescuento(d.getDescuentoVenta());
-            r.setImpuesto(d.getImpuestoVenta());
+        for (SaleDetail d : detailsDB) {
+            SaleDetailRow r = new SaleDetailRow();
+            r.setProduct(d.getProduct());
+            r.setQuantity(d.getQuantity());
+            r.setPrice(d.getSalePrice());
+            r.setDiscount(d.getDiscount());
+            r.setTax(d.getTax());
             rows.add(r);
         }
 
@@ -226,7 +217,7 @@ public class FormularioVentaController {
         recalcularTotalesGenerales();
     }
 
-    private class CantidadCell extends TableCell<DetalleVentaRow, Integer> {
+    private class CantidadCell extends TableCell<SaleDetailRow, Integer> {
         private final HBox container = new HBox();
         private final TextField tfCantidad = new TextField();
         private final Button btnMenos = new Button("-");
@@ -240,7 +231,6 @@ public class FormularioVentaController {
             String btnStyle = "-fx-background-color: #bdc3c7; -fx-font-weight: bold; -fx-min-width: 25px; -fx-cursor: hand;";
             btnMenos.setStyle(btnStyle);
             btnMas.setStyle(btnStyle);
-
             btnMenos.setFocusTraversable(false);
             btnMas.setFocusTraversable(false);
 
@@ -252,73 +242,60 @@ public class FormularioVentaController {
             btnMas.setOnAction(e -> modificarCantidad(1));
 
             tfCantidad.textProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal.matches("\\d*")) {
-                    tfCantidad.setText(newVal.replaceAll("[^\\d]", ""));
-                }
+                if (!newVal.matches("\\d*")) tfCantidad.setText(newVal.replaceAll("[^\\d]", ""));
             });
-
-            tfCantidad.setOnKeyPressed(e -> {
-                if (e.getCode() == KeyCode.ENTER) confirmarManual();
-            });
-            tfCantidad.focusedProperty().addListener((o, old, isFocused) -> {
-                if (!isFocused) confirmarManual();
-            });
+            tfCantidad.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.ENTER) confirmarManual(); });
+            tfCantidad.focusedProperty().addListener((o, old, isFocused) -> { if (!isFocused) confirmarManual(); });
         }
 
         private void modificarCantidad(int delta) {
-            DetalleVentaRow row = getTableRow().getItem();
-            if (row == null || row.getProducto() == null) return;
+            SaleDetailRow row = getTableRow().getItem();
+            if (row == null || row.getProduct() == null) return;
 
-            int nuevoVal = row.getCantidad() + delta;
-
+            int nuevoVal = row.getQuantity() + delta;
             if (nuevoVal < 1) return;
 
-            if (nuevoVal > row.getProducto().getCantidad()) {
-                mostrarAlerta("Stock Máximo", "Solo hay " + row.getProducto().getCantidad() + " unidades disponibles.");
+            if (nuevoVal > row.getProduct().getQuantity()) {
+                mostrarAlerta("Stock Máximo", "Solo hay " + row.getProduct().getQuantity() + " unidades disponibles.");
                 return;
             }
-            row.setCantidad(nuevoVal);
+            row.setQuantity(nuevoVal);
         }
 
         private void confirmarManual() {
-            DetalleVentaRow row = getTableRow().getItem();
+            SaleDetailRow row = getTableRow().getItem();
             if (row == null) return;
 
             if (tfCantidad.getText().isEmpty()) {
-                tfCantidad.setText(String.valueOf(row.getCantidad()));
+                tfCantidad.setText(String.valueOf(row.getQuantity()));
                 return;
             }
-
             try {
                 int val = Integer.parseInt(tfCantidad.getText());
                 if (val < 1) val = 1;
-
-                if (row.getProducto() != null && val > row.getProducto().getCantidad()) {
-                    mostrarAlerta("Stock insuficiente", "Máximo disponible: " + row.getProducto().getCantidad());
-                    val = row.getProducto().getCantidad();
+                if (row.getProduct() != null && val > row.getProduct().getQuantity()) {
+                    mostrarAlerta("Stock insuficiente", "Máximo disponible: " + row.getProduct().getQuantity());
+                    val = row.getProduct().getQuantity();
                 }
-                row.setCantidad(val);
+                row.setQuantity(val);
                 tfCantidad.setText(String.valueOf(val));
             } catch (Exception e) {
-                tfCantidad.setText(String.valueOf(row.getCantidad()));
+                tfCantidad.setText(String.valueOf(row.getQuantity()));
             }
         }
 
         @Override
         protected void updateItem(Integer item, boolean empty) {
             super.updateItem(item, empty);
-            if (empty || item == null) {
-                setGraphic(null);
-            } else {
-                if (!tfCantidad.isFocused()) {
-                    tfCantidad.setText(String.valueOf(item));
-                }
+            if (empty || item == null) { setGraphic(null); }
+            else {
+                if (!tfCantidad.isFocused()) tfCantidad.setText(String.valueOf(item));
                 setGraphic(container);
             }
         }
     }
 
-    private class PrecioCell extends TableCell<DetalleVentaRow, Double> {
+    private class PrecioCell extends TableCell<SaleDetailRow, Double> {
         private final TextField textField = new TextField();
 
         public PrecioCell() {
@@ -327,59 +304,43 @@ public class FormularioVentaController {
 
             textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
                 if (isNowFocused) {
-                    DetalleVentaRow row = getTableRow().getItem();
+                    SaleDetailRow row = getTableRow().getItem();
                     if (row != null) {
-                        double val = row.getPrecio();
-                        if (val % 1 == 0) {
-                            textField.setText(String.format("%.0f", val));
-                        } else {
-                            textField.setText(String.format("%.2f", val).replace(".", ","));
-                        }
+                        double val = row.getPrice();
+                        textField.setText(val % 1 == 0 ? String.format("%.0f", val) : String.format("%.2f", val).replace(".", ","));
                         textField.selectAll();
                     }
                 } else {
                     commitPrecio();
                 }
             });
-
             textField.setOnAction(e -> tablaDetalles.requestFocus());
         }
 
         private void commitPrecio() {
-            DetalleVentaRow row = getTableRow().getItem();
+            SaleDetailRow row = getTableRow().getItem();
             if (row == null) return;
 
             String text = textField.getText();
             if (text == null) text = "";
-
             text = text.replace("$", "").trim();
 
-            if (text.isEmpty() || text.equals("0")) {
-                restaurarPrecioOriginal(row);
-                return;
-            }
+            if (text.isEmpty() || text.equals("0")) { restaurarPrecioOriginal(row); return; }
 
-            text = text.replace(".", "");
-            text = text.replace(",", ".");
-
+            text = text.replace(".", "").replace(",", ".");
             try {
                 double val = Double.parseDouble(text);
-
-                if (val <= 0) {
-                    restaurarPrecioOriginal(row);
-                } else {
-                    row.setPrecio(val);
-                    textField.setText(monedaFormat.format(val));
-                }
+                if (val <= 0) { restaurarPrecioOriginal(row); }
+                else { row.setPrice(val); textField.setText(monedaFormat.format(val)); }
             } catch (NumberFormatException e) {
                 restaurarPrecioOriginal(row);
             }
         }
 
-        private void restaurarPrecioOriginal(DetalleVentaRow row) {
-            if (row.getProducto() != null) {
-                double precioOriginal = row.getProducto().getPrecioBrutoProducto();
-                row.setPrecio(precioOriginal);
+        private void restaurarPrecioOriginal(SaleDetailRow row) {
+            if (row.getProduct() != null) {
+                double precioOriginal = row.getProduct().getBasePrice();
+                row.setPrice(precioOriginal);
                 textField.setText(monedaFormat.format(precioOriginal));
             } else {
                 textField.setText(monedaFormat.format(0));
@@ -389,18 +350,15 @@ public class FormularioVentaController {
         @Override
         protected void updateItem(Double item, boolean empty) {
             super.updateItem(item, empty);
-            if (empty || item == null) {
-                setGraphic(null);
-            } else {
-                if (!textField.isFocused()) {
-                    textField.setText(monedaFormat.format(item));
-                }
+            if (empty || item == null) { setGraphic(null); }
+            else {
+                if (!textField.isFocused()) textField.setText(monedaFormat.format(item));
                 setGraphic(textField);
             }
         }
     }
 
-    private class PercentageCell extends TableCell<DetalleVentaRow, Double> {
+    private class PercentageCell extends TableCell<SaleDetailRow, Double> {
         private final TextField textField = new TextField();
 
         public PercentageCell() {
@@ -409,61 +367,59 @@ public class FormularioVentaController {
 
             textField.focusedProperty().addListener((o, old, isFocused) -> {
                 if (isFocused) {
-                    String raw = textField.getText().replace("%", "").trim();
-                    textField.setText(raw);
+                    textField.setText(textField.getText().replace("%", "").trim());
                     textField.selectAll();
                 } else {
                     commit();
                 }
             });
-            textField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.ENTER) { commit(); tablaDetalles.requestFocus(); }});
+            textField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.ENTER) { commit(); tablaDetalles.requestFocus(); } });
         }
 
         private void commit() {
-            DetalleVentaRow row = getTableRow().getItem();
+            SaleDetailRow row = getTableRow().getItem();
             if (row == null) return;
             try {
                 String txt = textField.getText().replaceAll("[^0-9.]", "");
                 if (txt.isEmpty()) txt = "0";
                 double val = Double.parseDouble(txt);
                 if (val > 100) val = 100;
-                row.setDescuento(val);
+                row.setDiscount(val);
                 textField.setText(String.format("%.0f%%", val));
             } catch (Exception e) {
-                textField.setText(String.format("%.0f%%", row.getDescuento()));
+                textField.setText(String.format("%.0f%%", row.getDiscount()));
             }
         }
 
         @Override
         protected void updateItem(Double item, boolean empty) {
             super.updateItem(item, empty);
-            if (empty || item == null) {
-                setGraphic(null);
-            } else {
+            if (empty || item == null) { setGraphic(null); }
+            else {
                 if (!textField.isFocused()) textField.setText(String.format("%.0f%%", item));
                 setGraphic(textField);
             }
         }
     }
 
-    private class ProductoComboCell extends TableCell<DetalleVentaRow, Producto> {
-        private final ComboBox<Producto> comboBox;
-        private final FilteredList<Producto> filteredItems;
+    private class ProductoComboCell extends TableCell<SaleDetailRow, Product> {
+        private final ComboBox<Product> comboBox;
+        private final FilteredList<Product> filteredItems;
         private boolean isUpdating = false;
 
-        public ProductoComboCell(ObservableList<Producto> allProductos, boolean porCodigo) {
-            this.filteredItems = new FilteredList<>(allProductos, p -> true);
+        public ProductoComboCell(ObservableList<Product> allProducts, boolean porCodigo) {
+            this.filteredItems = new FilteredList<>(allProducts, p -> true);
             this.comboBox = new ComboBox<>(filteredItems);
             this.comboBox.setEditable(true);
             this.comboBox.setMaxWidth(Double.MAX_VALUE);
             this.comboBox.setStyle("-fx-background-color: transparent; -fx-text-fill: black;");
 
             this.comboBox.setConverter(new StringConverter<>() {
-                @Override public String toString(Producto p) {
+                @Override public String toString(Product p) {
                     if (p == null) return "";
-                    return porCodigo ? p.getCodigoProducto() : p.getDescripcion();
+                    return porCodigo ? p.getCode() : p.getDescription();
                 }
-                @Override public Producto fromString(String s) { return comboBox.getValue(); }
+                @Override public Product fromString(String s) { return comboBox.getValue(); }
             });
 
             this.comboBox.getEditor().textProperty().addListener((obs, oldTxt, newTxt) -> {
@@ -473,11 +429,9 @@ public class FormularioVentaController {
                     filteredItems.setPredicate(p -> {
                         if (newTxt == null || newTxt.isEmpty()) return true;
                         String lower = newTxt.toLowerCase();
-                        return p.getDescripcion().toLowerCase().contains(lower) || p.getCodigoProducto().toLowerCase().contains(lower);
+                        return p.getDescription().toLowerCase().contains(lower) || p.getCode().toLowerCase().contains(lower);
                     });
-                    if (!comboBox.isShowing() && !filteredItems.isEmpty() && comboBox.isFocused()) {
-                        comboBox.show();
-                    }
+                    if (!comboBox.isShowing() && !filteredItems.isEmpty() && comboBox.isFocused()) comboBox.show();
                 });
             });
 
@@ -487,31 +441,30 @@ public class FormularioVentaController {
 
         private void confirmarSeleccion() {
             if (isUpdating) return;
-            Producto p = comboBox.getValue();
+            Product p = comboBox.getValue();
             if (p != null) {
-                DetalleVentaRow row = getTableRow().getItem();
-                if (row != null && row.getProducto() != p) {
-                    if (p.getCantidad() < 1) {
+                SaleDetailRow row = getTableRow().getItem();
+                if (row != null && row.getProduct() != p) {
+                    if (p.getQuantity() < 1) {
                         mostrarAlerta("Sin Stock", "Producto agotado.");
                         Platform.runLater(() -> comboBox.getSelectionModel().clearSelection());
                         return;
                     }
-                    row.setProducto(p);
-                    row.setPrecio(p.getPrecioBrutoProducto());
-                    row.setImpuesto(p.getIvaProducto() != null ? p.getIvaProducto() : 0.0);
-                    row.setDescuento(0.0);
-                    row.setCantidad(1);
+                    row.setProduct(p);
+                    row.setPrice(p.getBasePrice());
+                    row.setTax(p.getTaxAmount() != null ? p.getTaxAmount() : 0.0);
+                    row.setDiscount(0.0);
+                    row.setQuantity(1);
                     tablaDetalles.refresh();
                 }
             }
         }
 
         @Override
-        protected void updateItem(Producto item, boolean empty) {
+        protected void updateItem(Product item, boolean empty) {
             super.updateItem(item, empty);
-            if (empty) {
-                setGraphic(null);
-            } else {
+            if (empty) { setGraphic(null); }
+            else {
                 isUpdating = true;
                 comboBox.setValue(item);
                 isUpdating = false;
@@ -521,21 +474,21 @@ public class FormularioVentaController {
     }
 
     private void configurarBuscadorCliente() {
-        FilteredList<Cliente> clientesFiltrados = new FilteredList<>(todosLosClientes, p -> true);
+        FilteredList<Customer> clientesFiltrados = new FilteredList<>(todosLosClientes, p -> true);
         comboCliente.setItems(clientesFiltrados);
         comboCliente.setConverter(new StringConverter<>() {
-            @Override public String toString(Cliente c) { return c == null ? "" : c.getNombreCliente(); }
-            @Override public Cliente fromString(String string) { return comboCliente.getValue(); }
+            @Override public String toString(Customer c) { return c == null ? "" : c.getName(); }
+            @Override public Customer fromString(String string) { return comboCliente.getValue(); }
         });
 
         comboCliente.getEditor().textProperty().addListener((obs, oldText, newText) -> {
             Platform.runLater(() -> {
-                if (comboCliente.getValue() != null && comboCliente.getValue().getNombreCliente().equals(newText)) return;
+                if (comboCliente.getValue() != null && comboCliente.getValue().getName().equals(newText)) return;
                 clientesFiltrados.setPredicate(cliente -> {
                     if (newText == null || newText.isEmpty()) return true;
                     String lower = newText.toLowerCase();
-                    return cliente.getNombreCliente().toLowerCase().contains(lower) ||
-                            cliente.getNumeroDocumentoCliente().contains(lower);
+                    return cliente.getName().toLowerCase().contains(lower) ||
+                            cliente.getDocumentNumber().contains(lower);
                 });
                 if (!clientesFiltrados.isEmpty() && !comboCliente.isShowing() && comboCliente.isFocused()) {
                     comboCliente.show();
@@ -544,12 +497,12 @@ public class FormularioVentaController {
         });
 
         comboCliente.setOnAction(e -> {
-            Cliente seleccionado = comboCliente.getSelectionModel().getSelectedItem();
+            Customer seleccionado = comboCliente.getSelectionModel().getSelectedItem();
             if (seleccionado != null) {
-                txtDocumento.setText(seleccionado.getNumeroDocumentoCliente());
-                txtCorreo.setText(seleccionado.getCorreoCliente());
-                txtCelular.setText(seleccionado.getCelularCliente());
-                comboCliente.getEditor().setText(seleccionado.getNombreCliente());
+                txtDocumento.setText(seleccionado.getDocumentNumber());
+                txtCorreo.setText(seleccionado.getEmail());
+                txtCelular.setText(seleccionado.getPhone());
+                comboCliente.getEditor().setText(seleccionado.getName());
             }
         });
     }
@@ -563,9 +516,9 @@ public class FormularioVentaController {
         comboTipoDoc.getItems().addAll("CC", "NIT", "RUT");
         comboCuenta.setItems(todasLasCuentas);
 
-        comboCuenta.setConverter(new StringConverter<Cuenta>() {
-            @Override public String toString(Cuenta c) { return c == null ? "" : c.getNombreCuenta(); }
-            @Override public Cuenta fromString(String string) { return comboCuenta.getValue(); }
+        comboCuenta.setConverter(new StringConverter<Account>() {
+            @Override public String toString(Account a) { return a == null ? "" : a.getName(); }
+            @Override public Account fromString(String string) { return comboCuenta.getValue(); }
         });
 
         Runnable actualizarFechas = () -> {
@@ -586,18 +539,15 @@ public class FormularioVentaController {
     }
 
     private void recalcularTotalesGenerales() {
-        double subtotal = 0;
-        double descuentos = 0;
-        double total = 0;
+        double subtotal = 0, descuentos = 0, total = 0;
 
-        for (DetalleVentaRow row : listaDetalles) {
-            if (row.getProducto() != null) {
-                double precioTotal = row.getPrecio() * row.getCantidad();
-                double descMonto = precioTotal * (row.getDescuento() / 100.0);
-
+        for (SaleDetailRow row : listaDetalles) {
+            if (row.getProduct() != null) {
+                double precioTotal = row.getPrice() * row.getQuantity();
+                double descMonto = precioTotal * (row.getDiscount() / 100.0);
                 subtotal += precioTotal;
                 descuentos += descMonto;
-                total += row.getTotalLinea();
+                total += row.getLineTotal();
             }
         }
 
@@ -609,13 +559,13 @@ public class FormularioVentaController {
     @FXML void btnAgregarLineaClick(ActionEvent event) { agregarLinea(); }
 
     private void agregarLinea() {
-        listaDetalles.add(new DetalleVentaRow());
+        listaDetalles.add(new SaleDetailRow());
         tablaDetalles.scrollTo(listaDetalles.size() - 1);
     }
 
     @FXML
     void btnGuardarClick(ActionEvent event) {
-        if (listaDetalles.isEmpty() || listaDetalles.stream().noneMatch(r -> r.getProducto() != null)) {
+        if (listaDetalles.isEmpty() || listaDetalles.stream().noneMatch(r -> r.getProduct() != null)) {
             mostrarAlerta("Error", "Debe agregar al menos un producto válido.");
             return;
         }
@@ -625,45 +575,41 @@ public class FormularioVentaController {
         }
 
         try {
-            Cliente cliente = guardarOObtenerCliente();
+            Customer customer = saveOrGetCustomer();
 
-            Venta venta = modoEdicion ? ventaEnEdicion : new Venta();
-
-            venta.setNumeroFacturaVenta(txtNumeroFactura.getText());
-            venta.setCliente(cliente);
-            venta.setFechaVenta(dpFechaCreacion.getValue());
-            venta.setFechaVencimientoVenta(dpFechaVencimiento.getValue());
-            venta.setFormaPagoVenta(comboFormaPago.getValue());
-            venta.setMedioPagoVenta(comboMedioPago.getValue());
-            venta.setCuenta(comboCuenta.getValue());
-            venta.setNotasVenta(txtNotas.getText());
+            Sale sale = modoEdicion ? saleForEditing : new Sale();
+            sale.setInvoiceNumber(txtNumeroFactura.getText());
+            sale.setCustomer(customer);
+            sale.setSaleDate(dpFechaCreacion.getValue());
+            sale.setDueDate(dpFechaVencimiento.getValue());
+            sale.setPaymentType(comboFormaPago.getValue());
+            sale.setPaymentMethod(comboMedioPago.getValue());
+            sale.setAccount(comboCuenta.getValue());
+            sale.setNotes(txtNotas.getText());
 
             double totalFinal = listaDetalles.stream()
-                    .filter(r -> r.getProducto() != null)
-                    .mapToDouble(DetalleVentaRow::getTotalLinea).sum();
+                    .filter(r -> r.getProduct() != null)
+                    .mapToDouble(SaleDetailRow::getLineTotal).sum();
 
-            venta.setTotalVenta(totalFinal);
+            sale.setTotal(totalFinal);
+            sale.setPendingBalance("Crédito".equals(comboFormaPago.getValue()) ? totalFinal : 0.0);
+            sale.setStatus("Crédito".equals(comboFormaPago.getValue()) ? "PENDIENTE" : "PAGADA");
 
-            venta.setSaldoPendiente("Crédito".equals(comboFormaPago.getValue()) ? totalFinal : 0.0);
-
-            venta.setEstadoVenta("Crédito".equals(comboFormaPago.getValue()) ? "PENDIENTE" : "PAGADA");
-
-
-            List<DetalleVenta> detalles = listaDetalles.stream()
-                    .filter(r -> r.getProducto() != null)
+            List<SaleDetail> details = listaDetalles.stream()
+                    .filter(r -> r.getProduct() != null)
                     .map(row -> {
-                        DetalleVenta det = new DetalleVenta();
-                        det.setProducto(row.getProducto());
-                        det.setCantidadVenta(row.getCantidad());
-                        det.setPrecioVenta(row.getPrecio());
-                        det.setDescuentoVenta(row.getDescuento());
-                        det.setImpuestoVenta(row.getImpuesto());
-                        det.setSubtotalVenta(row.getTotalLinea());
+                        SaleDetail det = new SaleDetail();
+                        det.setProduct(row.getProduct());
+                        det.setQuantity(row.getQuantity());
+                        det.setSalePrice(row.getPrice());
+                        det.setDiscount(row.getDiscount());
+                        det.setTax(row.getTax());
+                        det.setSubtotal(row.getLineTotal());
                         return det;
                     })
                     .toList();
 
-            ventasService.guardarVentaConDetalles(venta, detalles, modoEdicion);
+            salesService.saveSaleWithDetails(sale, details, modoEdicion);
 
             mostrarAlerta("Éxito", "Venta guardada correctamente.");
             navegarHaciaAtras();
@@ -674,13 +620,13 @@ public class FormularioVentaController {
         }
     }
 
-    private Cliente guardarOObtenerCliente() {
-        Cliente seleccionado = comboCliente.getValue();
+    private Customer saveOrGetCustomer() {
+        Customer selected = comboCliente.getValue();
         String nombreEscrito = comboCliente.getEditor().getText();
         String docEscrito = txtDocumento.getText();
 
-        return ventasService.guardarOActualizarCliente(
-                seleccionado,
+        return salesService.saveOrUpdateCustomer(
+                selected,
                 nombreEscrito,
                 docEscrito,
                 txtCorreo.getText(),
@@ -705,44 +651,44 @@ public class FormularioVentaController {
     }
 }
 
-class DetalleVentaRow {
-    private final ObjectProperty<Producto> producto = new SimpleObjectProperty<>();
-    private final DoubleProperty precio = new SimpleDoubleProperty(0.0);
-    private final IntegerProperty cantidad = new SimpleIntegerProperty(1);
-    private final DoubleProperty descuento = new SimpleDoubleProperty(0.0);
-    private final DoubleProperty impuesto = new SimpleDoubleProperty(0.0);
+class SaleDetailRow {
+    private final ObjectProperty<Product> product = new SimpleObjectProperty<>();
+    private final DoubleProperty price = new SimpleDoubleProperty(0.0);
+    private final IntegerProperty quantity = new SimpleIntegerProperty(1);
+    private final DoubleProperty discount = new SimpleDoubleProperty(0.0);
+    private final DoubleProperty tax = new SimpleDoubleProperty(0.0);
 
-    public DetalleVentaRow() {}
+    public SaleDetailRow() {}
 
     public javafx.beans.binding.DoubleBinding totalBinding() {
         return Bindings.createDoubleBinding(() -> {
-            double precioTotal = getPrecio() * getCantidad();
-            double descMonto = precioTotal * (getDescuento() / 100.0);
-            double base = precioTotal - descMonto;
-            double impuestoTotal = getImpuesto() * getCantidad();
-            return base + impuestoTotal;
-        }, precio, cantidad, descuento, impuesto);
+            double totalPrice = getPrice() * getQuantity();
+            double discountAmount = totalPrice * (getDiscount() / 100.0);
+            double base = totalPrice - discountAmount;
+            double totalTax = getTax() * getQuantity();
+            return base + totalTax;
+        }, price, quantity, discount, tax);
     }
 
-    public double getTotalLinea() { return totalBinding().get(); }
+    public double getLineTotal() { return totalBinding().get(); }
 
-    public ObjectProperty<Producto> productoProperty() { return producto; }
-    public Producto getProducto() { return producto.get(); }
-    public void setProducto(Producto p) { this.producto.set(p); }
+    public ObjectProperty<Product> productProperty() { return product; }
+    public Product getProduct() { return product.get(); }
+    public void setProduct(Product p) { this.product.set(p); }
 
-    public DoubleProperty precioProperty() { return precio; }
-    public double getPrecio() { return precio.get(); }
-    public void setPrecio(double d) { this.precio.set(d); }
+    public DoubleProperty priceProperty() { return price; }
+    public double getPrice() { return price.get(); }
+    public void setPrice(double d) { this.price.set(d); }
 
-    public IntegerProperty cantidadProperty() { return cantidad; }
-    public int getCantidad() { return cantidad.get(); }
-    public void setCantidad(int i) { this.cantidad.set(i); }
+    public IntegerProperty quantityProperty() { return quantity; }
+    public int getQuantity() { return quantity.get(); }
+    public void setQuantity(int i) { this.quantity.set(i); }
 
-    public DoubleProperty descuentoProperty() { return descuento; }
-    public double getDescuento() { return descuento.get(); }
-    public void setDescuento(double d) { this.descuento.set(d); }
+    public DoubleProperty discountProperty() { return discount; }
+    public double getDiscount() { return discount.get(); }
+    public void setDiscount(double d) { this.discount.set(d); }
 
-    public DoubleProperty impuestoProperty() { return impuesto; }
-    public double getImpuesto() { return impuesto.get(); }
-    public void setImpuesto(double d) { this.impuesto.set(d); }
+    public DoubleProperty taxProperty() { return tax; }
+    public double getTax() { return tax.get(); }
+    public void setTax(double d) { this.tax.set(d); }
 }

@@ -19,7 +19,9 @@
       "Bash(sed -i 's|import com.autollantas.gestion.inventory.service.InventarioService;|import com.autollantas.gestion.inventory.service.InventarioService;\\\\nimport com.autollantas.gestion.shared.controller.MainLayoutController;|' __TRACKED_VAR__/purchases/controller/FormularioCompraController.java)",
       "Bash(python -)",
       "Bash(python3 \"C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/fix_imports2.py\")",
-      "PowerShell(python --version 2>&1)"
+      "PowerShell(python --version 2>&1)",
+      "Bash(mvnw.cmd compile *)",
+      "Bash(git *)"
     ]
   }
 }

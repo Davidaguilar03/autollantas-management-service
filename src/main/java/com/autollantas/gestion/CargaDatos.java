@@ -1,7 +1,7 @@
 package com.autollantas.gestion;
 
-import com.autollantas.gestion.inventory.model.CategoriaProducto;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.inventory.model.ProductCategory;
+import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.sales.model.Cliente;
 import com.autollantas.gestion.sales.model.Venta;
 import com.autollantas.gestion.sales.model.DetalleVenta;
@@ -15,9 +15,9 @@ import com.autollantas.gestion.treasury.model.GastoOperativo;
 import com.autollantas.gestion.treasury.model.IngresoOcasional;
 import com.autollantas.gestion.treasury.model.Movimiento;
 import com.autollantas.gestion.treasury.model.Transferencia;
-import com.autollantas.gestion.config.model.Configuracion;
-import com.autollantas.gestion.inventory.repository.CategoriaProductoRepository;
-import com.autollantas.gestion.inventory.repository.ProductoRepository;
+import com.autollantas.gestion.config.model.SystemConfig;
+import com.autollantas.gestion.inventory.repository.ProductCategoryRepository;
+import com.autollantas.gestion.inventory.repository.ProductRepository;
 import com.autollantas.gestion.sales.repository.ClienteRepository;
 import com.autollantas.gestion.sales.repository.VentaRepository;
 import com.autollantas.gestion.sales.repository.DetalleVentaRepository;
@@ -31,7 +31,7 @@ import com.autollantas.gestion.treasury.repository.TransferenciaRepository;
 import com.autollantas.gestion.treasury.repository.GastoOperativoRepository;
 import com.autollantas.gestion.treasury.repository.IngresoOcasionalRepository;
 import com.autollantas.gestion.treasury.repository.MovimientoRepository;
-import com.autollantas.gestion.config.repository.ConfiguracionRepository;
+import com.autollantas.gestion.config.repository.SystemConfigRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,10 +49,10 @@ import java.util.Map;
 public class CargaDatos {
 
     @Bean
-    CommandLineRunner importarDatosReales(CategoriaProductoRepository categoriaRepo,
-                                          ProductoRepository productoRepo) {
+    CommandLineRunner importarDatosReales(ProductCategoryRepository categoryRepo,
+                                          ProductRepository productRepo) {
         return args -> {
-            if (productoRepo.count() > 5) {
+            if (productRepo.count() > 5) {
                 System.out.println("⚠️ La base de datos ya tiene productos. Omitiendo carga CSV.");
                 return;
             }
@@ -60,7 +60,7 @@ public class CargaDatos {
             System.out.println("🚀 Iniciando carga masiva de inventario...");
 
             String nombreArchivo = "/INVENTARIO 2025.csv";
-            Map<String, CategoriaProducto> cacheCategorias = new HashMap<>();
+            Map<String, ProductCategory> categoryCache = new HashMap<>();
 
             try (InputStream is = getClass().getResourceAsStream(nombreArchivo)) {
 
@@ -79,41 +79,41 @@ public class CargaDatos {
                     String[] datos = linea.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                     if (datos.length < 8) continue;
 
-                    String nombreCategoria = limpiarTexto(datos[0]);
-                    String codigo = limpiarTexto(datos[1]);
-                    String descripcion = limpiarTexto(datos[2]);
+                    String categoryName = limpiarTexto(datos[0]);
+                    String code = limpiarTexto(datos[1]);
+                    String description = limpiarTexto(datos[2]);
 
-                    if (codigo.isEmpty() || nombreCategoria.isEmpty()) continue;
+                    if (code.isEmpty() || categoryName.isEmpty()) continue;
 
-                    CategoriaProducto categoria = cacheCategorias.get(nombreCategoria);
-                    if (categoria == null) {
-                        categoria = new CategoriaProducto();
-                        categoria.setNombreCategoriaProducto(nombreCategoria);
-                        categoria.setStockMinAmarillo(5);
-                        categoria.setStockMinRojo(2);
-                        categoria = categoriaRepo.save(categoria);
-                        cacheCategorias.put(nombreCategoria, categoria);
+                    ProductCategory category = categoryCache.get(categoryName);
+                    if (category == null) {
+                        category = new ProductCategory();
+                        category.setName(categoryName);
+                        category.setYellowStockMin(5);
+                        category.setRedStockMin(2);
+                        category = categoryRepo.save(category);
+                        categoryCache.put(categoryName, category);
                     }
 
-                    double precioBruto = limpiarYConvertirPrecio(datos[3]);
-                    double iva = limpiarYConvertirPrecio(datos[4]);
-                    double precioFinal = limpiarYConvertirPrecio(datos[5]);
+                    double basePrice = limpiarYConvertirPrecio(datos[3]);
+                    double taxAmount = limpiarYConvertirPrecio(datos[4]);
+                    double priceWithTax = limpiarYConvertirPrecio(datos[5]);
                     double stockDouble = limpiarYConvertirPrecio(datos[6]);
-                    String tipoItem = limpiarTexto(datos[7]);
+                    String itemType = limpiarTexto(datos[7]);
 
                     int stock = (int) stockDouble;
 
-                    Producto p = new Producto();
-                    p.setCodigoProducto(codigo);
-                    p.setDescripcion(descripcion);
-                    p.setCantidad(stock);
-                    p.setPrecioBrutoProducto(precioBruto);
-                    p.setIvaProducto(iva);
-                    p.setPrecioIvaProducto(precioFinal);
-                    p.setTipoItem(tipoItem);
-                    p.setCategoria(categoria);
+                    Product p = new Product();
+                    p.setCode(code);
+                    p.setDescription(description);
+                    p.setQuantity(stock);
+                    p.setBasePrice(basePrice);
+                    p.setTaxAmount(taxAmount);
+                    p.setPriceWithTax(priceWithTax);
+                    p.setItemType(itemType);
+                    p.setCategory(category);
 
-                    productoRepo.save(p);
+                    productRepo.save(p);
                     contador++;
                 }
                 System.out.println("✅ ¡Carga Finalizada! Se importaron " + contador + " productos.");
@@ -147,8 +147,8 @@ public class CargaDatos {
             ProveedorRepository proveedorRepo,
             CuentaRepository cuentaRepo,
             MovimientoRepository movimientoRepo,
-            CategoriaProductoRepository categoriaRepo,
-            ProductoRepository productoRepo,
+            ProductCategoryRepository categoryRepo,
+            ProductRepository productRepo,
             CompraRepository compraRepo,
             DetalleCompraRepository detCompraRepo,
             PagoRepository pagoRepo,
@@ -157,7 +157,7 @@ public class CargaDatos {
             RecaudoRepository recaudoRepo,
             GastoOperativoRepository gastoRepo,
             IngresoOcasionalRepository ingresoRepo,
-            ConfiguracionRepository configRepo,
+            SystemConfigRepository configRepo,
             TransferenciaRepository transferenciaRepo) {
 
         return args -> {
@@ -201,19 +201,19 @@ public class CargaDatos {
             Cliente cli2 = clienteRepo.save(new Cliente(null, "Maria Rodriguez", "30304040", "3109876543", "maria@hotmail.com"));
             Cliente cli3 = clienteRepo.save(new Cliente(null, "Transportes SAS", "900500600", "6017778888", "logistica@transportes.com"));
 
-            CategoriaProducto cat1 = categoriaRepo.save(new CategoriaProducto(null, "Llantas", 20, 5));
-            CategoriaProducto cat2 = categoriaRepo.save(new CategoriaProducto(null, "Aceites", 15, 3));
-            CategoriaProducto cat3 = categoriaRepo.save(new CategoriaProducto(null, "Frenos", 10, 2));
+            ProductCategory cat1 = categoryRepo.save(new ProductCategory(null, "Llantas", 20, 5));
+            ProductCategory cat2 = categoryRepo.save(new ProductCategory(null, "Aceites", 15, 3));
+            ProductCategory cat3 = categoryRepo.save(new ProductCategory(null, "Frenos", 10, 2));
 
-            Producto prod1 = productoRepo.save(new Producto(0, cat1, "LL-001", "Llanta 205/55 R16", null, 38000.0, 200000.0, 238000.0, "Producto"));
-            Producto prod2 = productoRepo.save(new Producto(0, cat2, "AC-001", "Aceite Sintetico 5W30", null, 9500.0, 50000.0, 59500.0, "Producto"));
-            Producto prod3 = productoRepo.save(new Producto(0, cat3, "FR-001", "Pastillas de Freno Cerámica", null, 15200.0, 80000.0, 95200.0, "Servicio"));
+            Product prod1 = productRepo.save(new Product(0, cat1, "LL-001", "Llanta 205/55 R16", null, 38000.0, 200000.0, 238000.0, "Producto"));
+            Product prod2 = productRepo.save(new Product(0, cat2, "AC-001", "Aceite Sintetico 5W30", null, 9500.0, 50000.0, 59500.0, "Producto"));
+            Product prod3 = productRepo.save(new Product(0, cat3, "FR-001", "Pastillas de Freno Cerámica", null, 15200.0, 80000.0, 95200.0, "Servicio"));
 
             Compra compra1 = compraRepo.save(new Compra(null, prov1, ctaBanco, "FAC-00001", LocalDate.now().minusDays(10), "Contado", LocalDate.now().minusDays(10), "Transferencia", "Stock Inicial", 2380000.0, "PAGADA"));
             detCompraRepo.save(new DetalleCompra(10, compra1, 0.0, null, 380000.0, 200000.0, prod1, 2380000.0));
             pagoRepo.save(new Pago(compra1, ctaBanco, LocalDate.now().minusDays(10), null, "Transferencia", 2380000.0));
-            prod1.setCantidad(10);
-            productoRepo.save(prod1);
+            prod1.setQuantity(10);
+            productRepo.save(prod1);
             ctaBanco.setSaldoActual(ctaBanco.getSaldoActual() - 2380000.0);
             cuentaRepo.save(ctaBanco);
             Movimiento movC1 = new Movimiento(LocalDate.now().minusDays(10), compra1.getIdCompra(), "Egreso", 2380000.0, ctaBanco);
@@ -223,8 +223,8 @@ public class CargaDatos {
             Compra compra2 = compraRepo.save(new Compra(null, prov2, ctaCaja, "FAC-00002", LocalDate.now().minusDays(8), "Contado", LocalDate.now().minusDays(8), "Efectivo", "Reposición Aceites", 595000.0, "PAGADA"));
             detCompraRepo.save(new DetalleCompra(10, compra2, 0.0, null, 95000.0, 50000.0, prod2, 595000.0));
             pagoRepo.save(new Pago(compra2, ctaCaja, LocalDate.now().minusDays(8), null, "Efectivo", 595000.0));
-            prod2.setCantidad(10);
-            productoRepo.save(prod2);
+            prod2.setQuantity(10);
+            productRepo.save(prod2);
             ctaCaja.setSaldoActual(ctaCaja.getSaldoActual() - 595000.0);
             cuentaRepo.save(ctaCaja);
             Movimiento movC2 = new Movimiento(LocalDate.now().minusDays(8), compra2.getIdCompra(), "Egreso", 595000.0, ctaCaja);
@@ -233,16 +233,16 @@ public class CargaDatos {
 
             Compra compra3 = compraRepo.save(new Compra(null, prov3, ctaBanco, "FAC-00003", LocalDate.now().minusDays(5), "Credito", LocalDate.now().plusDays(25), "Transferencia", "Repuestos Frenos", 952000.0, "PENDIENTE"));
             detCompraRepo.save(new DetalleCompra(10, compra3, 0.0, null, 152000.0, 80000.0, prod3, 952000.0));
-            prod3.setCantidad(10);
-            productoRepo.save(prod3);
+            prod3.setQuantity(10);
+            productRepo.save(prod3);
 
             Venta venta1 = new Venta(cli1, ctaCaja, "PAGADA", LocalDate.now(), LocalDate.now(), "Contado", null, "Efectivo", "Venta mostrador", "VEN-00001", 476000.0);
             venta1.setSaldoPendiente(0.0);
             venta1 = ventaRepo.save(venta1);
             detVentaRepo.save(new DetalleVenta(2, 0.0, null, 76000.0, 238000.0, prod1, 476000.0, venta1));
             recaudoRepo.save(new Recaudo(ctaCaja, LocalDate.now(), null, "Efectivo", 476000.0, venta1));
-            prod1.setCantidad(prod1.getCantidad() - 2);
-            productoRepo.save(prod1);
+            prod1.setQuantity(prod1.getQuantity() - 2);
+            productRepo.save(prod1);
             ctaCaja.setSaldoActual(ctaCaja.getSaldoActual() + 476000.0);
             cuentaRepo.save(ctaCaja);
             Movimiento movV1 = new Movimiento(LocalDate.now(), venta1.getIdVenta(), "Ingreso", 476000.0, ctaCaja);
@@ -254,8 +254,8 @@ public class CargaDatos {
             venta2 = ventaRepo.save(venta2);
             detVentaRepo.save(new DetalleVenta(4, 0.0, null, 38000.0, 59500.0, prod2, 238000.0, venta2));
             recaudoRepo.save(new Recaudo(ctaBanco, LocalDate.now(), null, "Transferencia", 238000.0, venta2));
-            prod2.setCantidad(prod2.getCantidad() - 4);
-            productoRepo.save(prod2);
+            prod2.setQuantity(prod2.getQuantity() - 4);
+            productRepo.save(prod2);
             ctaBanco.setSaldoActual(ctaBanco.getSaldoActual() + 238000.0);
             cuentaRepo.save(ctaBanco);
             Movimiento movV2 = new Movimiento(LocalDate.now(), venta2.getIdVenta(), "Ingreso", 238000.0, ctaBanco);
@@ -270,10 +270,10 @@ public class CargaDatos {
             recaudoRepo.save(abonoInicial);
             venta3.setSaldoPendiente(1404000.0);
             ventaRepo.save(venta3);
-            prod3.setCantidad(prod3.getCantidad() - 4);
-            prod1.setCantidad(prod1.getCantidad() - 4);
-            productoRepo.save(prod3);
-            productoRepo.save(prod1);
+            prod3.setQuantity(prod3.getQuantity() - 4);
+            prod1.setQuantity(prod1.getQuantity() - 4);
+            productRepo.save(prod3);
+            productRepo.save(prod1);
 
             GastoOperativo gasto1 = gastoRepo.save(new GastoOperativo("Pago Energia", ctaCaja, LocalDate.now(), null, 150000.0, "Enel Codensa"));
             ctaCaja.setSaldoActual(ctaCaja.getSaldoActual() - 150000.0);
@@ -346,10 +346,10 @@ public class CargaDatos {
         };
     }
 
-    private void crearConfig(ConfiguracionRepository repo, String clave, String valor) {
-        Configuracion c = new Configuracion();
-        c.setClave(clave);
-        c.setValor(valor);
+    private void crearConfig(SystemConfigRepository repo, String clave, String valor) {
+        SystemConfig c = new SystemConfig();
+        c.setKey(clave);
+        c.setValue(valor);
         repo.save(c);
     }
 }

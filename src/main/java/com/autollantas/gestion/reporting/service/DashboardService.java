@@ -8,7 +8,8 @@ import com.autollantas.gestion.treasury.model.Movimiento;
 import com.autollantas.gestion.treasury.service.TesoreriaService;
 import com.autollantas.gestion.sales.model.Venta;
 import com.autollantas.gestion.sales.service.VentasService;
-import com.autollantas.gestion.inventory.service.InventarioService;
+import com.autollantas.gestion.inventory.service.InventoryService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +23,12 @@ public class DashboardService {
     private final VentasService ventasService;
     private final ComprasService comprasService;
     private final TesoreriaService tesoreriaService;
-    private final InventarioService inventarioService;
+    private final InventoryService inventarioService;
 
     public DashboardService(VentasService ventasService,
                             ComprasService comprasService,
                             TesoreriaService tesoreriaService,
-                            InventarioService inventarioService) {
+                            InventoryService inventarioService) {
         this.ventasService = ventasService;
         this.comprasService = comprasService;
         this.tesoreriaService = tesoreriaService;
@@ -106,7 +107,7 @@ public class DashboardService {
                 totalPorCobrar,
                 totalPorPagar,
                 tesoreriaService.getSaldoTotalCuentas(),
-                inventarioService.contarAlertasStock()
+                inventarioService.countStockAlerts()
         );
     }
 

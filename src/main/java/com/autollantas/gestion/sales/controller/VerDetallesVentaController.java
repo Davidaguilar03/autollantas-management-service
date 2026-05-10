@@ -1,8 +1,8 @@
 package com.autollantas.gestion.sales.controller;
 
-import com.autollantas.gestion.sales.model.DetalleVenta;
-import com.autollantas.gestion.sales.model.Venta;
-import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.sales.model.SaleDetail;
+import com.autollantas.gestion.sales.service.SalesService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -28,7 +28,7 @@ import java.util.Locale;
 public class VerDetallesVentaController {
 
     @Autowired
-    private VentasService ventasService;
+    private SalesService salesService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblCliente;
@@ -44,14 +44,14 @@ public class VerDetallesVentaController {
     @FXML private Label lblSaldoPendiente;
     @FXML private TextArea txtNotas;
 
-    @FXML private TableView<DetalleVenta> tablaDetalles;
-    @FXML private TableColumn<DetalleVenta, String> colCodigo;
-    @FXML private TableColumn<DetalleVenta, String> colProducto;
-    @FXML private TableColumn<DetalleVenta, Integer> colCantidad;
-    @FXML private TableColumn<DetalleVenta, String> colPrecio;
-    @FXML private TableColumn<DetalleVenta, String> colDescuento;
-    @FXML private TableColumn<DetalleVenta, String> colImpuesto;
-    @FXML private TableColumn<DetalleVenta, String> colSubtotal;
+    @FXML private TableView<SaleDetail> tablaDetalles;
+    @FXML private TableColumn<SaleDetail, String> colCodigo;
+    @FXML private TableColumn<SaleDetail, String> colProducto;
+    @FXML private TableColumn<SaleDetail, Integer> colCantidad;
+    @FXML private TableColumn<SaleDetail, String> colPrecio;
+    @FXML private TableColumn<SaleDetail, String> colDescuento;
+    @FXML private TableColumn<SaleDetail, String> colImpuesto;
+    @FXML private TableColumn<SaleDetail, String> colSubtotal;
 
     private final NumberFormat monedaFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
     private final DateTimeFormatter fechaFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -61,24 +61,24 @@ public class VerDetallesVentaController {
         configurarTabla();
     }
 
-    public void setVenta(Venta venta) {
-        if (venta == null) return;
+    public void setSale(Sale sale) {
+        if (sale == null) return;
 
-        lblNumeroFactura.setText(venta.getNumeroFacturaVenta());
-        lblCliente.setText(venta.getCliente() != null ? venta.getCliente().getNombreCliente() : "Cliente General");
-        lblFecha.setText(venta.getFechaVenta() != null ? venta.getFechaVenta().format(fechaFormat) : "-");
-        lblCuenta.setText(venta.getCuenta() != null ? venta.getCuenta().getNombreCuenta() : "Sin Asignar");
-        lblFormaPago.setText(venta.getFormaPagoVenta());
-        lblMedioPago.setText(venta.getMedioPagoVenta());
+        lblNumeroFactura.setText(sale.getInvoiceNumber());
+        lblCliente.setText(sale.getCustomer() != null ? sale.getCustomer().getName() : "Cliente General");
+        lblFecha.setText(sale.getSaleDate() != null ? sale.getSaleDate().format(fechaFormat) : "-");
+        lblCuenta.setText(sale.getAccount() != null ? sale.getAccount().getName() : "Sin Asignar");
+        lblFormaPago.setText(sale.getPaymentType());
+        lblMedioPago.setText(sale.getPaymentMethod());
 
-        if (venta.getFechaVencimientoVenta() != null) {
-            lblVencimiento.setText(venta.getFechaVencimientoVenta().format(fechaFormat));
+        if (sale.getDueDate() != null) {
+            lblVencimiento.setText(sale.getDueDate().format(fechaFormat));
 
-            if ("Crédito".equalsIgnoreCase(venta.getFormaPagoVenta())
-                    && !"PAGADA".equalsIgnoreCase(venta.getEstadoVenta())
-                    && !"ANULADA".equalsIgnoreCase(venta.getEstadoVenta())) {
+            if ("Crédito".equalsIgnoreCase(sale.getPaymentType())
+                    && !"PAGADA".equalsIgnoreCase(sale.getStatus())
+                    && !"ANULADA".equalsIgnoreCase(sale.getStatus())) {
 
-                long dias = ChronoUnit.DAYS.between(LocalDate.now(), venta.getFechaVencimientoVenta());
+                long dias = ChronoUnit.DAYS.between(LocalDate.now(), sale.getDueDate());
 
                 lblDiasRestantes.setVisible(true);
                 lblDiasRestantes.setManaged(true);
@@ -103,43 +103,43 @@ public class VerDetallesVentaController {
             lblDiasRestantes.setManaged(false);
         }
 
-        lblEstado.setText(venta.getEstadoVenta());
-        switch (venta.getEstadoVenta()) {
+        lblEstado.setText(sale.getStatus());
+        switch (sale.getStatus()) {
             case "PAGADA" -> lblEstado.setStyle("-fx-text-fill: green; -fx-font-weight: bold; -fx-font-size: 14px;");
             case "ANULADA" -> lblEstado.setStyle("-fx-text-fill: red; -fx-font-weight: bold; -fx-font-size: 14px;");
             case "PENDIENTE" -> lblEstado.setStyle("-fx-text-fill: orange; -fx-font-weight: bold; -fx-font-size: 14px;");
             default -> lblEstado.setStyle("-fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 14px;");
         }
 
-        lblTotal.setText(monedaFormat.format(venta.getTotalVenta()));
-        Double saldo = venta.getSaldoPendiente() != null ? venta.getSaldoPendiente() : 0.0;
-        lblSaldoPendiente.setText(monedaFormat.format(saldo));
+        lblTotal.setText(monedaFormat.format(sale.getTotal()));
+        Double balance = sale.getPendingBalance() != null ? sale.getPendingBalance() : 0.0;
+        lblSaldoPendiente.setText(monedaFormat.format(balance));
 
-        if (saldo > 0) lblSaldoPendiente.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        if (balance > 0) lblSaldoPendiente.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         else lblSaldoPendiente.setStyle("-fx-text-fill: green;");
 
-        String notas = venta.getNotasVenta();
-        txtNotas.setText((notas == null || notas.trim().isEmpty()) ? "Sin observaciones." : notas);
+        String notes = sale.getNotes();
+        txtNotas.setText((notes == null || notes.trim().isEmpty()) ? "Sin observaciones." : notes);
 
-        cargarDetalles(venta);
+        loadDetails(sale);
     }
 
-    private void cargarDetalles(Venta venta) {
-        List<DetalleVenta> detalles = ventasService.findDetallesByVenta(venta);
-        tablaDetalles.setItems(FXCollections.observableArrayList(detalles));
+    private void loadDetails(Sale sale) {
+        List<SaleDetail> details = salesService.findSaleDetailsBySale(sale);
+        tablaDetalles.setItems(FXCollections.observableArrayList(details));
     }
 
     private void configurarTabla() {
-        colCodigo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProducto().getCodigoProducto()));
-        colProducto.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProducto().getDescripcion()));
-        colCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidadVenta"));
-        colPrecio.setCellValueFactory(cell -> new SimpleStringProperty(monedaFormat.format(cell.getValue().getPrecioVenta())));
-        colDescuento.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.0f%%", cell.getValue().getDescuentoVenta())));
+        colCodigo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduct().getCode()));
+        colProducto.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getProduct().getDescription()));
+        colCantidad.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        colPrecio.setCellValueFactory(cell -> new SimpleStringProperty(monedaFormat.format(cell.getValue().getSalePrice())));
+        colDescuento.setCellValueFactory(cell -> new SimpleStringProperty(String.format("%.0f%%", cell.getValue().getDiscount())));
         colImpuesto.setCellValueFactory(cell -> {
-            Double imp = cell.getValue().getImpuestoVenta();
-            return new SimpleStringProperty(imp != null ? String.format("%.0f", imp) : "0");
+            Double tax = cell.getValue().getTax();
+            return new SimpleStringProperty(tax != null ? String.format("%.0f", tax) : "0");
         });
-        colSubtotal.setCellValueFactory(cell -> new SimpleStringProperty(monedaFormat.format(cell.getValue().getSubtotalVenta())));
+        colSubtotal.setCellValueFactory(cell -> new SimpleStringProperty(monedaFormat.format(cell.getValue().getSubtotal())));
     }
 
     @FXML

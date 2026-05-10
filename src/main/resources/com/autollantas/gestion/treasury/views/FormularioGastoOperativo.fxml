@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.treasury.controller.FormularioGastoOperativoController">
+<StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.treasury.controller.OperationalExpenseFormController">
 
     <VBox alignment="TOP_CENTER" maxHeight="550" maxWidth="650" spacing="10.0" styleClass="card-form">
 

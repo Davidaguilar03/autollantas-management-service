@@ -4,13 +4,13 @@ import com.autollantas.gestion.purchases.model.Compra;
 import com.autollantas.gestion.treasury.model.Cuenta;
 import com.autollantas.gestion.purchases.model.DetalleCompra;
 import com.autollantas.gestion.treasury.model.Pago;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.model.Proveedor;
 import com.autollantas.gestion.purchases.repository.CompraRepository;
 import com.autollantas.gestion.treasury.repository.CuentaRepository;
 import com.autollantas.gestion.purchases.repository.DetalleCompraRepository;
 import com.autollantas.gestion.treasury.repository.PagoRepository;
-import com.autollantas.gestion.inventory.repository.ProductoRepository;
+import com.autollantas.gestion.inventory.repository.ProductRepository;
 import com.autollantas.gestion.purchases.repository.ProveedorRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,14 +25,14 @@ public class ComprasService {
     private final CompraRepository compraRepository;
     private final DetalleCompraRepository detalleCompraRepository;
     private final ProveedorRepository proveedorRepository;
-    private final ProductoRepository productoRepository;
+    private final ProductRepository productoRepository;
     private final PagoRepository pagoRepository;
     private final CuentaRepository cuentaRepository;
 
     public ComprasService(CompraRepository compraRepository,
                           DetalleCompraRepository detalleCompraRepository,
                           ProveedorRepository proveedorRepository,
-                          ProductoRepository productoRepository,
+                          ProductRepository productoRepository,
                           PagoRepository pagoRepository,
                           CuentaRepository cuentaRepository) {
         this.compraRepository = compraRepository;
@@ -119,9 +119,9 @@ public class ComprasService {
         if (modoEdicion) {
             List<DetalleCompra> detallesAntiguos = detalleCompraRepository.findByCompra(compraGuardada);
             for (DetalleCompra detalleAntiguo : detallesAntiguos) {
-                Producto producto = detalleAntiguo.getProducto();
+                Product producto = detalleAntiguo.getProducto();
                 if (producto != null) {
-                    producto.setCantidad(producto.getCantidad() - detalleAntiguo.getCantidadCompra());
+                    producto.setQuantity(producto.getQuantity() - detalleAntiguo.getCantidadCompra());
                     productoRepository.save(producto);
                 }
             }
@@ -132,13 +132,13 @@ public class ComprasService {
             detalle.setCompra(compraGuardada);
             detalleCompraRepository.save(detalle);
 
-            Producto producto = detalle.getProducto();
-            if (producto == null || producto.getIdProducto() == null) {
+            Product producto = detalle.getProducto();
+            if (producto == null || producto.getId() == null) {
                 continue;
             }
 
-            productoRepository.findById(producto.getIdProducto()).ifPresent(productoReal -> {
-                productoReal.setCantidad(productoReal.getCantidad() + detalle.getCantidadCompra());
+            productoRepository.findById(producto.getId()).ifPresent(productoReal -> {
+                productoReal.setQuantity(productoReal.getQuantity() + detalle.getCantidadCompra());
                 productoRepository.save(productoReal);
             });
         }
@@ -150,9 +150,9 @@ public class ComprasService {
     public void anularCompra(Compra compra) {
         List<DetalleCompra> detalles = detalleCompraRepository.findByCompra(compra);
         for (DetalleCompra detalle : detalles) {
-            Producto producto = detalle.getProducto();
+            Product producto = detalle.getProducto();
             if (producto != null) {
-                producto.setCantidad(producto.getCantidad() - detalle.getCantidadCompra());
+                producto.setQuantity(producto.getQuantity() - detalle.getCantidadCompra());
                 productoRepository.save(producto);
             }
         }

@@ -1,7 +1,7 @@
 package com.autollantas.gestion.sales.controller;
 
-import com.autollantas.gestion.sales.model.Venta;
-import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -41,8 +41,7 @@ import java.util.Optional;
 @Scope("prototype")
 public class FacturasVentaController {
 
-    @Autowired private VentasService ventasService;
-
+    @Autowired private SalesService salesService;
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtNumero;
@@ -57,25 +56,25 @@ public class FacturasVentaController {
     @FXML private DatePicker dpVencimientoDesde;
     @FXML private DatePicker dpVencimientoHasta;
 
-    @FXML private TableView<Venta> tablaFacturas;
-    @FXML private TableColumn<Venta, String> colNumero;
-    @FXML private TableColumn<Venta, String> colCliente;
-    @FXML private TableColumn<Venta, LocalDate> colFechaCreacion;
-    @FXML private TableColumn<Venta, LocalDate> colFechaVencimiento;
-    @FXML private TableColumn<Venta, Double> colTotal;
-    @FXML private TableColumn<Venta, String> colMetodoPago;
-    @FXML private TableColumn<Venta, String> colFormaPago;
-    @FXML private TableColumn<Venta, String> colCuenta;
-    @FXML private TableColumn<Venta, Double> colPorCobrar;
-    @FXML private TableColumn<Venta, String> colEstado;
+    @FXML private TableView<Sale> tablaFacturas;
+    @FXML private TableColumn<Sale, String> colNumero;
+    @FXML private TableColumn<Sale, String> colCliente;
+    @FXML private TableColumn<Sale, LocalDate> colFechaCreacion;
+    @FXML private TableColumn<Sale, LocalDate> colFechaVencimiento;
+    @FXML private TableColumn<Sale, Double> colTotal;
+    @FXML private TableColumn<Sale, String> colMetodoPago;
+    @FXML private TableColumn<Sale, String> colFormaPago;
+    @FXML private TableColumn<Sale, String> colCuenta;
+    @FXML private TableColumn<Sale, Double> colPorCobrar;
+    @FXML private TableColumn<Sale, String> colEstado;
 
     @FXML private Button btnEditar;
     @FXML private Button btnEliminar;
     @FXML private Button btnVerDetalles;
     @FXML private Label lblInfoRegistros;
 
-    private final ObservableList<Venta> masterData = FXCollections.observableArrayList();
-    private FilteredList<Venta> filteredData;
+    private final ObservableList<Sale> masterData = FXCollections.observableArrayList();
+    private FilteredList<Sale> filteredData;
 
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -88,7 +87,7 @@ public class FacturasVentaController {
     @FXML
     public void initialize() {
         this.filteredData = new FilteredList<>(masterData, p -> true);
-        SortedList<Venta> sortedData = new SortedList<>(filteredData);
+        SortedList<Sale> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaFacturas.comparatorProperty());
         tablaFacturas.setItems(sortedData);
 
@@ -100,7 +99,7 @@ public class FacturasVentaController {
 
         tablaFacturas.setOnKeyPressed(event -> {
             if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
-                Venta seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
+                Sale seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
                 if (seleccionada != null) {
                     abrirModalDetalles(seleccionada);
                     event.consume();
@@ -110,7 +109,7 @@ public class FacturasVentaController {
 
         tablaFacturas.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                Venta seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
+                Sale seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
                 if (seleccionada != null) {
                     abrirModalDetalles(seleccionada);
                 }
@@ -123,8 +122,8 @@ public class FacturasVentaController {
     private void cargarDatosBaseDatos() {
         Platform.runLater(() -> {
             try {
-                List<Venta> ventasDB = ventasService.findAllVentas();
-                masterData.setAll(ventasDB);
+                List<Sale> salesDB = salesService.findAllSales();
+                masterData.setAll(salesDB);
                 actualizarLabelRegistros();
                 aplicarFiltros();
             } catch (Exception e) {
@@ -146,20 +145,20 @@ public class FacturasVentaController {
         abrirModal();
     }
 
-    public void abrirModal(){
+    public void abrirModal() {
         MainLayoutController.getInstance().cargarVista("/com/autollantas/gestion/sales/views/FormularioVenta.fxml");
     }
 
     @FXML
     void btnEditarClick(ActionEvent event) {
-        Venta seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
+        Sale seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
 
         if (seleccionada == null) {
             mostrarAlerta("Ninguna selección", "Por favor selecciona una venta para editar.", Alert.AlertType.WARNING);
             return;
         }
 
-        if ("ANULADA".equalsIgnoreCase(seleccionada.getEstadoVenta())) {
+        if ("ANULADA".equalsIgnoreCase(seleccionada.getStatus())) {
             mostrarAlerta("Acción no permitida", "No se puede editar una factura que ya ha sido ANULADA.", Alert.AlertType.ERROR);
             return;
         }
@@ -168,7 +167,7 @@ public class FacturasVentaController {
 
         if (controllerObj instanceof FormularioVentaController) {
             FormularioVentaController formularioController = (FormularioVentaController) controllerObj;
-            formularioController.setVentaParaEdicion(seleccionada);
+            formularioController.setSaleForEditing(seleccionada);
         }
     }
 
@@ -182,29 +181,25 @@ public class FacturasVentaController {
 
     @FXML
     void btnAnularClick(ActionEvent event) {
-        Venta sel = tablaFacturas.getSelectionModel().getSelectedItem();
-        if(sel != null) {
-
-            if ("ANULADA".equalsIgnoreCase(sel.getEstadoVenta())) {
+        Sale sel = tablaFacturas.getSelectionModel().getSelectedItem();
+        if (sel != null) {
+            if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
                 mostrarAlerta("Atención", "Esta factura ya se encuentra anulada.", Alert.AlertType.WARNING);
                 return;
             }
 
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Anular Venta");
-            confirm.setHeaderText("¿Desea anular la factura " + sel.getNumeroFacturaVenta() + "?");
+            confirm.setHeaderText("¿Desea anular la factura " + sel.getInvoiceNumber() + "?");
             confirm.setContentText("Esta acción es irreversible y DEVOLVERÁ los productos al inventario.");
 
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 try {
-                    ventasService.anularVenta(sel);
-
+                    salesService.cancelSale(sel);
                     tablaFacturas.refresh();
                     aplicarFiltros();
-
                     mostrarAlerta("Éxito", "Venta anulada y stock devuelto correctamente.", Alert.AlertType.INFORMATION);
-
                 } catch (Exception e) {
                     e.printStackTrace();
                     mostrarAlerta("Error", "No se pudo anular la venta.", Alert.AlertType.ERROR);
@@ -215,21 +210,19 @@ public class FacturasVentaController {
 
     @FXML
     void btnVerDetallesClick(ActionEvent event) {
-        Venta seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
-        if (seleccionada == null) {
-            return;
-        }
+        Sale seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) return;
         abrirModalDetalles(seleccionada);
     }
 
-    private void abrirModalDetalles(Venta venta) {
+    private void abrirModalDetalles(Sale sale) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/sales/views/VerDetallesVenta.fxml"));
             loader.setControllerFactory(param -> springContext.getBean(param));
             Parent root = loader.load();
 
             VerDetallesVentaController controller = loader.getController();
-            controller.setVenta(venta);
+            controller.setSale(sale);
 
             Stage modalStage = new Stage();
             modalStage.initStyle(StageStyle.TRANSPARENT);
@@ -240,20 +233,15 @@ public class FacturasVentaController {
 
             Scene scene = new Scene(root);
             scene.setFill(Color.TRANSPARENT);
-
             scene.setOnKeyPressed(event -> {
-                if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
-                    modalStage.close();
-                }
+                if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) modalStage.close();
             });
 
             modalStage.setScene(scene);
-
             modalStage.setX(ventanaPrincipal.getX());
             modalStage.setY(ventanaPrincipal.getY());
             modalStage.setWidth(ventanaPrincipal.getWidth());
             modalStage.setHeight(ventanaPrincipal.getHeight());
-
             modalStage.showAndWait();
 
         } catch (Exception e) {
@@ -263,55 +251,52 @@ public class FacturasVentaController {
     }
 
     private void configurarColumnas() {
-        colNumero.setCellValueFactory(new PropertyValueFactory<>("numeroFacturaVenta"));
+        colNumero.setCellValueFactory(new PropertyValueFactory<>("invoiceNumber"));
         estilizarColumnaTexto(colNumero);
 
         colCliente.setCellValueFactory(cell -> {
-            if (cell.getValue().getCliente() != null) {
-                return new SimpleStringProperty(cell.getValue().getCliente().getNombreCliente());
-            }
+            if (cell.getValue().getCustomer() != null)
+                return new SimpleStringProperty(cell.getValue().getCustomer().getName());
             return new SimpleStringProperty("Cliente General");
         });
         estilizarColumnaTexto(colCliente);
 
-        colFechaCreacion.setCellValueFactory(new PropertyValueFactory<>("fechaVenta"));
+        colFechaCreacion.setCellValueFactory(new PropertyValueFactory<>("saleDate"));
         colFechaCreacion.setCellFactory(col -> crearCeldaFecha(false));
 
-        colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("fechaVencimientoVenta"));
+        colFechaVencimiento.setCellValueFactory(new PropertyValueFactory<>("dueDate"));
         colFechaVencimiento.setCellFactory(col -> crearCeldaFecha(true));
 
-        colTotal.setCellValueFactory(new PropertyValueFactory<>("totalVenta"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("total"));
         colTotal.setCellFactory(col -> crearCeldaMoneda());
 
-        colFormaPago.setCellValueFactory(new PropertyValueFactory<>("formaPagoVenta"));
+        colFormaPago.setCellValueFactory(new PropertyValueFactory<>("paymentType"));
         estilizarColumnaTexto(colFormaPago);
 
-        colMetodoPago.setCellValueFactory(new PropertyValueFactory<>("medioPagoVenta"));
+        colMetodoPago.setCellValueFactory(new PropertyValueFactory<>("paymentMethod"));
         estilizarColumnaTexto(colMetodoPago);
 
         colCuenta.setCellValueFactory(cell -> {
-            if (cell.getValue().getCuenta() != null) {
-                return new SimpleStringProperty(cell.getValue().getCuenta().getNombreCuenta());
-            }
+            if (cell.getValue().getAccount() != null)
+                return new SimpleStringProperty(cell.getValue().getAccount().getName());
             return new SimpleStringProperty("-");
         });
         estilizarColumnaTexto(colCuenta);
 
         colPorCobrar.setCellValueFactory(cell -> {
-            Venta v = cell.getValue();
+            Sale v = cell.getValue();
             double porCobrar = 0.0;
-            if ("PENDIENTE".equalsIgnoreCase(v.getEstadoVenta())) {
-                porCobrar = v.getSaldoPendiente() != null ? v.getSaldoPendiente() : v.getTotalVenta();
-            }
+            if ("PENDIENTE".equalsIgnoreCase(v.getStatus()))
+                porCobrar = v.getPendingBalance() != null ? v.getPendingBalance() : v.getTotal();
             return new javafx.beans.property.SimpleObjectProperty<>(porCobrar);
         });
         colPorCobrar.setCellFactory(col -> crearCeldaPorCobrar());
 
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("estadoVenta"));
+        colEstado.setCellValueFactory(new PropertyValueFactory<>("status"));
         colEstado.setCellFactory(col -> crearCeldaEstado());
     }
 
-    private void estilizarColumnaTexto(TableColumn<Venta, String> col) {
+    private void estilizarColumnaTexto(TableColumn<Sale, String> col) {
         col.setCellFactory(c -> new TableCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -329,7 +314,7 @@ public class FacturasVentaController {
         });
     }
 
-    private TableCell<Venta, LocalDate> crearCeldaFecha(boolean validarVencimiento) {
+    private TableCell<Sale, LocalDate> crearCeldaFecha(boolean validarVencimiento) {
         return new TableCell<>() {
             @Override protected void updateItem(LocalDate item, boolean empty) {
                 super.updateItem(item, empty);
@@ -350,7 +335,7 @@ public class FacturasVentaController {
         };
     }
 
-    private TableCell<Venta, Double> crearCeldaMoneda() {
+    private TableCell<Sale, Double> crearCeldaMoneda() {
         return new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
@@ -366,7 +351,7 @@ public class FacturasVentaController {
         };
     }
 
-    private TableCell<Venta, Double> crearCeldaPorCobrar() {
+    private TableCell<Sale, Double> crearCeldaPorCobrar() {
         return new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
@@ -384,7 +369,7 @@ public class FacturasVentaController {
         };
     }
 
-    private TableCell<Venta, String> crearCeldaEstado() {
+    private TableCell<Sale, String> crearCeldaEstado() {
         return new TableCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -393,18 +378,11 @@ public class FacturasVentaController {
                     Label lbl = new Label(item.toUpperCase());
                     lbl.setAlignment(Pos.CENTER);
                     lbl.setStyle("-fx-font-weight: bold;");
-
                     Color baseColor;
-                    if ("PAGADA".equalsIgnoreCase(item)) {
-                        baseColor = ESTADO_PAGADA;
-                    } else if ("PENDIENTE".equalsIgnoreCase(item)) {
-                        baseColor = ESTADO_PENDIENTE;
-                    } else if ("ANULADA".equalsIgnoreCase(item)) {
-                        baseColor = ESTADO_ANULADA;
-                    } else {
-                        baseColor = Color.BLACK;
-                    }
-
+                    if ("PAGADA".equalsIgnoreCase(item)) baseColor = ESTADO_PAGADA;
+                    else if ("PENDIENTE".equalsIgnoreCase(item)) baseColor = ESTADO_PENDIENTE;
+                    else if ("ANULADA".equalsIgnoreCase(item)) baseColor = ESTADO_ANULADA;
+                    else baseColor = Color.BLACK;
                     lbl.textFillProperty().bind(Bindings.when(selectedProperty()).then(Color.WHITE).otherwise(baseColor));
                     setGraphic(lbl);
                     setAlignment(Pos.CENTER);
@@ -430,36 +408,29 @@ public class FacturasVentaController {
     private void aplicarFiltros() {
         if (filteredData == null) return;
 
-        filteredData.setPredicate(venta -> {
+        filteredData.setPredicate(sale -> {
             String filtroEstado = comboEstado.getValue();
-            String estadoVenta = venta.getEstadoVenta();
+            String saleStatus = sale.getStatus();
 
-            if ("PENDIENTE".equals(filtroEstado)) {
-                if (!"PENDIENTE".equalsIgnoreCase(estadoVenta)) return false;
-            } else if ("PAGADA".equals(filtroEstado)) {
-                if (!"PAGADA".equalsIgnoreCase(estadoVenta)) return false;
-            } else if ("ANULADA".equals(filtroEstado)) {
-                if (!"ANULADA".equalsIgnoreCase(estadoVenta)) return false;
-            } else if ("Todos".equals(filtroEstado) || filtroEstado == null) {
-            }
+            if ("PENDIENTE".equals(filtroEstado)) { if (!"PENDIENTE".equalsIgnoreCase(saleStatus)) return false; }
+            else if ("PAGADA".equals(filtroEstado)) { if (!"PAGADA".equalsIgnoreCase(saleStatus)) return false; }
+            else if ("ANULADA".equals(filtroEstado)) { if (!"ANULADA".equalsIgnoreCase(saleStatus)) return false; }
 
-            if (!matchTexto(venta.getNumeroFacturaVenta(), txtNumero.getText())) return false;
+            if (!matchTexto(sale.getInvoiceNumber(), txtNumero.getText())) return false;
 
-            String nombreCliente = (venta.getCliente() != null) ? venta.getCliente().getNombreCliente() : "";
+            String nombreCliente = (sale.getCustomer() != null) ? sale.getCustomer().getName() : "";
             if (!matchTexto(nombreCliente, txtCliente.getText())) return false;
 
             String totalFilter = txtTotal.getText().replaceAll("[^0-9]", "");
             if (!totalFilter.isEmpty()) {
-                if (venta.getTotalVenta() == null) return false;
-                String totalRealStr = String.valueOf(venta.getTotalVenta().longValue());
-                if (!totalRealStr.startsWith(totalFilter)) return false;
+                if (sale.getTotal() == null) return false;
+                if (!String.valueOf(sale.getTotal().longValue()).startsWith(totalFilter)) return false;
             }
 
-            if (!matchCombo(comboFormaPago, venta.getFormaPagoVenta())) return false;
-            if (!matchCombo(comboMedioPago, venta.getMedioPagoVenta())) return false;
-
-            if (fueraDeRango(venta.getFechaVenta(), dpCreacionDesde.getValue(), dpCreacionHasta.getValue())) return false;
-            if (fueraDeRango(venta.getFechaVencimientoVenta(), dpVencimientoDesde.getValue(), dpVencimientoHasta.getValue())) return false;
+            if (!matchCombo(comboFormaPago, sale.getPaymentType())) return false;
+            if (!matchCombo(comboMedioPago, sale.getPaymentMethod())) return false;
+            if (fueraDeRango(sale.getSaleDate(), dpCreacionDesde.getValue(), dpCreacionHasta.getValue())) return false;
+            if (fueraDeRango(sale.getDueDate(), dpVencimientoDesde.getValue(), dpVencimientoHasta.getValue())) return false;
 
             return true;
         });
@@ -530,4 +501,3 @@ public class FacturasVentaController {
         dpVencimientoDesde.setValue(null); dpVencimientoHasta.setValue(null);
     }
 }
-

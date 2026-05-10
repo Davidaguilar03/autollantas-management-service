@@ -1,13 +1,13 @@
 package com.autollantas.gestion.shared.controller;
 
-import com.autollantas.gestion.treasury.model.GastoOperativo;
-import com.autollantas.gestion.treasury.model.IngresoOcasional;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.treasury.model.OperationalExpense;
+import com.autollantas.gestion.treasury.model.OccasionalIncome;
+import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.sales.controller.FacturasVentaController;
-import com.autollantas.gestion.treasury.controller.IngresoOcasionalController;
+import com.autollantas.gestion.treasury.controller.OccasionalIncomeController;
 import com.autollantas.gestion.purchases.controller.FacturasCompraController;
-import com.autollantas.gestion.treasury.controller.GastosOperativosController;
-import com.autollantas.gestion.inventory.controller.ProductosController;
+import com.autollantas.gestion.treasury.controller.OperationalExpensesController;
+import com.autollantas.gestion.inventory.controller.ProductsController;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -178,8 +178,8 @@ public class MainLayoutController {
 
     @FXML void btnIngresoOcasionalPlusClick(ActionEvent event) {
         Object controller = cargarVista("/com/autollantas/gestion/treasury/views/IngresoOcasional.fxml");
-        if (controller instanceof IngresoOcasionalController c) {
-            c.abrirFormulario(new IngresoOcasional());
+        if (controller instanceof OccasionalIncomeController c) {
+            c.openForm(new OccasionalIncome());
         }
         cerrarSidebarSiEsMovil();
     }
@@ -194,17 +194,16 @@ public class MainLayoutController {
 
     @FXML void btnCostosOperativosPlusClick(ActionEvent event) {
         Object controller = cargarVista("/com/autollantas/gestion/treasury/views/GastosOperativos.fxml");
-        if (controller instanceof GastosOperativosController c) {
-            c.abrirFormulario(new GastoOperativo());
+        if (controller instanceof OperationalExpensesController c) {
+            c.openForm(new OperationalExpense());
         }
         cerrarSidebarSiEsMovil();
     }
 
     @FXML void btnProductosPlusClick(ActionEvent event) {
         Object controller = cargarVista("/com/autollantas/gestion/inventory/views/Productos.fxml");
-        if (controller instanceof ProductosController c) {
-           c.abrirModalProducto(null,
-                   "Nuevo Producto");
+        if (controller instanceof ProductsController c) {
+            c.abrirModalProduct(null, "Nuevo Producto");
         }
         cerrarSidebarSiEsMovil();
     }

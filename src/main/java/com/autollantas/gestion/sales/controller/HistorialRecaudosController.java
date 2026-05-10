@@ -1,8 +1,8 @@
 package com.autollantas.gestion.sales.controller;
 
-import com.autollantas.gestion.treasury.model.Recaudo;
-import com.autollantas.gestion.sales.model.Venta;
-import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.treasury.model.Collection;
+import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.sales.service.SalesService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -23,7 +23,7 @@ import java.util.Locale;
 public class HistorialRecaudosController {
 
     @Autowired
-    private VentasService ventasService;
+    private SalesService salesService;
 
     @FXML private Label lblNumeroFactura;
     @FXML private Label lblCliente;
@@ -31,13 +31,13 @@ public class HistorialRecaudosController {
     @FXML private Label lblSaldoActual;
     @FXML private Label lblTotalRecaudado;
 
-    @FXML private TableView<Recaudo> tablaHistorial;
-    @FXML private TableColumn<Recaudo, String> colFecha;
-    @FXML private TableColumn<Recaudo, String> colMetodo;
-    @FXML private TableColumn<Recaudo, String> colCuenta;
-    @FXML private TableColumn<Recaudo, String> colMonto;
+    @FXML private TableView<Collection> tablaHistorial;
+    @FXML private TableColumn<Collection, String> colFecha;
+    @FXML private TableColumn<Collection, String> colMetodo;
+    @FXML private TableColumn<Collection, String> colCuenta;
+    @FXML private TableColumn<Collection, String> colMonto;
 
-    private Venta ventaActual;
+    private Sale currentSale;
 
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
     private final DateTimeFormatter fechaFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -49,61 +49,61 @@ public class HistorialRecaudosController {
 
     private void configurarTabla() {
         colFecha.setCellValueFactory(cell -> {
-            if (cell.getValue().getFechaRecaudo() != null) {
-                return new SimpleStringProperty(fechaFormatter.format(cell.getValue().getFechaRecaudo()));
+            if (cell.getValue().getDate() != null) {
+                return new SimpleStringProperty(fechaFormatter.format(cell.getValue().getDate()));
             }
             return new SimpleStringProperty("-");
         });
 
         colMetodo.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getMetodoPagoRecaudo())
+                new SimpleStringProperty(cell.getValue().getPaymentMethod())
         );
 
         colCuenta.setCellValueFactory(cell -> {
-            if (cell.getValue().getCuenta() != null) {
-                return new SimpleStringProperty(cell.getValue().getCuenta().getNombreCuenta());
+            if (cell.getValue().getAccount() != null) {
+                return new SimpleStringProperty(cell.getValue().getAccount().getName());
             }
             return new SimpleStringProperty("N/A");
         });
 
         colMonto.setCellValueFactory(cell ->
-                new SimpleStringProperty(currencyFormat.format(cell.getValue().getValorRecaudo()))
+                new SimpleStringProperty(currencyFormat.format(cell.getValue().getAmount()))
         );
     }
 
-    public void setVenta(Venta venta) {
-        this.ventaActual = venta;
-        if (ventaActual == null) return;
+    public void setSale(Sale sale) {
+        this.currentSale = sale;
+        if (currentSale == null) return;
 
-        lblNumeroFactura.setText(venta.getNumeroFacturaVenta());
-        lblCliente.setText(venta.getCliente() != null ? venta.getCliente().getNombreCliente() : "Sin Cliente");
-        lblTotalOriginal.setText(currencyFormat.format(venta.getTotalVenta()));
+        lblNumeroFactura.setText(sale.getInvoiceNumber());
+        lblCliente.setText(sale.getCustomer() != null ? sale.getCustomer().getName() : "Sin Cliente");
+        lblTotalOriginal.setText(currencyFormat.format(sale.getTotal()));
 
-        cargarPagosFrescos();
+        loadCollections();
     }
 
-    private void cargarPagosFrescos() {
-        if (ventaActual == null) return;
+    private void loadCollections() {
+        if (currentSale == null) return;
 
         Platform.runLater(() -> {
-            List<Recaudo> listaPagos = ventasService.findRecaudosByVenta(ventaActual);
-            tablaHistorial.setItems(FXCollections.observableArrayList(listaPagos));
+            List<Collection> collections = salesService.findCollectionsBySale(currentSale);
+            tablaHistorial.setItems(FXCollections.observableArrayList(collections));
 
-            double totalPagado = listaPagos.stream()
-                    .mapToDouble(Recaudo::getValorRecaudo)
+            double totalPaid = collections.stream()
+                    .mapToDouble(Collection::getAmount)
                     .sum();
 
-            double saldoPendiente;
+            double pendingBalance;
 
-            if ("PAGADA".equalsIgnoreCase(ventaActual.getEstadoVenta())) {
-                saldoPendiente = 0.0;
+            if ("PAGADA".equalsIgnoreCase(currentSale.getStatus())) {
+                pendingBalance = 0.0;
             } else {
-                saldoPendiente = ventaActual.getTotalVenta() - totalPagado;
-                if (saldoPendiente < 0) saldoPendiente = 0;
+                pendingBalance = currentSale.getTotal() - totalPaid;
+                if (pendingBalance < 0) pendingBalance = 0;
             }
 
-            lblTotalRecaudado.setText(currencyFormat.format(totalPagado));
-            lblSaldoActual.setText(currencyFormat.format(saldoPendiente));
+            lblTotalRecaudado.setText(currencyFormat.format(totalPaid));
+            lblSaldoActual.setText(currencyFormat.format(pendingBalance));
         });
     }
 

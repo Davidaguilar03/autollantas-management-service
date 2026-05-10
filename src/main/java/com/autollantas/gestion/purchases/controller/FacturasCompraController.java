@@ -2,7 +2,7 @@ package com.autollantas.gestion.purchases.controller;
 
 import com.autollantas.gestion.purchases.model.Compra;
 import com.autollantas.gestion.purchases.model.DetalleCompra;
-import com.autollantas.gestion.inventory.model.Producto;
+import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.service.ComprasService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
 import javafx.application.Platform;
