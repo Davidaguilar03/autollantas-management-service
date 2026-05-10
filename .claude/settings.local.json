@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/model C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/repository C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/service C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/controller)",
+      "Bash(mkdir -p C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/resources/com/autollantas/gestion/__TRACKED_VAR__/views)",
+      "Bash(mkdir -p C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/shared/util)",
+      "Bash(git mv *)",
+      "Bash(python update_imports.py)",
+      "Bash(python fix_models_and_fxml.py)",
+      "Bash(rmdir __TRACKED_VAR__/model __TRACKED_VAR__/repository __TRACKED_VAR__/service __TRACKED_VAR__/controllers __TRACKED_VAR__/utils)",
+      "Bash(rmdir __TRACKED_VAR__/views)",
+      "Bash(rm -f update_imports.py fix_models_and_fxml.py)",
+      "Bash(git add *)",
+      "Bash(./mvnw compile *)",
+      "Bash(sed -i 's|import com.autollantas.gestion.inventory.model.Producto;|import com.autollantas.gestion.inventory.model.Producto;\\\\nimport com.autollantas.gestion.sales.controller.FacturasVentaController;\\\\nimport com.autollantas.gestion.treasury.controller.IngresoOcasionalController;\\\\nimport com.autollantas.gestion.purchases.controller.FacturasCompraController;\\\\nimport com.autollantas.gestion.treasury.controller.GastosOperativosController;\\\\nimport com.autollantas.gestion.inventory.controller.ProductosController;|' __TRACKED_VAR__/shared/controller/MainLayoutController.java)",
+      "Bash(sed -i 's|import com.autollantas.gestion.reporting.service.DashboardService;|import com.autollantas.gestion.reporting.service.DashboardService;\\\\nimport com.autollantas.gestion.shared.controller.MainLayoutController;\\\\nimport com.autollantas.gestion.sales.controller.FacturasVentaController;\\\\nimport com.autollantas.gestion.treasury.controller.GastosOperativosController;\\\\nimport com.autollantas.gestion.treasury.controller.IngresoOcasionalController;\\\\nimport com.autollantas.gestion.purchases.controller.FormularioCompraController;|' __TRACKED_VAR__/reporting/controller/PanelControlController.java)",
+      "Bash(sed -i 's|import com.autollantas.gestion.sales.service.VentasService;|import com.autollantas.gestion.sales.service.VentasService;\\\\nimport com.autollantas.gestion.shared.controller.MainLayoutController;|' __TRACKED_VAR__/sales/controller/FacturasVentaController.java)",
+      "Bash(sed -i 's|import com.autollantas.gestion.purchases.service.ComprasService;|import com.autollantas.gestion.purchases.service.ComprasService;\\\\nimport com.autollantas.gestion.shared.controller.MainLayoutController;|' __TRACKED_VAR__/purchases/controller/FacturasCompraController.java)",
+      "Bash(sed -i 's|import com.autollantas.gestion.inventory.service.InventarioService;|import com.autollantas.gestion.inventory.service.InventarioService;\\\\nimport com.autollantas.gestion.shared.controller.MainLayoutController;|' __TRACKED_VAR__/purchases/controller/FormularioCompraController.java)",
+      "Bash(python -)",
+      "Bash(python3 \"C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/fix_imports2.py\")",
+      "PowerShell(python --version 2>&1)"
+    ]
+  }
+}
