@@ -27,7 +27,7 @@ public class AutollantasApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/views/Login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/Login.fxml"));
 
         fxmlLoader.setControllerFactory(springContext::getBean);
 

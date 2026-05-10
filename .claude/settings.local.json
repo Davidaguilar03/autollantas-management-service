@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/model C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/repository C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/service C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/__TRACKED_VAR__/controller)",
+      "Bash(mkdir -p C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/resources/com/autollantas/gestion/__TRACKED_VAR__/views)",
+      "Bash(mkdir -p C:/Users/PC/Desktop/G/DAC/Proyecto_Autollantas/Autollantas/src/main/java/com/autollantas/gestion/shared/util)",
+      "Bash(git mv *)",
+      "Bash(python update_imports.py)",
+      "Bash(python fix_models_and_fxml.py)",
+      "Bash(rmdir __TRACKED_VAR__/model __TRACKED_VAR__/repository __TRACKED_VAR__/service __TRACKED_VAR__/controllers __TRACKED_VAR__/utils)",
+      "Bash(rmdir __TRACKED_VAR__/views)",
+      "Bash(rm -f update_imports.py fix_models_and_fxml.py)",
+      "Bash(git add *)"
+    ]
+  }
+}
