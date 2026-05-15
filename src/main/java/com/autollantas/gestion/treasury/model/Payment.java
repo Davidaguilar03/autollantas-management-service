@@ -1,6 +1,6 @@
 package com.autollantas.gestion.treasury.model;
 
-import com.autollantas.gestion.purchases.model.Compra;
+import com.autollantas.gestion.purchases.model.Purchase;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Table(name = "PAGOS")
 public class Payment {
 
-    public Payment(Compra purchase, Account account, LocalDate date, Integer id, String paymentMethod, Double amount) {
+    public Payment(Purchase purchase, Account account, LocalDate date, Integer id, String paymentMethod, Double amount) {
         this.purchase = purchase;
         this.account = account;
         this.date = date;
@@ -29,7 +29,7 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "id_compra")
-    private Compra purchase;
+    private Purchase purchase;
 
     @ManyToOne
     @JoinColumn(name = "id_cuenta")

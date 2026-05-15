@@ -335,7 +335,7 @@ public class ProductsController {
 
     public void abrirModalProduct(Product producto, String titulo) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/inventory/views/FormularioProducto.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/inventory/views/ProductForm.fxml"));
             loader.setControllerFactory(param -> springContext.getBean(param));
             Parent root = loader.load();
 

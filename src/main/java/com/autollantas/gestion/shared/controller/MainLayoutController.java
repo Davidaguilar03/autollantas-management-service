@@ -3,9 +3,9 @@ package com.autollantas.gestion.shared.controller;
 import com.autollantas.gestion.treasury.model.OperationalExpense;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
 import com.autollantas.gestion.inventory.model.Product;
-import com.autollantas.gestion.sales.controller.FacturasVentaController;
+import com.autollantas.gestion.sales.controller.SaleInvoicesController;
 import com.autollantas.gestion.treasury.controller.OccasionalIncomeController;
-import com.autollantas.gestion.purchases.controller.FacturasCompraController;
+import com.autollantas.gestion.purchases.controller.PurchaseInvoicesController;
 import com.autollantas.gestion.treasury.controller.OperationalExpensesController;
 import com.autollantas.gestion.inventory.controller.ProductsController;
 import javafx.application.Platform;
@@ -46,17 +46,17 @@ public class MainLayoutController {
     @FXML private Button btnMenu;
     @FXML private ImageView imgLogoSidebar;
 
-    private static final double UMBRAL_RESPONSIVE = 1220.0;
+    private static final double RESPONSIVE_THRESHOLD = 1220.0;
 
     @FXML
     public void initialize() {
         instance = this;
-        cargarLogo();
+        loadLogo();
 
         if (contentArea != null) {
-            cargarVista("/com/autollantas/gestion/reporting/views/PanelControl.fxml");
+            loadView("/com/autollantas/gestion/reporting/views/Dashboard.fxml");
         }
-        iniciarListenerResponsive();
+        startResponsiveListener();
 
         Platform.runLater(() -> {
             contentArea.setFocusTraversable(true);
@@ -64,20 +64,20 @@ public class MainLayoutController {
         });
     }
 
-    private void iniciarListenerResponsive() {
+    private void startResponsiveListener() {
         Platform.runLater(() -> {
             if (contentArea.getScene() != null) {
                 Scene scene = contentArea.getScene();
-                scene.widthProperty().addListener((obs, oldVal, newVal) -> ajustarInterfaz(newVal.doubleValue()));
-                ajustarInterfaz(scene.getWidth());
+                scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustLayout(newVal.doubleValue()));
+                adjustLayout(scene.getWidth());
             }
         });
     }
 
-    private void ajustarInterfaz(double anchoActual) {
+    private void adjustLayout(double currentWidth) {
         if (sidebarContainer == null || topBar == null) return;
-        boolean esPantallaPequena = anchoActual < UMBRAL_RESPONSIVE;
-        if (esPantallaPequena) {
+        boolean isSmallScreen = currentWidth < RESPONSIVE_THRESHOLD;
+        if (isSmallScreen) {
             if (!topBar.isVisible()) {
                 sidebarContainer.setVisible(false); sidebarContainer.setManaged(false);
                 topBar.setVisible(true); topBar.setManaged(true);
@@ -89,13 +89,12 @@ public class MainLayoutController {
     }
 
     @FXML void toggleSidebar(ActionEvent event) {
-        boolean estaVisible = sidebarContainer.isVisible();
-        sidebarContainer.setVisible(!estaVisible);
-        sidebarContainer.setManaged(!estaVisible);
+        boolean isVisible = sidebarContainer.isVisible();
+        sidebarContainer.setVisible(!isVisible);
+        sidebarContainer.setManaged(!isVisible);
     }
 
-
-    public Object cargarVista(String fxmlPath) {
+    public Object loadView(String fxmlPath) {
         try {
             var url = getClass().getResource(fxmlPath);
             if (url == null) {
@@ -117,95 +116,95 @@ public class MainLayoutController {
         }
     }
 
-    private void cargarLogo() {
+    private void loadLogo() {
         try {
             Image logoHD = new Image(getClass().getResourceAsStream("/com/autollantas/gestion/images/Logo Negro.png"), 250, 250, true, true);
             if (imgLogoSidebar != null) imgLogoSidebar.setImage(logoHD);
         } catch (Exception e) { System.err.println("⚠️ Error logo: " + e.getMessage()); }
     }
 
-    private void cerrarSidebarSiEsMovil() {
+    private void closeSidebarIfMobile() {
         if (topBar.isVisible() && sidebarContainer.isVisible()) {
             sidebarContainer.setVisible(false); sidebarContainer.setManaged(false);
         }
     }
 
-    @FXML void btnPanelControlClick(MouseEvent event) { cargarVista("/com/autollantas/gestion/reporting/views/PanelControl.fxml"); }
+    @FXML void btnPanelControlClick(MouseEvent event) { loadView("/com/autollantas/gestion/reporting/views/Dashboard.fxml"); }
 
     @FXML void btnVentasClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/sales/views/FacturasVenta.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/sales/views/SaleInvoices.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnRecaudosClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/sales/views/Recaudos.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/sales/views/Collections.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnIngresoOcasionalClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/treasury/views/IngresoOcasional.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/treasury/views/OccasionalIncome.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnComprasClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/purchases/views/FacturasCompra.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnPagosClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/purchases/views/Pagos.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/purchases/views/Payments.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnCostosOperativosClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/treasury/views/GastosOperativos.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/treasury/views/OperationalExpenses.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnProductosClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/inventory/views/Productos.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/inventory/views/Products.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnAlertasClick(ActionEvent event) {
-        cargarVista("/com/autollantas/gestion/inventory/views/AlertasStock.fxml");
-        cerrarSidebarSiEsMovil();
+        loadView("/com/autollantas/gestion/inventory/views/StockAlerts.fxml");
+        closeSidebarIfMobile();
     }
     @FXML void btnCuentasClick(MouseEvent event) {
-        cargarVista("/com/autollantas/gestion/treasury/views/Cuentas.fxml");
+        loadView("/com/autollantas/gestion/treasury/views/Accounts.fxml");
     }
 
     @FXML void btnVentasPlusClick(ActionEvent event) {
-        Object controller = cargarVista("/com/autollantas/gestion/sales/views/FacturasVenta.fxml");
-        if (controller instanceof FacturasVentaController c) {
-           c.abrirModal();
+        Object controller = loadView("/com/autollantas/gestion/sales/views/SaleInvoices.fxml");
+        if (controller instanceof SaleInvoicesController c) {
+           c.openForm();
         }
-        cerrarSidebarSiEsMovil();
+        closeSidebarIfMobile();
     }
 
     @FXML void btnIngresoOcasionalPlusClick(ActionEvent event) {
-        Object controller = cargarVista("/com/autollantas/gestion/treasury/views/IngresoOcasional.fxml");
+        Object controller = loadView("/com/autollantas/gestion/treasury/views/OccasionalIncome.fxml");
         if (controller instanceof OccasionalIncomeController c) {
             c.openForm(new OccasionalIncome());
         }
-        cerrarSidebarSiEsMovil();
+        closeSidebarIfMobile();
     }
 
     @FXML void btnComprasPlusClick(ActionEvent event) {
-        Object controller = cargarVista("/com/autollantas/gestion/purchases/views/FacturasCompra.fxml");
-        if (controller instanceof FacturasCompraController c) {
-    c.abrirModal();
+        Object controller = loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
+        if (controller instanceof PurchaseInvoicesController c) {
+            c.openForm();
         }
-        cerrarSidebarSiEsMovil();
+        closeSidebarIfMobile();
     }
 
     @FXML void btnCostosOperativosPlusClick(ActionEvent event) {
-        Object controller = cargarVista("/com/autollantas/gestion/treasury/views/GastosOperativos.fxml");
+        Object controller = loadView("/com/autollantas/gestion/treasury/views/OperationalExpenses.fxml");
         if (controller instanceof OperationalExpensesController c) {
             c.openForm(new OperationalExpense());
         }
-        cerrarSidebarSiEsMovil();
+        closeSidebarIfMobile();
     }
 
     @FXML void btnProductosPlusClick(ActionEvent event) {
-        Object controller = cargarVista("/com/autollantas/gestion/inventory/views/Productos.fxml");
+        Object controller = loadView("/com/autollantas/gestion/inventory/views/Products.fxml");
         if (controller instanceof ProductsController c) {
             c.abrirModalProduct(null, "Nuevo Producto");
         }
-        cerrarSidebarSiEsMovil();
+        closeSidebarIfMobile();
     }
 
     @FXML

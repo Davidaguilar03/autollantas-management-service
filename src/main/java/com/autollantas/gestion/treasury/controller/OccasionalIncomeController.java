@@ -197,7 +197,7 @@ public class OccasionalIncomeController {
 
     public void openForm(OccasionalIncome income) {
         try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/autollantas/gestion/treasury/views/FormularioIngresoOcasional.fxml"));
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/autollantas/gestion/treasury/views/OccasionalIncomeForm.fxml"));
             loader.setControllerFactory(param -> springContext.getBean(param));
 
             javafx.scene.Parent root = loader.load();

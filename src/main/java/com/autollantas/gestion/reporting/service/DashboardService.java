@@ -1,13 +1,13 @@
 package com.autollantas.gestion.reporting.service;
 
-import com.autollantas.gestion.purchases.model.Compra;
-import com.autollantas.gestion.purchases.service.ComprasService;
-import com.autollantas.gestion.treasury.model.GastoOperativo;
-import com.autollantas.gestion.treasury.model.IngresoOcasional;
-import com.autollantas.gestion.treasury.model.Movimiento;
-import com.autollantas.gestion.treasury.service.TesoreriaService;
-import com.autollantas.gestion.sales.model.Venta;
-import com.autollantas.gestion.sales.service.VentasService;
+import com.autollantas.gestion.purchases.model.Purchase;
+import com.autollantas.gestion.purchases.service.PurchasesService;
+import com.autollantas.gestion.treasury.model.OperationalExpense;
+import com.autollantas.gestion.treasury.model.OccasionalIncome;
+import com.autollantas.gestion.treasury.model.Movement;
+import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.inventory.service.InventoryService;
 
 import org.springframework.stereotype.Service;
@@ -20,125 +20,113 @@ import java.util.List;
 @Service
 public class DashboardService {
 
-    private final VentasService ventasService;
-    private final ComprasService comprasService;
-    private final TesoreriaService tesoreriaService;
-    private final InventoryService inventarioService;
+    private final SalesService salesService;
+    private final PurchasesService purchasesService;
+    private final TreasuryService treasuryService;
+    private final InventoryService inventoryService;
 
-    public DashboardService(VentasService ventasService,
-                            ComprasService comprasService,
-                            TesoreriaService tesoreriaService,
-                            InventoryService inventarioService) {
-        this.ventasService = ventasService;
-        this.comprasService = comprasService;
-        this.tesoreriaService = tesoreriaService;
-        this.inventarioService = inventarioService;
+    public DashboardService(SalesService salesService,
+                            PurchasesService purchasesService,
+                            TreasuryService treasuryService,
+                            InventoryService inventoryService) {
+        this.salesService = salesService;
+        this.purchasesService = purchasesService;
+        this.treasuryService = treasuryService;
+        this.inventoryService = inventoryService;
     }
 
     @Transactional(readOnly = true)
-    public List<Movimiento> obtenerMovimientos(LocalDate inicio, LocalDate fin) {
-        List<Movimiento> listaUnificada = new ArrayList<>();
+    public List<Movement> getMovements(LocalDate start, LocalDate end) {
+        List<Movement> movements = new ArrayList<>();
 
-        for (Venta venta : ventasService.findVentasByFechaVentaBetween(inicio, fin)) {
-            Movimiento movimiento = new Movimiento(
-                    venta.getFechaVenta(),
-                    venta.getIdVenta(),
+        for (Sale sale : salesService.findSalesByDateBetween(start, end)) {
+            Movement movement = new Movement(
+                    sale.getSaleDate(),
+                    sale.getId(),
                     "Venta",
-                    venta.getTotalVenta(),
-                    venta.getCuenta()
+                    sale.getTotal(),
+                    sale.getAccount()
             );
-            movimiento.setTablaOrigenMovimiento("VENTA");
-            listaUnificada.add(movimiento);
+            movement.setSourceTable("VENTA");
+            movements.add(movement);
         }
 
-        for (Compra compra : comprasService.findComprasByFechaCompraBetween(inicio, fin)) {
-            Movimiento movimiento = new Movimiento(
-                    compra.getFechaCompra(),
-                    compra.getIdCompra(),
+        for (Purchase purchase : purchasesService.findPurchasesByDateBetween(start, end)) {
+            Movement movement = new Movement(
+                    purchase.getPurchaseDate(),
+                    purchase.getId(),
                     "Costo",
-                    compra.getTotalCompra(),
-                    compra.getCuenta()
+                    purchase.getTotal(),
+                    purchase.getAccount()
             );
-            movimiento.setTablaOrigenMovimiento("COMPRA");
-            listaUnificada.add(movimiento);
+            movement.setSourceTable("COMPRA");
+            movements.add(movement);
         }
 
-        for (GastoOperativo gasto : tesoreriaService.findGastosByFechaBetween(inicio, fin)) {
-            Movimiento movimiento = new Movimiento(
-                    gasto.getFechaGasto(),
-                    gasto.getIdGasto(),
+        for (OperationalExpense expense : treasuryService.findExpensesByDateBetween(start, end)) {
+            Movement movement = new Movement(
+                    expense.getDate(),
+                    expense.getId(),
                     "Gasto",
-                    gasto.getMontoGasto(),
-                    gasto.getCuenta()
+                    expense.getAmount(),
+                    expense.getAccount()
             );
-            movimiento.setTablaOrigenMovimiento("GASTO: " + gasto.getConceptoGasto());
-            listaUnificada.add(movimiento);
+            movement.setSourceTable("GASTO: " + expense.getConcept());
+            movements.add(movement);
         }
 
-        for (IngresoOcasional ingreso : tesoreriaService.findIngresosByFechaBetween(inicio, fin)) {
-            Movimiento movimiento = new Movimiento(
-                    ingreso.getFechaIngreso(),
-                    ingreso.getIdIngreso(),
+        for (OccasionalIncome income : treasuryService.findIncomesByDateBetween(start, end)) {
+            Movement movement = new Movement(
+                    income.getDate(),
+                    income.getId(),
                     "Ingreso",
-                    ingreso.getMontoIngreso(),
-                    ingreso.getCuenta()
+                    income.getAmount(),
+                    income.getAccount()
             );
-            movimiento.setTablaOrigenMovimiento("OTRO: " + ingreso.getConceptoIngreso());
-            listaUnificada.add(movimiento);
+            movement.setSourceTable("OTRO: " + income.getConcept());
+            movements.add(movement);
         }
 
-        listaUnificada.sort((m1, m2) -> m2.getFechaMovimiento().compareTo(m1.getFechaMovimiento()));
-        return listaUnificada;
+        movements.sort((m1, m2) -> m2.getDate().compareTo(m1.getDate()));
+        return movements;
     }
 
     @Transactional(readOnly = true)
-    public DashboardKpis obtenerKpisGlobales() {
-        double totalPorCobrar = ventasService.findAllVentas().stream()
-                .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstadoVenta()))
-                .mapToDouble(Venta::getTotalVenta)
+    public DashboardKpis getGlobalKpis() {
+        double totalReceivable = salesService.findAllSales().stream()
+                .filter(s -> "PENDIENTE".equalsIgnoreCase(s.getStatus()))
+                .mapToDouble(Sale::getTotal)
                 .sum();
 
-        double totalPorPagar = comprasService.findAllCompras().stream()
-                .filter(c -> "PENDIENTE".equalsIgnoreCase(c.getEstadoCompra()))
-                .mapToDouble(Compra::getTotalCompra)
+        double totalPayable = purchasesService.findAllPurchases().stream()
+                .filter(p -> "PENDIENTE".equalsIgnoreCase(p.getStatus()))
+                .mapToDouble(Purchase::getTotal)
                 .sum();
 
         return new DashboardKpis(
-                totalPorCobrar,
-                totalPorPagar,
-                tesoreriaService.getSaldoTotalCuentas(),
-                inventarioService.countStockAlerts()
+                totalReceivable,
+                totalPayable,
+                treasuryService.getTotalAccountBalance(),
+                inventoryService.countStockAlerts()
         );
     }
 
     public static class DashboardKpis {
-        private final double totalPorCobrar;
-        private final double totalPorPagar;
-        private final double saldoTotal;
-        private final long numeroAlertas;
+        private final double totalReceivable;
+        private final double totalPayable;
+        private final double totalBalance;
+        private final long alertCount;
 
-        public DashboardKpis(double totalPorCobrar, double totalPorPagar, double saldoTotal, long numeroAlertas) {
-            this.totalPorCobrar = totalPorCobrar;
-            this.totalPorPagar = totalPorPagar;
-            this.saldoTotal = saldoTotal;
-            this.numeroAlertas = numeroAlertas;
+        public DashboardKpis(double totalReceivable, double totalPayable, double totalBalance, long alertCount) {
+            this.totalReceivable = totalReceivable;
+            this.totalPayable = totalPayable;
+            this.totalBalance = totalBalance;
+            this.alertCount = alertCount;
         }
 
-        public double getTotalPorCobrar() {
-            return totalPorCobrar;
-        }
-
-        public double getTotalPorPagar() {
-            return totalPorPagar;
-        }
-
-        public double getSaldoTotal() {
-            return saldoTotal;
-        }
-
-        public long getNumeroAlertas() {
-            return numeroAlertas;
-        }
+        public double getTotalReceivable() { return totalReceivable; }
+        public double getTotalPayable() { return totalPayable; }
+        public double getTotalBalance() { return totalBalance; }
+        public long getAlertCount() { return alertCount; }
     }
 }
-

@@ -132,7 +132,7 @@ public class LoginController {
         if (isProcesandoLogin) return;
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/Recuperacion.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/PasswordRecovery.fxml"));
             loader.setControllerFactory(springContext::getBean);
             Parent root = loader.load();
 

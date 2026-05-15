@@ -249,7 +249,7 @@ public class OperationalExpensesController {
 
     public void openForm(OperationalExpense expense) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/treasury/views/FormularioGastoOperativo.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/treasury/views/OperationalExpenseForm.fxml"));
             loader.setControllerFactory(param -> springContext.getBean(param));
 
             Parent root = loader.load();

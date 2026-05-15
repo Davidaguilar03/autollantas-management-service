@@ -211,7 +211,7 @@ public class AccountsController {
     @FXML
     void abrirModalTransferencia(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/treasury/views/FormularioTransferencia.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/treasury/views/TransferForm.fxml"));
             loader.setControllerFactory(param -> springContext.getBean(param));
             Parent root = loader.load();
 
