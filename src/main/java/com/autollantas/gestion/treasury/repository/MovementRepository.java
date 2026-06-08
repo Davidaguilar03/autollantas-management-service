@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface MovementRepository extends JpaRepository<Movement, Integer> {
     List<Movement> findByAccount_IdOrderByDateDesc(Integer accountId);
+    List<Movement> findBySourceIdAndSourceTable(Integer sourceId, String sourceTable);
 }

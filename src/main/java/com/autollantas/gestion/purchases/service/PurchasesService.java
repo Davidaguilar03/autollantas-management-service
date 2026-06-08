@@ -3,12 +3,14 @@ package com.autollantas.gestion.purchases.service;
 import com.autollantas.gestion.purchases.model.Purchase;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.purchases.model.PurchaseDetail;
+import com.autollantas.gestion.treasury.model.Movement;
 import com.autollantas.gestion.treasury.model.Payment;
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.model.Supplier;
 import com.autollantas.gestion.purchases.repository.PurchaseRepository;
 import com.autollantas.gestion.treasury.repository.AccountRepository;
 import com.autollantas.gestion.purchases.repository.PurchaseDetailRepository;
+import com.autollantas.gestion.treasury.repository.MovementRepository;
 import com.autollantas.gestion.treasury.repository.PaymentRepository;
 import com.autollantas.gestion.inventory.repository.ProductRepository;
 import com.autollantas.gestion.purchases.repository.SupplierRepository;
@@ -28,19 +30,22 @@ public class PurchasesService {
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
     private final AccountRepository accountRepository;
+    private final MovementRepository movementRepository;
 
     public PurchasesService(PurchaseRepository purchaseRepository,
                             PurchaseDetailRepository purchaseDetailRepository,
                             SupplierRepository supplierRepository,
                             ProductRepository productRepository,
                             PaymentRepository paymentRepository,
-                            AccountRepository accountRepository) {
+                            AccountRepository accountRepository,
+                            MovementRepository movementRepository) {
         this.purchaseRepository = purchaseRepository;
         this.purchaseDetailRepository = purchaseDetailRepository;
         this.supplierRepository = supplierRepository;
         this.productRepository = productRepository;
         this.paymentRepository = paymentRepository;
         this.accountRepository = accountRepository;
+        this.movementRepository = movementRepository;
     }
 
     @Transactional(readOnly = true)
@@ -133,11 +138,36 @@ public class PurchasesService {
             });
         }
 
+        if (!editMode && "Contado".equals(purchase.getPaymentType()) && purchase.getAccount() != null) {
+            Account account = purchase.getAccount();
+            double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
+            account.setCurrentBalance(current - savedPurchase.getTotal());
+            accountRepository.save(account);
+            Movement movement = new Movement(
+                    purchase.getPurchaseDate() != null ? purchase.getPurchaseDate() : LocalDate.now(),
+                    savedPurchase.getId(), "Egreso", savedPurchase.getTotal(), account);
+            movement.setSourceTable("COMPRAS");
+            movementRepository.save(movement);
+        }
+
         return savedPurchase;
     }
 
     @Transactional
     public void cancelPurchase(Purchase purchase) {
+        if ("Contado".equals(purchase.getPaymentType()) && "PAGADA".equals(purchase.getStatus())
+                && purchase.getAccount() != null && purchase.getTotal() != null) {
+            Account account = purchase.getAccount();
+            double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
+            account.setCurrentBalance(current + purchase.getTotal());
+            accountRepository.save(account);
+            if (purchase.getId() != null) {
+                for (Movement m : movementRepository.findBySourceIdAndSourceTable(purchase.getId(), "COMPRAS")) {
+                    movementRepository.delete(m);
+                }
+            }
+        }
+
         List<PurchaseDetail> details = purchaseDetailRepository.findByPurchase(purchase);
         for (PurchaseDetail detail : details) {
             Product product = detail.getProduct();
@@ -164,6 +194,10 @@ public class PurchasesService {
         double currentBalance = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
         account.setCurrentBalance(currentBalance - amount);
         accountRepository.save(account);
+
+        Movement movement = new Movement(paymentDate, newPayment.getId(), "Egreso", amount, account);
+        movement.setSourceTable("PAGOS");
+        movementRepository.save(movement);
 
         double currentDebt = purchase.getPendingBalance() != null
                 ? purchase.getPendingBalance() : purchase.getTotal();

@@ -10,8 +10,10 @@ import com.autollantas.gestion.sales.repository.SaleDetailRepository;
 import com.autollantas.gestion.sales.repository.SaleRepository;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.Collection;
+import com.autollantas.gestion.treasury.model.Movement;
 import com.autollantas.gestion.treasury.repository.AccountRepository;
 import com.autollantas.gestion.treasury.repository.CollectionRepository;
+import com.autollantas.gestion.treasury.repository.MovementRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,19 +30,22 @@ public class SalesService {
     private final ProductRepository productRepository;
     private final CollectionRepository collectionRepository;
     private final AccountRepository accountRepository;
+    private final MovementRepository movementRepository;
 
     public SalesService(SaleRepository saleRepository,
                         SaleDetailRepository saleDetailRepository,
                         CustomerRepository customerRepository,
                         ProductRepository productRepository,
                         CollectionRepository collectionRepository,
-                        AccountRepository accountRepository) {
+                        AccountRepository accountRepository,
+                        MovementRepository movementRepository) {
         this.saleRepository = saleRepository;
         this.saleDetailRepository = saleDetailRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.collectionRepository = collectionRepository;
         this.accountRepository = accountRepository;
+        this.movementRepository = movementRepository;
     }
 
     @Transactional(readOnly = true)
@@ -135,11 +140,36 @@ public class SalesService {
             });
         }
 
+        if (!editMode && "Contado".equals(sale.getPaymentType()) && sale.getAccount() != null) {
+            Account account = sale.getAccount();
+            double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
+            account.setCurrentBalance(current + savedSale.getTotal());
+            accountRepository.save(account);
+            Movement movement = new Movement(
+                    sale.getSaleDate() != null ? sale.getSaleDate() : LocalDate.now(),
+                    savedSale.getId(), "Ingreso", savedSale.getTotal(), account);
+            movement.setSourceTable("VENTAS");
+            movementRepository.save(movement);
+        }
+
         return savedSale;
     }
 
     @Transactional
     public void cancelSale(Sale sale) {
+        if ("Contado".equals(sale.getPaymentType()) && "PAGADA".equals(sale.getStatus())
+                && sale.getAccount() != null && sale.getTotal() != null) {
+            Account account = sale.getAccount();
+            double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
+            account.setCurrentBalance(current - sale.getTotal());
+            accountRepository.save(account);
+            if (sale.getId() != null) {
+                for (Movement m : movementRepository.findBySourceIdAndSourceTable(sale.getId(), "VENTAS")) {
+                    movementRepository.delete(m);
+                }
+            }
+        }
+
         List<SaleDetail> details = saleDetailRepository.findBySale(sale);
         for (SaleDetail detail : details) {
             Product product = detail.getProduct();
@@ -165,6 +195,10 @@ public class SalesService {
         double currentBalance = destinationAccount.getCurrentBalance() != null ? destinationAccount.getCurrentBalance() : 0.0;
         destinationAccount.setCurrentBalance(currentBalance + amount);
         accountRepository.save(destinationAccount);
+
+        Movement movement = new Movement(paymentDate, collection.getId(), "Ingreso", amount, destinationAccount);
+        movement.setSourceTable("RECAUDOS");
+        movementRepository.save(movement);
 
         double pendingDebt = sale.getPendingBalance() != null ? sale.getPendingBalance() : sale.getTotal();
         double newBalance = pendingDebt - amount;

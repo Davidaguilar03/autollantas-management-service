@@ -78,6 +78,14 @@ public class TreasuryService {
         accountRepository.save(source);
         accountRepository.save(destination);
         transferRepository.save(transfer);
+
+        Movement egreso = new Movement(date, transfer.getId(), "Egreso", amount, source);
+        egreso.setSourceTable("TRANSFERENCIAS");
+        movementRepository.save(egreso);
+
+        Movement ingreso = new Movement(date, transfer.getId(), "Ingreso", amount, destination);
+        ingreso.setSourceTable("TRANSFERENCIAS");
+        movementRepository.save(ingreso);
     }
 
     @Transactional(readOnly = true)
@@ -92,11 +100,34 @@ public class TreasuryService {
 
     @Transactional
     public OperationalExpense saveOperationalExpense(OperationalExpense expense) {
-        return operationalExpenseRepository.save(expense);
+        OperationalExpense saved = operationalExpenseRepository.save(expense);
+        if (expense.getAccount() != null && expense.getAmount() != null) {
+            Account account = expense.getAccount();
+            double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
+            account.setCurrentBalance(current - expense.getAmount());
+            accountRepository.save(account);
+            Movement movement = new Movement(
+                    expense.getDate() != null ? expense.getDate() : LocalDate.now(),
+                    saved.getId(), "Egreso", expense.getAmount(), account);
+            movement.setSourceTable("GASTOS_OPERATIVOS");
+            movementRepository.save(movement);
+        }
+        return saved;
     }
 
     @Transactional
     public void deleteOperationalExpense(OperationalExpense expense) {
+        if (expense.getAccount() != null && expense.getAmount() != null) {
+            Account account = expense.getAccount();
+            double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
+            account.setCurrentBalance(current + expense.getAmount());
+            accountRepository.save(account);
+        }
+        if (expense.getId() != null) {
+            for (Movement m : movementRepository.findBySourceIdAndSourceTable(expense.getId(), "GASTOS_OPERATIVOS")) {
+                movementRepository.delete(m);
+            }
+        }
         operationalExpenseRepository.delete(expense);
     }
 
@@ -118,7 +149,15 @@ public class TreasuryService {
             account.setCurrentBalance(current + income.getAmount());
             accountRepository.save(account);
         }
-        return occasionalIncomeRepository.save(income);
+        OccasionalIncome saved = occasionalIncomeRepository.save(income);
+        if (updateAccountBalance && income.getAccount() != null && income.getAmount() != null) {
+            Movement movement = new Movement(
+                    income.getDate() != null ? income.getDate() : LocalDate.now(),
+                    saved.getId(), "Ingreso", income.getAmount(), income.getAccount());
+            movement.setSourceTable("INGRESOS_OCASIONALES");
+            movementRepository.save(movement);
+        }
+        return saved;
     }
 
     @Transactional
@@ -128,6 +167,11 @@ public class TreasuryService {
             double current = account.getCurrentBalance() != null ? account.getCurrentBalance() : 0.0;
             account.setCurrentBalance(current - income.getAmount());
             accountRepository.save(account);
+        }
+        if (income.getId() != null) {
+            for (Movement m : movementRepository.findBySourceIdAndSourceTable(income.getId(), "INGRESOS_OCASIONALES")) {
+                movementRepository.delete(m);
+            }
         }
         occasionalIncomeRepository.delete(income);
     }
