@@ -33,6 +33,7 @@ import com.autollantas.gestion.treasury.repository.OccasionalIncomeRepository;
 import com.autollantas.gestion.treasury.repository.MovementRepository;
 import com.autollantas.gestion.config.repository.SystemConfigRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,6 +50,7 @@ import java.util.Map;
 public class DataInitializer {
 
     @Bean
+    @ConditionalOnProperty(name = "app.data.init.enabled", havingValue = "true", matchIfMissing = true)
     CommandLineRunner loadProductData(ProductCategoryRepository categoryRepo,
                                      ProductRepository productRepo) {
         return args -> {
@@ -142,6 +144,7 @@ public class DataInitializer {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "app.data.init.enabled", havingValue = "true", matchIfMissing = true)
     CommandLineRunner loadSampleData(
             CustomerRepository customerRepo,
             SupplierRepository supplierRepo,

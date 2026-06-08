@@ -27,7 +27,8 @@
       "Bash(Remove-Item \"C:\\\\Users\\\\PC\\\\Desktop\\\\G\\\\DAC\\\\Proyecto_Autollantas\\\\Autollantas\\\\src\\\\main\\\\java\\\\com\\\\autollantas\\\\gestion\\\\reporting\\\\controller\\\\PanelControlController.java\" -Force)",
       "Bash(Remove-Item \"C:\\\\Users\\\\PC\\\\Desktop\\\\G\\\\DAC\\\\Proyecto_Autollantas\\\\Autollantas\\\\src\\\\main\\\\java\\\\com\\\\autollantas\\\\gestion\\\\reporting\\\\controller\\\\FormularioGeneracionReportesController.java\" -Force)",
       "Bash(xargs -I{} basename {} .java)",
-      "PowerShell(.\\\\mvnw compile -q 2>&1)"
+      "PowerShell(.\\\\mvnw compile -q 2>&1)",
+      "Bash(.\\\\mvnw.cmd test *)"
     ]
   }
 }
