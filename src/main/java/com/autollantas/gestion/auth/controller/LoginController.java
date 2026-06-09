@@ -11,8 +11,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -35,12 +38,27 @@ public class LoginController {
     @FXML private TextField txtPassVisible;
     @FXML private Button btnVerPass;
     @FXML private StackPane panelFondo;
+    @FXML private ImageView imgFondo;
+    @FXML private VBox loginCard;
+    @FXML private VBox formBox;
 
     private boolean isProcesandoLogin = false;
 
     @FXML
     public void initialize() {
         txtPassHidden.textProperty().bindBidirectional(txtPassVisible.textProperty());
+
+        // Imagen de fondo siempre cubre toda la pantalla
+        imgFondo.fitWidthProperty().bind(panelFondo.widthProperty());
+        imgFondo.fitHeightProperty().bind(panelFondo.heightProperty());
+
+        // Tarjeta centrada responsive: entre 360px y 440px de ancho
+        panelFondo.widthProperty().addListener((obs, oldW, newW) -> {
+            double w = newW.doubleValue();
+            double cardWidth = Math.max(360, Math.min(440, w * 0.36));
+            loginCard.setMaxWidth(cardWidth);
+            loginCard.setPrefWidth(cardWidth);
+        });
 
         txtPassHidden.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ENTER) {
@@ -66,16 +84,13 @@ public class LoginController {
     }
 
     private void intentarLogin() {
-        if (isProcesandoLogin) {
-            return;
-        }
+        if (isProcesandoLogin) return;
         handleLogin();
     }
 
     @FXML
     private void handleLogin() {
         isProcesandoLogin = true;
-
         if (panelFondo.getScene() != null) panelFondo.getScene().setCursor(Cursor.WAIT);
 
         try {
@@ -90,7 +105,6 @@ public class LoginController {
 
             if (configOpt.isPresent()) {
                 String passwordRealBD = configOpt.get().getValue();
-
                 if (passwordRealBD != null && passwordRealBD.equals(passwordIngresada)) {
                     cargarMainLayout();
                 } else {
@@ -112,7 +126,8 @@ public class LoginController {
 
     private void cargarMainLayout() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/shared/views/MainLayout.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/autollantas/gestion/shared/views/MainLayout.fxml"));
             loader.setControllerFactory(springContext::getBean);
             Parent root = loader.load();
 
@@ -123,7 +138,8 @@ public class LoginController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error Crítico", "No se pudo cargar el sistema: " + e.getMessage());
+            mostrarAlerta(Alert.AlertType.ERROR, "Error Crítico",
+                    "No se pudo cargar el sistema: " + e.getMessage());
         }
     }
 
@@ -132,7 +148,8 @@ public class LoginController {
         if (isProcesandoLogin) return;
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/PasswordRecovery.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/autollantas/gestion/auth/views/PasswordRecovery.fxml"));
             loader.setControllerFactory(springContext::getBean);
             Parent root = loader.load();
 
@@ -140,13 +157,13 @@ public class LoginController {
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo cargar la pantalla de recuperación.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Error",
+                    "No se pudo cargar la pantalla de recuperación.");
         }
     }
 
     private void mostrarAlerta(Alert.AlertType tipo, String titulo, String contenido) {
         if (panelFondo.getScene() != null) panelFondo.getScene().setCursor(Cursor.DEFAULT);
-
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
