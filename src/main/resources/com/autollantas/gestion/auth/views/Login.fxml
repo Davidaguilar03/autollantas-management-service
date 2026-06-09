@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.effect.GaussianBlur?>
 <?import javafx.scene.image.Image?>
@@ -16,68 +17,69 @@
 
 <StackPane fx:id="panelFondo" maxHeight="Infinity" maxWidth="Infinity" minHeight="600.0" minWidth="900.0" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.auth.controller.LoginController">
 
-    <!-- Fondo con imagen difuminada — tamaño enlazado desde el controller -->
+    <!-- Fondo con imagen difuminada -->
     <ImageView fx:id="imgFondo" pickOnBounds="true" preserveRatio="false">
-        <image>
-            <Image url="@../../images/fondo_login.jpg" />
-        </image>
-        <effect>
-            <GaussianBlur radius="10.0" />
-        </effect>
+        <image><Image url="@../../images/fondo_login.jpg" /></image>
+        <effect><GaussianBlur radius="10.0" /></effect>
     </ImageView>
 
     <!-- Overlay oscuro -->
     <StackPane style="-fx-background-color: rgba(10,20,35,0.52);" />
 
-    <!-- Tarjeta de login centrada con margen vertical respecto al frame -->
-    <VBox fx:id="loginCard" alignment="TOP_CENTER" prefWidth="1300.0" spacing="0" styleClass="login-card" StackPane.alignment="CENTER">
-        <StackPane.margin>
-            <Insets bottom="60.0" top="60.0" />
-        </StackPane.margin>
+    <!-- ScrollPane transparente que centra la tarjeta -->
+    <ScrollPane fitToHeight="false" fitToWidth="true" hbarPolicy="NEVER" styleClass="login-scroll" vbarPolicy="AS_NEEDED" StackPane.alignment="CENTER">
 
-              <!-- Franja superior amarilla con logo -->
-        <VBox alignment="CENTER" fillWidth="false" prefHeight="250.0" prefWidth="1300.0" styleClass="login-header-band" VBox.vgrow="NEVER">
-            <ImageView fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" smooth="true">
-                <image>
-                    <Image preserveRatio="true" requestedHeight="600" requestedWidth="600" smooth="true" url="@../../images/Logo Negro.png" />
-                </image>
-            </ImageView>
-        </VBox>
+        <!-- Contenedor que centra horizontalmente la tarjeta -->
+        <VBox alignment="CENTER" minHeight="${panelFondo.height}" style="-fx-background-color: transparent;">
+            <padding><Insets bottom="60.0" top="60.0" /></padding>
 
-        <!-- Cuerpo blanco con el formulario -->
-        <VBox fx:id="formBox" alignment="CENTER" prefHeight="518.0" prefWidth="1300.0" spacing="20.0" styleClass="login-body">
+            <!-- Tarjeta de login -->
+            <VBox fx:id="loginCard" alignment="TOP_CENTER" spacing="0" styleClass="login-card" VBox.vgrow="NEVER">
 
-            <Label styleClass="login-title" text="Iniciar Sesión">
-                <VBox.margin><Insets bottom="2.0" /></VBox.margin>
-            </Label>
-            <Label styleClass="login-subtitle" text="Ingresa tu contraseña para acceder al sistema" />
+                <!-- Header con logo -->
+                <VBox alignment="CENTER" styleClass="login-header-band" VBox.vgrow="NEVER">
+                    <ImageView fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image preserveRatio="true" requestedHeight="600" requestedWidth="600" smooth="true" url="@../../images/Logo Negro.png" />
+                        </image>
+                    </ImageView>
+                </VBox>
 
-            <!-- Campo contraseña -->
-            <VBox maxWidth="1.7976931348623157E308" spacing="6.0">
-                <VBox.margin><Insets top="10.0" /></VBox.margin>
-                <Label styleClass="login-field-label" text="CONTRASEÑA" />
-                <StackPane alignment="CENTER_RIGHT">
-                    <TextField fx:id="txtPassVisible" maxWidth="1.7976931348623157E308" prefHeight="44.0" promptText="••••••••" styleClass="login-input" visible="false" />
-                    <PasswordField fx:id="txtPassHidden" maxWidth="1.7976931348623157E308" prefHeight="44.0" promptText="••••••••" styleClass="login-input" />
-                    <Button fx:id="btnVerPass" onAction="#togglePass" styleClass="boton-ojo" text="👁" StackPane.alignment="CENTER_RIGHT">
-                        <StackPane.margin><Insets right="12.0" /></StackPane.margin>
-                        <font><Font size="16.0" /></font>
+                <!-- Cuerpo del formulario -->
+                <VBox fx:id="formBox" alignment="CENTER" spacing="16.0" styleClass="login-body">
+
+                    <Label styleClass="login-title" text="Iniciar Sesión" textAlignment="CENTER" wrapText="true">
+                        <VBox.margin><Insets bottom="2.0" /></VBox.margin>
+                    </Label>
+                    <Label styleClass="login-subtitle" text="Ingresa tu contraseña para acceder al sistema" textAlignment="CENTER" wrapText="true" />
+
+                    <!-- Campo contraseña -->
+                    <VBox maxWidth="1.7976931348623157E308" spacing="6.0">
+                        <VBox.margin><Insets top="8.0" /></VBox.margin>
+                        <Label styleClass="login-field-label" text="CONTRASEÑA" />
+                        <StackPane alignment="CENTER_RIGHT">
+                            <TextField fx:id="txtPassVisible" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="••••••••" styleClass="login-input" visible="false" />
+                            <PasswordField fx:id="txtPassHidden" maxWidth="1.7976931348623157E308" prefHeight="50.0" promptText="••••••••" styleClass="login-input" />
+                            <Button fx:id="btnVerPass" onAction="#togglePass" styleClass="boton-ojo" text="👁" StackPane.alignment="CENTER_RIGHT">
+                                <StackPane.margin><Insets right="12.0" /></StackPane.margin>
+                                <font><Font size="18.0" /></font>
+                            </Button>
+                        </StackPane>
+                    </VBox>
+
+                    <!-- Botón ingresar -->
+                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" prefHeight="52.0" styleClass="login-btn-primary" text="INGRESAR">
+                        <VBox.margin><Insets top="4.0" /></VBox.margin>
                     </Button>
-                </StackPane>
+
+                    <!-- Olvidé contraseña -->
+                    <HBox alignment="CENTER">
+                        <Hyperlink onAction="#irARecuperacion" styleClass="login-link" text="¿Olvidaste tu contraseña?" />
+                    </HBox>
+
+                </VBox>
             </VBox>
-
-            <!-- Botón ingresar -->
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" prefHeight="46.0" styleClass="login-btn-primary" text="INGRESAR">
-                <VBox.margin><Insets top="6.0" /></VBox.margin>
-            </Button>
-
-            <!-- Olvidé contraseña -->
-            <HBox alignment="CENTER">
-                <Hyperlink onAction="#irARecuperacion" styleClass="login-link" text="¿Olvidaste tu contraseña?" />
-            </HBox>
-
         </VBox>
-
-    </VBox>
+    </ScrollPane>
 
 </StackPane>

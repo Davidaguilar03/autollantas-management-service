@@ -9,7 +9,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -34,7 +32,8 @@ public class PasswordRecoveryController {
     private ApplicationContext springContext;
 
     @FXML private StackPane rootPane;
-    @FXML private ImageView imgLogo;
+    @FXML private ImageView imgFondoRecuperacion;
+    @FXML private VBox recoveryCard;
 
     @FXML private VBox boxVerificacion;
     @FXML private ComboBox<String> cmbPreguntas;
@@ -55,10 +54,14 @@ public class PasswordRecoveryController {
 
     @FXML
     public void initialize() {
-        try {
-            Image logoImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/autollantas/gestion/images/Logo Negro.png")));
-            imgLogo.setImage(logoImg);
-        } catch (Exception ignored) { }
+        imgFondoRecuperacion.fitWidthProperty().bind(rootPane.widthProperty());
+        imgFondoRecuperacion.fitHeightProperty().bind(rootPane.heightProperty());
+
+        rootPane.widthProperty().addListener((obs, oldW, newW) -> {
+            double cardWidth = Math.max(360, Math.min(440, newW.doubleValue() * 0.36));
+            recoveryCard.setMaxWidth(cardWidth);
+            recoveryCard.setPrefWidth(cardWidth);
+        });
 
         txtNuevaPass.textProperty().bindBidirectional(txtNuevaPassVisible.textProperty());
         txtConfirmarPass.textProperty().bindBidirectional(txtConfirmarPassVisible.textProperty());
