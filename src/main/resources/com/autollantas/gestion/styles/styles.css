@@ -326,16 +326,30 @@
 }
 
 .sidebar-btn-logout {
-    -fx-background-color: transparent;
-    -fx-text-fill: #d32f2f;
+    -fx-background-color: rgba(210, 30, 30, 0.28);
+    -fx-text-fill: #ffffff;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", sans-serif;
     -fx-alignment: CENTER;
-    -fx-padding: 15;
+    -fx-padding: 11 26 11 26;
     -fx-cursor: hand;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.50);
+    -fx-border-width: 1.5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(180,0,0,0.25), 8, 0, 0, 2);
 }
 .sidebar-btn-logout:hover {
-    -fx-background-color: rgba(211, 47, 47, 0.1);
-    -fx-text-fill: #ff1744;
+    -fx-background-color: rgba(210, 30, 30, 0.48);
+    -fx-border-color: rgba(255, 255, 255, 0.80);
+    -fx-text-fill: #ffffff;
+    -fx-translate-y: -1;
+}
+.sidebar-btn-logout:pressed {
+    -fx-background-color: rgba(170, 15, 15, 0.58);
+    -fx-border-color: rgba(255, 255, 255, 0.55);
+    -fx-translate-y: 0;
 }
 
 .page-title {
@@ -376,9 +390,10 @@
 .sidebar-accordion .titled-pane > .title {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-font-size: 14px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
-    -fx-text-fill: #3e2723;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-text-fill: #2e1a00;
     -fx-padding: 15 20 15 20;
     -fx-cursor: hand;
 }
@@ -394,6 +409,24 @@
     -fx-background-color: rgba(255, 255, 255, 0.4);
 }
 
+.sidebar-ingresos > .title {
+    -fx-text-fill: #22B14C !important;
+    -fx-font-weight: bold !important;
+}
+
+.sidebar-ingresos:hover > .title {
+    -fx-text-fill: #0a4517 !important;
+}
+
+.sidebar-egresos > .title {
+    -fx-text-fill: #b30000 !important;
+    -fx-font-weight: bold !important;
+}
+
+.sidebar-egresos:hover > .title {
+    -fx-text-fill: #7a0000 !important;
+}
+
 .submenu-container {
     -fx-padding: 0;
     -fx-background-insets: 0;
@@ -402,9 +435,11 @@
 
 .submenu-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #5d4037;
+    -fx-text-fill: #2e1a00;
     -fx-alignment: CENTER_LEFT;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
     -fx-cursor: hand;
     -fx-padding: 12 10 12 50;
     -fx-background-radius: 0;
@@ -415,6 +450,34 @@
 .submenu-btn:hover {
     -fx-background-color: rgba(255, 255, 255, 0.6);
     -fx-text-fill: #3e2723;
+    -fx-font-weight: bold;
+}
+
+.submenu-btn-active {
+    -fx-background-color: rgba(255, 255, 255, 0.82);
+    -fx-text-fill: #7a3e00;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent transparent #0d81ec;
+    -fx-border-width: 0 0 0 6px;
+}
+
+.submenu-btn-active:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-text-fill: #7a3e00;
+}
+
+.sidebar-item-active > .title {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+    -fx-border-color: transparent transparent transparent #0d81ec;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #3e1f00;
+}
+
+.sidebar-item-active-solo > .title {
+    -fx-background-color: rgba(255, 255, 255, 0.82);
+    -fx-border-color: transparent transparent transparent #0d81ec;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #7a3e00;
     -fx-font-weight: bold;
 }
 
