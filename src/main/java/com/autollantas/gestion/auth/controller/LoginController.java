@@ -41,6 +41,7 @@ public class LoginController {
     @FXML private ImageView imgFondo;
     @FXML private VBox loginCard;
     @FXML private VBox formBox;
+    @FXML private VBox scrollContent;
 
     private boolean isProcesandoLogin = false;
 
@@ -48,9 +49,9 @@ public class LoginController {
     public void initialize() {
         txtPassHidden.textProperty().bindBidirectional(txtPassVisible.textProperty());
 
-        // Imagen de fondo siempre cubre toda la pantalla
         imgFondo.fitWidthProperty().bind(panelFondo.widthProperty());
         imgFondo.fitHeightProperty().bind(panelFondo.heightProperty());
+        scrollContent.minHeightProperty().bind(panelFondo.heightProperty());
 
         // Tarjeta centrada responsive: entre 360px y 440px de ancho
         panelFondo.widthProperty().addListener((obs, oldW, newW) -> {

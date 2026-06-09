@@ -34,6 +34,7 @@ public class PasswordRecoveryController {
     @FXML private StackPane rootPane;
     @FXML private ImageView imgFondoRecuperacion;
     @FXML private VBox recoveryCard;
+    @FXML private VBox scrollContent;
 
     @FXML private VBox boxVerificacion;
     @FXML private ComboBox<String> cmbPreguntas;
@@ -56,6 +57,8 @@ public class PasswordRecoveryController {
     public void initialize() {
         imgFondoRecuperacion.fitWidthProperty().bind(rootPane.widthProperty());
         imgFondoRecuperacion.fitHeightProperty().bind(rootPane.heightProperty());
+
+        scrollContent.minHeightProperty().bind(rootPane.heightProperty());
 
         rootPane.widthProperty().addListener((obs, oldW, newW) -> {
             double cardWidth = Math.max(360, Math.min(440, newW.doubleValue() * 0.36));
