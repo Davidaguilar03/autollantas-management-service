@@ -6,84 +6,78 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.GaussianBlur?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="900.0" prefHeight="700.0" prefWidth="1000.0" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.auth.controller.LoginController">
+<StackPane fx:id="panelFondo" maxHeight="Infinity" maxWidth="Infinity" minHeight="600.0" minWidth="900.0" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.auth.controller.LoginController">
 
-    <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" percentWidth="75.0" />
-        <ColumnConstraints hgrow="SOMETIMES" percentWidth="27.0" />
-    </columnConstraints>
+    <!-- Fondo con imagen difuminada — tamaño enlazado desde el controller -->
+    <ImageView fx:id="imgFondo" pickOnBounds="true" preserveRatio="false">
+        <image>
+            <Image url="@../../images/fondo_login.jpg" />
+        </image>
+        <effect>
+            <GaussianBlur radius="10.0" />
+        </effect>
+    </ImageView>
 
-    <rowConstraints>
-        <RowConstraints percentHeight="100.0" vgrow="SOMETIMES" />
-    </rowConstraints>
+    <!-- Overlay oscuro -->
+    <StackPane style="-fx-background-color: rgba(10,20,35,0.52);" />
 
-    <children>
-        <StackPane fx:id="panelFondo" prefHeight="700.0" prefWidth="734.0" styleClass="login-sidebar">
-            <children>
-                <ImageView fitHeight="900.0" fitWidth="1200.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER_LEFT">
-                    <image>
-                        <Image url="@../../images/fondo_login.jpg" />
-                    </image>
-                </ImageView>
-            </children>
-        </StackPane>
+    <!-- Tarjeta de login centrada con margen vertical respecto al frame -->
+    <VBox fx:id="loginCard" alignment="TOP_CENTER" prefWidth="1300.0" spacing="0" styleClass="login-card" StackPane.alignment="CENTER">
+        <StackPane.margin>
+            <Insets bottom="60.0" top="60.0" />
+        </StackPane.margin>
 
-        <VBox alignment="CENTER" prefHeight="700.0" prefWidth="286.0" spacing="20.0" style="-fx-background-color: #f1b82c;" GridPane.columnIndex="1">
-            <padding>
-                <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
-            </padding>
-
-            <children>
-                <ImageView fx:id="imgLogo" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../../images/Logo Negro.png" />
-                    </image>
-                    <VBox.margin>
-                        <Insets bottom="20.0" />
-                    </VBox.margin>
-                </ImageView>
-
-                <Label styleClass="titulo-login" text="Bienvenido" textFill="WHITE" />
-                <Label style="-fx-text-fill: WHITE; -fx-font-size: 14px;" text="Ingresa tu contraseña" />
-
-                <VBox alignment="CENTER" maxWidth="350.0" spacing="15.0">
-
-                    <StackPane alignment="CENTER_RIGHT">
-                        <children>
-                            <TextField fx:id="txtPassVisible" prefHeight="40" promptText="Contraseña" styleClass="text-field" visible="false" />
-
-                            <PasswordField fx:id="txtPassHidden" prefHeight="40" promptText="Contraseña" styleClass="text-field" />
-
-                            <Button fx:id="btnVerPass" onAction="#togglePass" styleClass="boton-ojo" text="👁" textAlignment="CENTER" wrapText="true">
-                                <StackPane.margin>
-                                    <Insets right="10.0" />
-                                </StackPane.margin>
-                                <font>
-                                    <Font size="20.0" />
-                                </font>
-                            </Button>
-                        </children>
-                    </StackPane>
-
-                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" prefHeight="45.0" styleClass="button-naranja" text="INGRESAR" />
-
-                    <Hyperlink onAction="#irARecuperacion" text="¿Olvidaste tu contraseña?" textAlignment="CENTER" textFill="WHITE" underline="true">
-                        <font>
-                            <Font name="System Bold Italic" size="13.0" />
-                        </font>
-                    </Hyperlink>
-                </VBox>
-
-            </children>
+              <!-- Franja superior amarilla con logo -->
+        <VBox alignment="CENTER" fillWidth="false" prefHeight="250.0" prefWidth="1300.0" styleClass="login-header-band" VBox.vgrow="NEVER">
+            <ImageView fitHeight="260.0" fitWidth="260.0" pickOnBounds="true" preserveRatio="true" smooth="true">
+                <image>
+                    <Image preserveRatio="true" requestedHeight="600" requestedWidth="600" smooth="true" url="@../../images/Logo Negro.png" />
+                </image>
+            </ImageView>
         </VBox>
-    </children>
-</GridPane>
+
+        <!-- Cuerpo blanco con el formulario -->
+        <VBox fx:id="formBox" alignment="CENTER" prefHeight="518.0" prefWidth="1300.0" spacing="20.0" styleClass="login-body">
+
+            <Label styleClass="login-title" text="Iniciar Sesión">
+                <VBox.margin><Insets bottom="2.0" /></VBox.margin>
+            </Label>
+            <Label styleClass="login-subtitle" text="Ingresa tu contraseña para acceder al sistema" />
+
+            <!-- Campo contraseña -->
+            <VBox maxWidth="1.7976931348623157E308" spacing="6.0">
+                <VBox.margin><Insets top="10.0" /></VBox.margin>
+                <Label styleClass="login-field-label" text="CONTRASEÑA" />
+                <StackPane alignment="CENTER_RIGHT">
+                    <TextField fx:id="txtPassVisible" maxWidth="1.7976931348623157E308" prefHeight="44.0" promptText="••••••••" styleClass="login-input" visible="false" />
+                    <PasswordField fx:id="txtPassHidden" maxWidth="1.7976931348623157E308" prefHeight="44.0" promptText="••••••••" styleClass="login-input" />
+                    <Button fx:id="btnVerPass" onAction="#togglePass" styleClass="boton-ojo" text="👁" StackPane.alignment="CENTER_RIGHT">
+                        <StackPane.margin><Insets right="12.0" /></StackPane.margin>
+                        <font><Font size="16.0" /></font>
+                    </Button>
+                </StackPane>
+            </VBox>
+
+            <!-- Botón ingresar -->
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" prefHeight="46.0" styleClass="login-btn-primary" text="INGRESAR">
+                <VBox.margin><Insets top="6.0" /></VBox.margin>
+            </Button>
+
+            <!-- Olvidé contraseña -->
+            <HBox alignment="CENTER">
+                <Hyperlink onAction="#irARecuperacion" styleClass="login-link" text="¿Olvidaste tu contraseña?" />
+            </HBox>
+
+        </VBox>
+
+    </VBox>
+
+</StackPane>

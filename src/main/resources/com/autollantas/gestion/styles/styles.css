@@ -1,3 +1,133 @@
+/* =============================================
+   LOGIN - PANEL CENTRADO CON FONDO DIFUMINADO
+   ============================================= */
+
+/* =============================================
+   LOGIN - PANEL CENTRADO CON FONDO DIFUMINADO
+   ============================================= */
+
+/* Tarjeta principal — todo naranja, sombra profunda */
+.login-card {
+    -fx-background-color: #f1b82c;
+    -fx-background-radius: 16px;
+    -fx-border-radius: 16px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.55), 48, 0.05, 0, 12);
+}
+
+/* Franja superior — mismo naranja, solo separa el logo del form */
+.login-header-band {
+    -fx-background-color: transparent;
+    -fx-background-radius: 16px 16px 0px 0px;
+    -fx-padding: 12px 40px 0px 40px;
+}
+
+.login-brand-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0d1b2a;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.login-brand-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(13,27,42,0.55);
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Cuerpo del formulario — también naranja */
+.login-body {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0px 0px 16px 16px;
+    -fx-padding: 0px 40px 30px 40px;
+}
+
+.login-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0d1b2a;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.login-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: rgba(13,27,42,0.65);
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-wrap-text: true;
+}
+
+.login-field-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0d1b2a;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Input blanco sobre el fondo naranja — contrasta bien */
+.login-input {
+    -fx-background-color: rgba(255,255,255,0.88);
+    -fx-border-color: rgba(255,255,255,0.5);
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-border-width: 1.5px;
+    -fx-padding: 0 44px 0 14px;
+    -fx-font-size: 15px;
+    -fx-text-fill: #0d1b2a;
+    -fx-prompt-text-fill: rgba(13,27,42,0.35);
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.login-input:focused {
+    -fx-border-color: #0d1b2a;
+    -fx-background-color: white;
+    -fx-effect: dropshadow(three-pass-box, rgba(13,27,42,0.20), 8, 0, 0, 0);
+}
+
+/* Botón oscuro — contraste perfecto sobre naranja */
+.login-btn-primary {
+    -fx-background-color: #0d1b2a;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-effect: dropshadow(three-pass-box, rgba(13,27,42,0.35), 8, 0, 0, 3);
+}
+
+.login-btn-primary:hover {
+    -fx-background-color: #1a3a5c;
+    -fx-effect: dropshadow(three-pass-box, rgba(13,27,42,0.50), 12, 0, 0, 4);
+    -fx-translate-y: -1;
+}
+
+.login-btn-primary:pressed {
+    -fx-background-color: #060f18;
+    -fx-translate-y: 0;
+    -fx-effect: none;
+}
+
+.login-link {
+    -fx-text-fill: #0d1b2a;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.login-link:hover {
+    -fx-text-fill: rgba(13,27,42,0.60);
+    -fx-underline: true;
+}
+
+.login-footer-dark {
+    -fx-font-size: 10px;
+    -fx-text-fill: rgba(13,27,42,0.45);
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Mantener compatibilidad legacy */
 .titulo-login {
     -fx-font-size: 28px;
     -fx-font-weight: bold;
