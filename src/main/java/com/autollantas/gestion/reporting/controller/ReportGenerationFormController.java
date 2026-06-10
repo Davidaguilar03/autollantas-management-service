@@ -1,12 +1,18 @@
 package com.autollantas.gestion.reporting.controller;
 
+import com.autollantas.gestion.reporting.service.ReportService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -18,62 +24,38 @@ public class ReportGenerationFormController {
 
     @FXML private ComboBox<String> cmbTipoReporte;
     @FXML private ComboBox<String> cmbPeriodo;
-
     @FXML private RadioButton rbPdf;
     @FXML private RadioButton rbExcel;
     @FXML private ToggleGroup grupoFormato;
-
     @FXML private HBox boxFechas;
     @FXML private DatePicker dpInicio;
     @FXML private DatePicker dpFin;
 
-    private final List<String> REPORT_TYPES = Arrays.asList(
-            "Productos Vendidos",
-            "Productos Comprados",
-            "Indices Financieros (Panel de Control)",
-            "Productos más vendidos",
-            "Reporte de Stock Crítico",
-            "Facturas Venta",
-            "Recaudos",
-            "Ingresos Ocasionales",
-            "Facturas de Compra",
-            "Pagos",
-            "Gastos Operativos",
-            "Productos (Valoración de Inventario)",
-            "Movimientos y transferencias (Balance)"
+    @Autowired private ReportService reportService;
+
+    private static final List<String> REPORT_TYPES = Arrays.asList(
+            "Resumen Financiero",
+            "Ventas por Producto",
+            "Compras por Producto"
     );
 
     @FXML
     public void initialize() {
-        loadReportTypes();
-        setupPeriods();
-
+        cmbTipoReporte.setItems(FXCollections.observableArrayList(REPORT_TYPES));
+        cmbPeriodo.setItems(FXCollections.observableArrayList(
+                "Hoy", "Ayer", "Esta Semana", "Este Mes", "Mes Anterior", "Este Año", "Personalizado"));
+        cmbPeriodo.valueProperty().addListener((obs, oldVal, newVal) -> updateDatesForPeriod());
         rbPdf.setSelected(true);
         cmbPeriodo.getSelectionModel().select("Este Mes");
-
         updateDatesForPeriod();
-    }
-
-    private void loadReportTypes() {
-        cmbTipoReporte.setItems(FXCollections.observableArrayList(REPORT_TYPES));
-    }
-
-    private void setupPeriods() {
-        cmbPeriodo.setItems(FXCollections.observableArrayList(
-                "Hoy", "Ayer", "Esta Semana", "Este Mes",
-                "Mes Anterior", "Este Año", "Personalizado"
-        ));
-        cmbPeriodo.valueProperty().addListener((obs, oldVal, newVal) -> updateDatesForPeriod());
     }
 
     private void updateDatesForPeriod() {
         String period = cmbPeriodo.getValue();
         if (period == null) return;
-
         boolean isCustom = "Personalizado".equals(period);
         boxFechas.setVisible(isCustom);
         boxFechas.setManaged(isCustom);
-
         if (!isCustom) {
             calculateDateRange(period);
         } else {
@@ -86,9 +68,11 @@ public class ReportGenerationFormController {
         LocalDate today = LocalDate.now();
         LocalDate start = today;
         LocalDate end = today;
-
         switch (period) {
-            case "Ayer": start = today.minusDays(1); end = today.minusDays(1); break;
+            case "Ayer":
+                start = today.minusDays(1);
+                end = today.minusDays(1);
+                break;
             case "Esta Semana":
                 start = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 end = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
@@ -105,27 +89,69 @@ public class ReportGenerationFormController {
                 start = today.with(TemporalAdjusters.firstDayOfYear());
                 end = today.with(TemporalAdjusters.lastDayOfYear());
                 break;
+            default:
+                break;
         }
-
         dpInicio.setValue(start);
         dpFin.setValue(end);
     }
 
     @FXML
     public void generarReporte() {
-        if (validateForm()) {
-            String reportType = cmbTipoReporte.getValue();
-            String format = rbPdf.isSelected() ? "PDF" : "EXCEL";
-            LocalDate from = dpInicio.getValue();
-            LocalDate to = dpFin.getValue();
+        if (!validateForm()) return;
 
-            System.out.println("Generando reporte: " + reportType);
-            System.out.println("Formato: " + format);
-            System.out.println("Desde: " + from + " Hasta: " + to);
+        String tipo = cmbTipoReporte.getValue();
+        boolean isPdf = rbPdf.isSelected();
+        LocalDate from = dpInicio.getValue();
+        LocalDate to = dpFin.getValue();
 
-            showSuccessAlert("Reporte en proceso", "El reporte se está generando y se descargará en breve.");
-            cerrarVentana();
+        String ext = isPdf ? ".pdf" : ".xlsx";
+        String defaultName = tipo.replace(" ", "_") + "_" + from + "_" + to + ext;
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Guardar Reporte");
+        chooser.setInitialFileName(defaultName);
+        if (isPdf) {
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF (*.pdf)", "*.pdf"));
+        } else {
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"));
         }
+
+        String userHome = System.getProperty("user.home");
+        File desktop = new File(userHome, "Desktop");
+        if (!desktop.exists()) desktop = new File(userHome, "Escritorio");
+        if (desktop.exists()) chooser.setInitialDirectory(desktop);
+
+        Stage stage = (Stage) cmbTipoReporte.getScene().getWindow();
+        File file = chooser.showSaveDialog(stage);
+        if (file == null) return;
+
+        try {
+            byte[] bytes = generateBytes(tipo, isPdf, from, to);
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(bytes);
+            }
+            showSuccessAlert("Reporte generado", "Archivo guardado en:\n" + file.getAbsolutePath());
+            cerrarVentana();
+        } catch (IOException e) {
+            showErrorAlert("Error al guardar", e.getMessage());
+        } catch (Exception e) {
+            showErrorAlert("Error al generar reporte", e.getMessage());
+        }
+    }
+
+    private byte[] generateBytes(String tipo, boolean isPdf, LocalDate from, LocalDate to) {
+        if ("Resumen Financiero".equals(tipo)) {
+            return isPdf ? reportService.generateResumenFinancieroPDF(from, to)
+                         : reportService.generateResumenFinancieroExcel(from, to);
+        } else if ("Ventas por Producto".equals(tipo)) {
+            return isPdf ? reportService.generateVentasPorProductoPDF(from, to)
+                         : reportService.generateVentasPorProductoExcel(from, to);
+        } else if ("Compras por Producto".equals(tipo)) {
+            return isPdf ? reportService.generateComprasPorProductoPDF(from, to)
+                         : reportService.generateComprasPorProductoExcel(from, to);
+        }
+        throw new IllegalArgumentException("Tipo de reporte desconocido: " + tipo);
     }
 
     private boolean validateForm() {
