@@ -9,6 +9,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import com.autollantas.gestion.shared.util.StyledTableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -90,7 +91,7 @@
                                     </HBox>
 
                                     <StackPane VBox.vgrow="ALWAYS">
-                                        <TableView fx:id="tablaAlertas" style="-fx-fixed-cell-size: 50px;" styleClass="table-view">
+                                        <StyledTableView fx:id="tablaAlertas" style="-fx-fixed-cell-size: 50px;">
                                             <columns>
                                                 <TableColumn fx:id="colCodigo" prefWidth="100.0" style="-fx-alignment: CENTER;" text="CÓDIGO" />
                                                 <TableColumn fx:id="colProducto" prefWidth="300.0" text="PRODUCTO" />
@@ -100,7 +101,7 @@
                                                 <TableColumn fx:id="colMensaje" prefWidth="250.0" text="DETALLE" />
                                             </columns>
                                             <columnResizePolicy> <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /> </columnResizePolicy>
-                                        </TableView>
+                                        </StyledTableView>
 
                                         <ProgressIndicator fx:id="loaderScroll" maxHeight="20.0" maxWidth="20.0" visible="false" StackPane.alignment="BOTTOM_RIGHT">
                                             <StackPane.margin> <Insets bottom="35.0" right="20.0" /> </StackPane.margin>
@@ -132,14 +133,14 @@
                                             </Button>
                                         </HBox>
 
-                                        <TableView fx:id="tablaConfiguracion" editable="true" VBox.vgrow="ALWAYS">
+                                        <StyledTableView fx:id="tablaConfiguracion" editable="true" VBox.vgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="colConfCategoria" prefWidth="200.0" text="CATEGORÍA" />
                                                 <TableColumn fx:id="colConfAmarillo" prefWidth="150.0" style="-fx-alignment: CENTER;" text="MÍNIMO (ADVERTENCIA)" />
                                                 <TableColumn fx:id="colConfRojo" prefWidth="150.0" style="-fx-alignment: CENTER;" text="CRÍTICO (PELIGRO)" />
                                             </columns>
                                             <columnResizePolicy> <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /> </columnResizePolicy>
-                                        </TableView>
+                                        </StyledTableView>
                                     </VBox>
                                 </AnchorPane>
                             </content>

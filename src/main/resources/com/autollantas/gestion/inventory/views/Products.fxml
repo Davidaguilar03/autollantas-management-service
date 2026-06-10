@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import com.autollantas.gestion.shared.util.StyledTableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -142,7 +143,7 @@
                     </children>
                 </VBox>
 
-                <TableView fx:id="tablaProductos" prefHeight="362.0" prefWidth="1180.0" style="-fx-fixed-cell-size: 30px;" VBox.vgrow="ALWAYS">
+                <StyledTableView fx:id="tablaProductos" prefHeight="362.0" prefWidth="1180.0" style="-fx-fixed-cell-size: 30px;" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colCategoria" prefWidth="144.3333282470703" style="-fx-alignment: CENTER;" text="Categoria producto" />
                         <TableColumn fx:id="colCodigo" prefWidth="135.33331298828125" style="-fx-alignment: CENTER;" text="Codigo" />
@@ -157,7 +158,7 @@
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                     </columnResizePolicy>
-                </TableView>
+                </StyledTableView>
 
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>

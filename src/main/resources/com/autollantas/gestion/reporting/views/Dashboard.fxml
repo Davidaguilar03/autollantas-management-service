@@ -8,6 +8,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import com.autollantas.gestion.shared.util.StyledTableView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -178,7 +179,7 @@
                                     </children>
                                 </HBox>
 
-                                <TableView fx:id="tablaMovimientos" style="-fx-fixed-cell-size: 30px;" prefHeight="316.0" prefWidth="639.0" VBox.vgrow="ALWAYS">
+                                <StyledTableView fx:id="tablaMovimientos" style="-fx-fixed-cell-size: 30px;" prefHeight="316.0" prefWidth="639.0" VBox.vgrow="ALWAYS">
                                     <columns>
                                         <TableColumn fx:id="colFecha" prefWidth="82.0" style="-fx-alignment: CENTER;" text="Fecha" />
                                         <TableColumn fx:id="colTipo" prefWidth="86.0" style="-fx-alignment: CENTER;" text="Tipo" />
@@ -186,7 +187,7 @@
                                         <TableColumn fx:id="colCuenta" prefWidth="110.0" style="-fx-alignment: CENTER;" text="Cuenta" />
                                         <TableColumn fx:id="colMonto" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Monto" />
                                     </columns>
-                                </TableView>
+                                </StyledTableView>
                             </children>
                             <Label fx:id="lblInfoRegistros" text="Cargando..." textFill="#666666" style="-fx-font-weight: bold;"/>
                         </VBox>

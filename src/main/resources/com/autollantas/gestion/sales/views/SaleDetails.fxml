@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import com.autollantas.gestion.shared.util.StyledTableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -88,7 +89,7 @@
 
         <Separator />
 
-        <TableView fx:id="tablaDetalles" style="-fx-border-color: #ecf0f1;" VBox.vgrow="ALWAYS">
+        <StyledTableView fx:id="tablaDetalles" style="-fx-border-color: #ecf0f1;" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="colCodigo" prefWidth="90" text="Código" />
                 <TableColumn fx:id="colProducto" prefWidth="350" text="Producto / Descripción" />
@@ -101,7 +102,7 @@
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
-        </TableView>
+        </StyledTableView>
 
         <HBox alignment="TOP_CENTER" prefHeight="120.0" spacing="20">
 
