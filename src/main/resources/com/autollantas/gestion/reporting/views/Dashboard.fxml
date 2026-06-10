@@ -217,7 +217,7 @@
                                                     <graphic><ImageView fitHeight="16.0" fitWidth="16.0" opacity="0.6" pickOnBounds="true" preserveRatio="true"><image><Image url="@../../images/gastar.png" /></image></ImageView></graphic>
                                                 </Button>
                                                 <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#actionNuevoIngreso" styleClass="action-button" text="Nuevo Ingreso" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                    <graphic><ImageView fitHeight="16.0" fitWidth="16.0" opacity="0.6" pickOnBounds="true" preserveRatio="true"><image><Image url="@../../images/ingresarr.png" /></image></ImageView></graphic>
+                                                    <graphic><ImageView fitHeight="16.0" fitWidth="16.0" opacity="0.6" pickOnBounds="true" preserveRatio="true"><image><Image url="@../../images/ingresar.png" /></image></ImageView></graphic>
                                                 </Button>
                                             </children>
                                         </GridPane>

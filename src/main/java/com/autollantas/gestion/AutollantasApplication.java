@@ -44,7 +44,7 @@ public class AutollantasApplication extends Application {
         stage.setMinHeight(600);
 
         try {
-            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/autollantas/gestion/images/Logo Amarillo Negro.png")));
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/autollantas/gestion/images/logo_amarillo_negro.png")));
             stage.getIcons().add(icon);
         } catch (Exception e) {
             System.err.println("⚠️ No se pudo cargar el icono: " + e.getMessage());
