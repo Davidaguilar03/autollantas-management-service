@@ -141,7 +141,7 @@ public class MainLayoutController {
 
     private void loadLogo() {
         try {
-            Image logoHD = new Image(getClass().getResourceAsStream("/com/autollantas/gestion/images/Logo Negro.png"), 250, 250, true, true);
+            Image logoHD = new Image(getClass().getResourceAsStream("/com/autollantas/gestion/images/logo_negro.png"), 250, 250, true, true);
             if (imgLogoSidebar != null) imgLogoSidebar.setImage(logoHD);
         } catch (Exception e) { System.err.println("⚠️ Error logo: " + e.getMessage()); }
     }
