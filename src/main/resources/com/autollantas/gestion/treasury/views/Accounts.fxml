@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import com.autollantas.gestion.shared.util.StyledTableView?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -68,7 +69,7 @@
                                     <children>
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: black; -fx-font-size: 15;" text="Movimientos" />
 
-                                        <TableView fx:id="tablaMovCaja" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
+                                        <StyledTableView fx:id="tablaMovCaja" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="colCajaMovFecha" prefWidth="80.0" text="Fecha" />
                                                 <TableColumn fx:id="colCajaMovTipo" prefWidth="70.0" text="Tipo" />
@@ -78,14 +79,14 @@
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
-                                        </TableView>
+                                        </StyledTableView>
                                         <Label fx:id="lblInfoMovCaja" style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;" text="Cargando..." />
 
                                         <Separator />
 
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: black; -fx-font-size: 15;" text="Transferencias" />
 
-                                        <TableView fx:id="tablaTransCaja" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
+                                        <StyledTableView fx:id="tablaTransCaja" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="colCajaTransConcepto" prefWidth="120.0" text="Concepto" />
                                                 <TableColumn fx:id="colCajaTransFecha" prefWidth="80.0" text="Fecha" />
@@ -96,7 +97,7 @@
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
-                                        </TableView>
+                                        </StyledTableView>
                                         <Label fx:id="lblInfoTransCaja" style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;" text="Cargando..." />
                                     </children>
                                 </VBox>
@@ -133,7 +134,7 @@
                                     <children>
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: black; -fx-font-size: 15;" text="Movimientos" />
 
-                                        <TableView fx:id="tablaMovBanco" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
+                                        <StyledTableView fx:id="tablaMovBanco" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="colBancoMovFecha" prefWidth="80.0" text="Fecha" />
                                                 <TableColumn fx:id="colBancoMovTipo" prefWidth="70.0" text="Tipo" />
@@ -143,14 +144,14 @@
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
-                                        </TableView>
+                                        </StyledTableView>
                                         <Label fx:id="lblInfoMovBanco" style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;" text="Cargando..." />
 
                                         <Separator />
 
                                         <Label style="-fx-font-weight: bold; -fx-text-fill: black; -fx-font-size: 15;" text="Transferencias" />
 
-                                        <TableView fx:id="tablaTransBanco" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
+                                        <StyledTableView fx:id="tablaTransBanco" fixedCellSize="35.0" prefHeight="200.0" styleClass="tabla-compacta" VBox.vgrow="ALWAYS">
                                             <columns>
                                                 <TableColumn fx:id="colBancoTransConcepto" prefWidth="120.0" text="Concepto" />
                                                 <TableColumn fx:id="colBancoTransFecha" prefWidth="80.0" text="Fecha" />
@@ -161,7 +162,7 @@
                                             <columnResizePolicy>
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
-                                        </TableView>
+                                        </StyledTableView>
                                         <Label fx:id="lblInfoTransBanco" style="-fx-text-fill: #95a5a6; -fx-font-size: 11px;" text="Cargando..." />
                                     </children>
                                 </VBox>
