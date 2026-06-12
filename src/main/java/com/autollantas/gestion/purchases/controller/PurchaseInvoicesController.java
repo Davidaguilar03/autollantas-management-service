@@ -72,6 +72,7 @@ public class PurchaseInvoicesController {
     @FXML private TableColumn<Purchase, Double> colTotal;
     @FXML private TableColumn<Purchase, Double> colPagado;
     @FXML private TableColumn<Purchase, Double> colPorPagar;
+    @FXML private TableColumn<Purchase, Double> colIvaFavor;
     @FXML private TableColumn<Purchase, String> colEstado;
 
     @FXML private Button btnVerDetalles;
@@ -171,6 +172,11 @@ public class PurchaseInvoicesController {
             return new SimpleObjectProperty<>(pending);
         });
         colPorPagar.setCellFactory(col -> createCurrencyCell(true));
+
+        colIvaFavor.setCellValueFactory(cell ->
+                new SimpleObjectProperty<>(purchasesService.calculateIvaFavor(cell.getValue()))
+        );
+        colIvaFavor.setCellFactory(col -> createCurrencyCell(false));
 
         colEstado.setCellValueFactory(new PropertyValueFactory<>("status"));
         colEstado.setCellFactory(col -> createStatusCell());

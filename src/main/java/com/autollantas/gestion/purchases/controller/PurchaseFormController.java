@@ -70,6 +70,7 @@ public class PurchaseFormController {
     @FXML private TableColumn<PurchaseDetailRow, Void> colAccion;
 
     @FXML private Label lblSubtotal;
+    @FXML private Label lblIvaFavorTotal;
     @FXML private Label lblDescuentos;
     @FXML private Label lblTotalGeneral;
 
@@ -290,6 +291,7 @@ public class PurchaseFormController {
         double subtotal = 0;
         double discounts = 0;
         double total = 0;
+        double ivaTotal = 0;
 
         for (PurchaseDetailRow row : detailRows) {
             if (row.getProduct() != null) {
@@ -298,10 +300,12 @@ public class PurchaseFormController {
                 subtotal += lineTotal;
                 discounts += discAmount;
                 total += row.getLineTotal();
+                ivaTotal += row.getPrice() * getIvaRate(row.getProduct()) * row.getQuantity();
             }
         }
 
         lblSubtotal.setText(currencyFormat.format(subtotal));
+        lblIvaFavorTotal.setText(currencyFormat.format(ivaTotal));
         lblDescuentos.setText(currencyFormat.format(discounts));
         lblTotalGeneral.setText(currencyFormat.format(total));
     }

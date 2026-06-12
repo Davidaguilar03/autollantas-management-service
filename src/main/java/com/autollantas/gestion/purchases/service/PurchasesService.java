@@ -92,6 +92,14 @@ public class PurchasesService {
         return String.format("FAC-%05d", next);
     }
 
+    @Transactional(readOnly = true)
+    public double calculateIvaFavor(Purchase purchase) {
+        return purchaseDetailRepository.findByPurchase(purchase).stream()
+                .mapToDouble(d -> (d.getTax() != null ? d.getTax() : 0.0)
+                        * (d.getQuantity() != null ? d.getQuantity() : 0))
+                .sum();
+    }
+
     @Transactional
     public Supplier saveOrUpdateSupplier(Supplier selected, String name, String nitNumber,
                                          String email, String phone) {

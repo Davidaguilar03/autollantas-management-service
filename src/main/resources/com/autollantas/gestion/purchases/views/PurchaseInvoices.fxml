@@ -173,6 +173,8 @@
 
                         <TableColumn fx:id="colPorPagar" prefWidth="110.0" style="-fx-alignment: CENTER; -fx-font-weight: bold;" text="Por Pagar" />
 
+                        <TableColumn fx:id="colIvaFavor" prefWidth="110.0" style="-fx-alignment: CENTER;" text="IVA a Favor" />
+
                         <TableColumn fx:id="colEstado" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Estado" />
                     </columns>
                     <columnResizePolicy>

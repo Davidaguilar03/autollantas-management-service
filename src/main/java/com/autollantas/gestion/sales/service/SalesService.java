@@ -88,6 +88,20 @@ public class SalesService {
         return String.format("VEN-%05d", next);
     }
 
+    @Transactional(readOnly = true)
+    public double calculateUtilidad(Sale sale) {
+        return saleDetailRepository.findBySale(sale).stream()
+                .mapToDouble(d -> d.getProfitAmount() != null ? d.getProfitAmount() : 0.0)
+                .sum();
+    }
+
+    @Transactional(readOnly = true)
+    public double calculateDiferenciaIva(Sale sale) {
+        return saleDetailRepository.findBySale(sale).stream()
+                .mapToDouble(d -> d.getIvaDifference() != null ? d.getIvaDifference() : 0.0)
+                .sum();
+    }
+
     @Transactional
     public Customer saveOrUpdateCustomer(Customer selected,
                                          String name,
