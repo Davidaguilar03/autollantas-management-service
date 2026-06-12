@@ -88,6 +88,8 @@ public class SaleInvoicesController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         this.filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Sale> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaFacturas.comparatorProperty());

@@ -90,6 +90,8 @@ public class SaleFormController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         loadInitialData();
 
         detailRows = FXCollections.observableArrayList(row -> new javafx.beans.Observable[]{
@@ -257,6 +259,7 @@ public class SaleFormController {
             txtDocumento.setText(sale.getCustomer().getDocumentNumber());
             txtCorreo.setText(sale.getCustomer().getEmail());
             txtCelular.setText(sale.getCustomer().getPhone());
+            comboTipoDoc.setValue(sale.getCustomer().getDocumentType());
         }
 
         comboCuenta.setValue(sale.getAccount());
@@ -572,6 +575,7 @@ public class SaleFormController {
                 txtDocumento.setText(seleccionado.getDocumentNumber());
                 txtCorreo.setText(seleccionado.getEmail());
                 txtCelular.setText(seleccionado.getPhone());
+                comboTipoDoc.setValue(seleccionado.getDocumentType());
                 comboCliente.getEditor().setText(seleccionado.getName());
             }
         });
@@ -725,7 +729,8 @@ public class SaleFormController {
                 nombreEscrito,
                 docEscrito,
                 txtCorreo.getText(),
-                txtCelular.getText()
+                txtCelular.getText(),
+                comboTipoDoc.getValue()
         );
     }
 

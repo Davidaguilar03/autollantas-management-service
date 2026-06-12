@@ -86,6 +86,8 @@ public class PurchaseFormController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         loadInitialData();
 
         detailRows = FXCollections.observableArrayList(row -> new javafx.beans.Observable[]{

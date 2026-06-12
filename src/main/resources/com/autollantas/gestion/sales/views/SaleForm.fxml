@@ -48,7 +48,7 @@
                         <Region HBox.hgrow="ALWAYS" />
                         <VBox alignment="CENTER_RIGHT" spacing="5.0">
                             <children>
-                                <Label text="FACTURA ELECTRÓNICA DE VENTA" textFill="#95a5a6">
+                                <Label text="FACTURA DE VENTA" textFill="#95a5a6">
                                     <font>
                                         <Font name="System Bold" size="11.0" />
                                     </font>
@@ -131,7 +131,7 @@
                                 <TableColumn fx:id="colPrecio" minWidth="100.0" prefWidth="110.0" style="-fx-alignment: CENTER-RIGHT;" text="P. Venta/Unid" />
                                 <TableColumn fx:id="colUtilidadMonto" minWidth="110.0" prefWidth="125.0" style="-fx-alignment: CENTER-RIGHT;" text="Utilidad" />
                                 <TableColumn fx:id="colIvaGenerado" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA Gen." />
-                                <TableColumn fx:id="colDiferenciaIva" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="Dif. IVA" />
+                                <TableColumn fx:id="colDiferenciaIva" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA p/Pagar" />
                                 <TableColumn fx:id="colDescuento" minWidth="55.0" prefWidth="60.0" style="-fx-alignment: CENTER;" text="Desc %" />
                                 <TableColumn fx:id="colSubtotal" minWidth="95.0" prefWidth="105.0" style="-fx-alignment: CENTER-RIGHT;" text="Total" />
                                 <TableColumn fx:id="colAccion" maxWidth="50.0" minWidth="40.0" prefWidth="40.0" style="-fx-alignment: CENTER;" text="" />
@@ -181,7 +181,7 @@
                                 </HBox>
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">
                                     <children>
-                                        <Label text="Diferencia IVA (Total):" textFill="#7f8c8d" />
+                                        <Label text="IVA por Pagar (Total):" textFill="#7f8c8d" />
                                         <Label fx:id="lblDiferenciaIvaTotal" style="-fx-font-weight: bold;" text="\$ 0" textFill="#2c3e50" />
                                     </children>
                                 </HBox>

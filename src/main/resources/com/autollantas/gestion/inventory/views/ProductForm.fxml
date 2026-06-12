@@ -52,7 +52,7 @@
             <TextField fx:id="txtPurchaseCost" promptText="Ej: 238000" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
             <!-- Fila 3: IVA a Favor | Precio Mín. Venta -->
-            <Label styleClass="lbl-campo" text="IVA a Favor ($)" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <Label styleClass="lbl-campo" text="IVA Descontable ($)" GridPane.columnIndex="0" GridPane.rowIndex="3" />
             <TextField fx:id="txtTaxAmount" editable="false" styleClass="input-readonly" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
             <Label style="-fx-text-fill: #2563EB;" styleClass="lbl-campo" text="Precio Mín. Venta ($)" GridPane.columnIndex="2" GridPane.rowIndex="3" />

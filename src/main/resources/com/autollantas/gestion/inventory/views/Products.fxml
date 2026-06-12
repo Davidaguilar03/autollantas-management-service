@@ -150,7 +150,7 @@
                         <TableColumn fx:id="colDescripcion" prefWidth="359.66668701171875" style="-fx-alignment: CENTER;" text="Descripcion" />
 
                         <TableColumn fx:id="colPurchaseCost" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Precio Compra" />
-                        <TableColumn fx:id="colTaxAmount" prefWidth="120.0" style="-fx-alignment: CENTER;" text="IVA a Favor" />
+                        <TableColumn fx:id="colTaxAmount" prefWidth="120.0" style="-fx-alignment: CENTER;" text="IVA Descontable" />
                         <TableColumn fx:id="colMinSalePrice" prefWidth="140.0" style="-fx-alignment: CENTER;" text="Precio Mín. Venta" />
                         <TableColumn fx:id="colSuggestedPrice" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Precio Sugerido" />
 

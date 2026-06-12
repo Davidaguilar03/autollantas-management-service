@@ -81,6 +81,8 @@ public class CollectionsController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         this.filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Sale> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaFacturas.comparatorProperty());
@@ -97,7 +99,9 @@ public class CollectionsController {
 
     private void loadDataFromDB() {
         Platform.runLater(() -> {
-            List<Sale> lista = salesService.findAllSales();
+            List<Sale> lista = salesService.findAllSales().stream()
+                    .filter(s -> s.getPendingBalance() != null && s.getPendingBalance() > 0)
+                    .toList();
             masterData.setAll(lista);
             applyFilters();
         });

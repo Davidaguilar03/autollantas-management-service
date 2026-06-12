@@ -73,6 +73,8 @@ public class ProductsController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
 
         filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Product> sortedData = new SortedList<>(filteredData);

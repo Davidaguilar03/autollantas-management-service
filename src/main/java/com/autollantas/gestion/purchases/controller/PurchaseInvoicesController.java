@@ -94,6 +94,8 @@ public class PurchaseInvoicesController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Purchase> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaFacturasCompra.comparatorProperty());

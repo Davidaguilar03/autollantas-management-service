@@ -87,8 +87,8 @@ public class ReportService {
     private String formatCOP(Double amount) {
         double v = amount != null ? amount : 0.0;
         NumberFormat nf = NumberFormat.getNumberInstance(new Locale("es", "CO"));
-        nf.setMinimumFractionDigits(2);
-        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(0);
+        nf.setMaximumFractionDigits(0);
         return "$ " + nf.format(v);
     }
 
@@ -752,7 +752,7 @@ public class ReportService {
         s.setBorderBottom(BorderStyle.THIN);
         s.setBorderLeft(BorderStyle.THIN);
         s.setBorderRight(BorderStyle.THIN);
-        s.setDataFormat(wb.createDataFormat().getFormat("#,##0.00"));
+        s.setDataFormat(wb.createDataFormat().getFormat("#,##0"));
         return s;
     }
 
@@ -767,7 +767,7 @@ public class ReportService {
         s.setBorderBottom(BorderStyle.MEDIUM);
         s.setBorderLeft(BorderStyle.MEDIUM);
         s.setBorderRight(BorderStyle.MEDIUM);
-        s.setDataFormat(wb.createDataFormat().getFormat("#,##0.00"));
+        s.setDataFormat(wb.createDataFormat().getFormat("#,##0"));
         return s;
     }
 

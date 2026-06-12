@@ -64,6 +64,8 @@ public class OccasionalIncomeController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<OccasionalIncome> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaIngresos.comparatorProperty());

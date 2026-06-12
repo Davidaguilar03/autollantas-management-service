@@ -168,7 +168,7 @@
                         <TableColumn fx:id="colCuenta" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Cuenta" />
                         <TableColumn fx:id="colTotal" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Total" />
                         <TableColumn fx:id="colPorCobrar" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Por Cobrar" />
-                        <TableColumn fx:id="colDiferenciaIva" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Diferencia IVA" />
+                        <TableColumn fx:id="colDiferenciaIva" prefWidth="100.0" style="-fx-alignment: CENTER;" text="IVA por Pagar" />
                         <TableColumn fx:id="colUtilidad" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Utilidad" />
                         <TableColumn fx:id="colEstado" prefWidth="90.0" style="-fx-alignment: CENTER;" text="Estado" />
                     </columns>

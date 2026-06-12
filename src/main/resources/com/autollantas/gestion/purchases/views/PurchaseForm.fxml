@@ -48,7 +48,7 @@
                         <Region HBox.hgrow="ALWAYS" />
                         <VBox alignment="CENTER_RIGHT" spacing="5.0">
                             <children>
-                                <Label text="FACTURA ELECTRÓNICA DE COMPRA" textFill="#95a5a6">
+                                <Label text="FACTURA DE COMPRA" textFill="#95a5a6">
                                     <font>
                                         <Font name="System Bold" size="11.0" />
                                     </font>
@@ -133,7 +133,7 @@
 
                                 <TableColumn fx:id="colDescuento" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="Desc %" />
 
-                                <TableColumn fx:id="colImpuesto" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA a Favor" />
+                                <TableColumn fx:id="colImpuesto" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA Descontable" />
 
                                 <TableColumn fx:id="colSubtotal" minWidth="120.0" prefWidth="140.0" style="-fx-alignment: CENTER-RIGHT;" text="Total Línea" />
 
@@ -184,7 +184,7 @@
                                 </HBox>
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">
                                     <children>
-                                        <Label text="IVA a Favor:" textFill="#7f8c8d" />
+                                        <Label text="IVA Descontable:" textFill="#7f8c8d" />
                                         <Label fx:id="lblIvaFavorTotal" style="-fx-font-weight: bold;" text="\$ 0" textFill="#2c3e50" />
                                     </children>
                                 </HBox>
@@ -221,7 +221,7 @@
                                 <Insets bottom="8.0" left="20.0" right="20.0" top="8.0" />
                             </padding>
                         </Button>
-                        <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnGuardarClick" prefHeight="40.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 4; -fx-font-weight: bold;" text="Guardar Venta">
+                        <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnGuardarClick" prefHeight="40.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 4; -fx-font-weight: bold;" text="Guardar Compra">
                             <font>
                                 <Font size="14.0" />
                             </font>

@@ -107,12 +107,14 @@ public class SalesService {
                                          String name,
                                          String documentNumber,
                                          String email,
-                                         String phone) {
+                                         String phone,
+                                         String documentType) {
         if (selected != null && selected.getName() != null
                 && selected.getName().equalsIgnoreCase(name)) {
             selected.setDocumentNumber(documentNumber);
             selected.setEmail(email);
             selected.setPhone(phone);
+            selected.setDocumentType(documentType);
             return customerRepository.save(selected);
         }
 
@@ -122,6 +124,7 @@ public class SalesService {
         customer.setDocumentNumber(documentNumber);
         customer.setEmail(email);
         customer.setPhone(phone);
+        customer.setDocumentType(documentType);
         return customerRepository.save(customer);
     }
 
