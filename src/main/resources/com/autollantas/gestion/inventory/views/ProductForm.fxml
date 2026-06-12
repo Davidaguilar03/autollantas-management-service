@@ -16,57 +16,64 @@
 
 <StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.ProductFormController">
 
-    <VBox alignment="TOP_CENTER" maxHeight="600" maxWidth="650" spacing="20" styleClass="card-form">
+    <VBox alignment="TOP_CENTER" maxHeight="570" maxWidth="680" spacing="18" styleClass="card-form">
 
         <HBox alignment="CENTER_LEFT">
             <VBox prefHeight="31.0" prefWidth="185.0" spacing="4">
                 <Label fx:id="lblTitulo" styleClass="lbl-titulo" text="Nuevo Producto" />
             </VBox>
-            <Region prefHeight="31.0" prefWidth="343.0" HBox.hgrow="ALWAYS" />
+            <Region HBox.hgrow="ALWAYS" />
             <Button onAction="#cerrarVentana" prefHeight="26.0" prefWidth="42.0" styleClass="btn-cerrar" text="✕" />
         </HBox>
 
         <Separator style="-fx-opacity: 0.5;" />
 
-        <GridPane hgap="25.0" vgap="22.0">
+        <GridPane hgap="20.0" vgap="18.0">
             <columnConstraints>
-                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="100" />
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="165" />
                 <ColumnConstraints hgrow="ALWAYS" />
-                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="80" />
+                <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="165" />
                 <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
 
+            <!-- Fila 0: Código | Categoría -->
             <Label styleClass="lbl-campo" text="Código" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <TextField fx:id="txtCodigo" promptText="REF-001" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <Label styleClass="lbl-campo" text="Categoría" GridPane.columnIndex="2" GridPane.rowIndex="0" />
             <ComboBox fx:id="comboCategoria" maxWidth="Infinity" styleClass="input-moderno" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
+            <!-- Fila 1: Descripción -->
             <Label styleClass="lbl-campo" text="Descripción" GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <TextField fx:id="txtDescripcion" promptText="Ej: Llanta Michelin 255/50" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
 
-            <Label styleClass="lbl-campo" text="Precio Base" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField fx:id="txtPrecioBruto" promptText="\$ 0.0" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <!-- Fila 2: Precio de Compra (con IVA) -->
+            <Label styleClass="lbl-campo" text="Precio Compra ($)" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <TextField fx:id="txtPurchaseCost" promptText="Ej: 238000" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-            <Label styleClass="lbl-campo" text="IVA (%)" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <TextField fx:id="txtPorcentajeIva" alignment="CENTER" styleClass="input-moderno" text="19" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <!-- Fila 3: IVA a Favor | Precio Mín. Venta -->
+            <Label styleClass="lbl-campo" text="IVA a Favor ($)" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+            <TextField fx:id="txtTaxAmount" editable="false" styleClass="input-readonly" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-            <Label styleClass="lbl-campo" text="Monto IVA" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <TextField fx:id="txtMontoIva" editable="false" styleClass="input-readonly" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label style="-fx-text-fill: #2563EB;" styleClass="lbl-campo" text="Precio Mín. Venta ($)" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <TextField fx:id="txtMinSalePrice" editable="false" styleClass="input-readonly" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
-            <Label style="-fx-text-fill: #2563EB;" styleClass="lbl-campo" text="Total Final" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-            <TextField fx:id="txtTotal" editable="false" styleClass="input-moderno, input-total" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <!-- Fila 4: Precio Sugerido -->
+            <Label style="-fx-text-fill: #16a34a;" styleClass="lbl-campo" text="Precio Sugerido ($)" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+            <TextField fx:id="txtSuggestedPrice" editable="false" style="-fx-text-fill: #16a34a; -fx-font-weight: bold;" styleClass="input-readonly" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4" />
 
-            <Label styleClass="lbl-campo" text="Stock Inicial" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-            <Spinner fx:id="spinnerStock" editable="true" maxWidth="149.0" prefHeight="59.0" prefWidth="149.0" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-         <rowConstraints>
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-            <RowConstraints />
-         </rowConstraints>
+            <!-- Fila 5: Stock -->
+            <Label styleClass="lbl-campo" text="Stock Inicial" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+            <Spinner fx:id="spinnerStock" editable="true" maxWidth="149.0" prefHeight="40.0" prefWidth="149.0" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
+            <rowConstraints>
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+                <RowConstraints />
+            </rowConstraints>
         </GridPane>
 
         <Region VBox.vgrow="ALWAYS" />

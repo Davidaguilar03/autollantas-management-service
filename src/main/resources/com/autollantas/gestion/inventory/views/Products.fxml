@@ -149,9 +149,10 @@
                         <TableColumn fx:id="colCodigo" prefWidth="135.33331298828125" style="-fx-alignment: CENTER;" text="Codigo" />
                         <TableColumn fx:id="colDescripcion" prefWidth="359.66668701171875" style="-fx-alignment: CENTER;" text="Descripcion" />
 
-                        <TableColumn fx:id="colPrecioBruto" prefWidth="177.33331298828125" style="-fx-alignment: CENTER;" text="Precio Sin Iva" />
-                        <TableColumn fx:id="colIva" prefWidth="125.33331298828125" style="-fx-alignment: CENTER;" text="Iva" />
-                        <TableColumn fx:id="colPrecioTotal" prefWidth="152.0" style="-fx-alignment: CENTER;" text="Precio con Iva (Total)" />
+                        <TableColumn fx:id="colPurchaseCost" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Precio Compra" />
+                        <TableColumn fx:id="colTaxAmount" prefWidth="120.0" style="-fx-alignment: CENTER;" text="IVA a Favor" />
+                        <TableColumn fx:id="colMinSalePrice" prefWidth="140.0" style="-fx-alignment: CENTER;" text="Precio Mín. Venta" />
+                        <TableColumn fx:id="colSuggestedPrice" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Precio Sugerido" />
 
                         <TableColumn fx:id="colExistencias" prefWidth="79.0" style="-fx-alignment: CENTER;" text="Existencias" />
                     </columns>
@@ -196,6 +197,10 @@
                         </Button>
 
                         <Region HBox.hgrow="ALWAYS" />
+
+                        <Button fx:id="btnImpuestos" mnemonicParsing="false" onAction="#btnImpuestosClick" prefHeight="40.0" styleClass="btn-secondary" text="Impuestos" />
+                        <Button fx:id="btnCategorias" mnemonicParsing="false" onAction="#btnCategoriasClick" prefHeight="40.0" styleClass="btn-secondary" text="Categorías" />
+                        <Button fx:id="btnUtilidades" mnemonicParsing="false" onAction="#btnUtilidadesClick" prefHeight="40.0" styleClass="btn-secondary" text="Utilidades" />
 
                         <Label fx:id="lblInfoRegistros" style="-fx-font-weight: bold;" text="Cargando..." textFill="#666666">
                             <padding>

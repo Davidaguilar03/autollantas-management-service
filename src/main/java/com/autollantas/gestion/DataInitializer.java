@@ -32,27 +32,50 @@ import com.autollantas.gestion.treasury.repository.OperationalExpenseRepository;
 import com.autollantas.gestion.treasury.repository.OccasionalIncomeRepository;
 import com.autollantas.gestion.treasury.repository.MovementRepository;
 import com.autollantas.gestion.config.repository.SystemConfigRepository;
+import com.autollantas.gestion.inventory.service.InventoryService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("ALL")
 @Configuration
 public class DataInitializer {
 
+    private static final Map<String, String> CATEGORY_MAP = Map.ofEntries(
+            Map.entry("LLANTA", "LLANTAS"),
+            Map.entry("FILTRO AIRE", "FILTROS DE AIRE"),
+            Map.entry("ACEITE", "ACEITES"),
+            Map.entry("LUBRICANTE", "OTROS"),
+            Map.entry("BATERIA", "BATERÍAS"),
+            Map.entry("BETERIA", "BATERÍAS"),
+            Map.entry("FILTRO ACEITE", "FILTROS DE ACEITE"),
+            Map.entry("PLUMILLA", "PLUMILLAS"),
+            Map.entry("BOMBILLO AUTO", "ELÉCTRICOS"),
+            Map.entry("BORNES", "ELÉCTRICOS"),
+            Map.entry("ANTISULFATANT", "OTROS"),
+            Map.entry("ARANDELA", "OTROS"),
+            Map.entry("CAJA", "OTROS")
+    );
+
+    private String normalizeCategoryName(String raw) {
+        String cleaned = raw.trim().replaceAll("\\s+", " ").toUpperCase();
+        return CATEGORY_MAP.getOrDefault(cleaned, "OTROS");
+    }
+
     @Bean
     @ConditionalOnProperty(name = "app.data.init.enabled", havingValue = "true", matchIfMissing = true)
     CommandLineRunner loadProductData(ProductCategoryRepository categoryRepo,
-                                     ProductRepository productRepo) {
+                                     ProductRepository productRepo,
+                                     InventoryService inventoryService) {
         return args -> {
             if (productRepo.count() > 5) {
                 System.out.println("⚠️ La base de datos ya tiene productos. Omitiendo carga CSV.");
@@ -77,29 +100,41 @@ public class DataInitializer {
                 String line;
                 int count = 0;
 
+                inventoryService.ensureVatExists();
+
+                if (categoryRepo.count() == 0) {
+                    for (String catName : List.of("LLANTAS", "FILTROS DE AIRE",
+                            "ACEITES", "BATERÍAS", "FILTROS DE ACEITE",
+                            "PLUMILLAS", "ELÉCTRICOS", "OTROS")) {
+                        inventoryService.createCategory(catName, 5, 2);
+                    }
+                }
+
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                     if (data.length < 8) continue;
 
-                    String categoryName = cleanText(data[0]);
+                    String categoryNameRaw = cleanText(data[0]);
+                    String categoryName = normalizeCategoryName(categoryNameRaw);
                     String code = cleanText(data[1]);
                     String description = cleanText(data[2]);
 
-                    if (code.isEmpty() || categoryName.isEmpty()) continue;
+                    if (code.isEmpty() || categoryNameRaw.isEmpty()) continue;
 
                     ProductCategory category = categoryCache.get(categoryName);
                     if (category == null) {
-                        category = new ProductCategory();
-                        category.setName(categoryName);
-                        category.setYellowStockMin(5);
-                        category.setRedStockMin(2);
-                        category = categoryRepo.save(category);
+                        category = categoryRepo.findByName(categoryName).orElse(null);
+                        if (category == null) {
+                            category = new ProductCategory();
+                            category.setName(categoryName);
+                            category.setYellowStockMin(5);
+                            category.setRedStockMin(2);
+                            category = categoryRepo.save(category);
+                            inventoryService.assignVatToCategory(category);
+                        }
                         categoryCache.put(categoryName, category);
                     }
 
-                    double basePrice = cleanAndParsePrice(data[3]);
-                    double taxAmount = cleanAndParsePrice(data[4]);
-                    double priceWithTax = cleanAndParsePrice(data[5]);
                     double stockDouble = cleanAndParsePrice(data[6]);
                     String itemType = cleanText(data[7]);
 
@@ -109,13 +144,11 @@ public class DataInitializer {
                     p.setCode(code);
                     p.setDescription(description);
                     p.setQuantity(stock);
-                    p.setBasePrice(basePrice);
-                    p.setTaxAmount(taxAmount);
-                    p.setPriceWithTax(priceWithTax);
+                    p.setPurchaseCost(cleanAndParsePrice(data[5]));
                     p.setItemType(itemType);
                     p.setCategory(category);
-
                     productRepo.save(p);
+                    inventoryService.recalculateMinSalePrice(p);
                     count++;
                 }
                 System.out.println("✅ ¡Carga Finalizada! Se importaron " + count + " productos.");
@@ -161,7 +194,8 @@ public class DataInitializer {
             OperationalExpenseRepository expenseRepo,
             OccasionalIncomeRepository incomeRepo,
             SystemConfigRepository configRepo,
-            TransferRepository transferRepo) {
+            TransferRepository transferRepo,
+            InventoryService inventoryService) {
 
         return args -> {
 
@@ -204,13 +238,34 @@ public class DataInitializer {
             Customer cli2 = customerRepo.save(new Customer(null, "Maria Rodriguez", "30304040", "maria@hotmail.com", "3109876543"));
             Customer cli3 = customerRepo.save(new Customer(null, "Transportes SAS", "900500600", "logistica@transportes.com", "6017778888"));
 
-            ProductCategory cat1 = categoryRepo.save(new ProductCategory(null, "Llantas", 20, 5));
-            ProductCategory cat2 = categoryRepo.save(new ProductCategory(null, "Aceites", 15, 3));
-            ProductCategory cat3 = categoryRepo.save(new ProductCategory(null, "Frenos", 10, 2));
+            inventoryService.ensureVatExists();
+            ProductCategory cat1 = categoryRepo.findByName("LLANTAS")
+                    .orElseGet(() -> inventoryService.createCategory("LLANTAS", 20, 5));
+            ProductCategory cat2 = categoryRepo.findByName("ACEITES")
+                    .orElseGet(() -> inventoryService.createCategory("ACEITES", 15, 3));
+            ProductCategory cat3 = categoryRepo.findByName("OTROS")
+                    .orElseGet(() -> inventoryService.createCategory("OTROS", 10, 2));
 
-            Product prod1 = productRepo.save(new Product(0, cat1, "LL-001", "Llanta 205/55 R16", null, 38000.0, 200000.0, 238000.0, "Producto"));
-            Product prod2 = productRepo.save(new Product(0, cat2, "AC-001", "Aceite Sintetico 5W30", null, 9500.0, 50000.0, 59500.0, "Producto"));
-            Product prod3 = productRepo.save(new Product(0, cat3, "FR-001", "Pastillas de Freno Cerámica", null, 15200.0, 80000.0, 95200.0, "Servicio"));
+            Product prod1 = new Product();
+            prod1.setCode("LL-001"); prod1.setDescription("Llanta 205/55 R16");
+            prod1.setQuantity(0); prod1.setPurchaseCost(238000.0);
+            prod1.setItemType("Producto"); prod1.setCategory(cat1);
+            prod1 = productRepo.save(prod1);
+            inventoryService.recalculateMinSalePrice(prod1);
+
+            Product prod2 = new Product();
+            prod2.setCode("AC-001"); prod2.setDescription("Aceite Sintetico 5W30");
+            prod2.setQuantity(0); prod2.setPurchaseCost(59500.0);
+            prod2.setItemType("Producto"); prod2.setCategory(cat2);
+            prod2 = productRepo.save(prod2);
+            inventoryService.recalculateMinSalePrice(prod2);
+
+            Product prod3 = new Product();
+            prod3.setCode("FR-001"); prod3.setDescription("Pastillas de Freno Cerámica");
+            prod3.setQuantity(0); prod3.setPurchaseCost(95200.0);
+            prod3.setItemType("Servicio"); prod3.setCategory(cat3);
+            prod3 = productRepo.save(prod3);
+            inventoryService.recalculateMinSalePrice(prod3);
 
             Purchase purchase1 = purchaseRepo.save(new Purchase(null, prov1, ctaBanco, "FAC-00001", LocalDate.now().minusDays(10), "Contado", LocalDate.now().minusDays(10), "Transferencia", "Stock Inicial", 2380000.0, "PAGADA"));
             purchaseDetailRepo.save(new PurchaseDetail(10, purchase1, 0.0, null, 380000.0, 200000.0, prod1, 2380000.0));

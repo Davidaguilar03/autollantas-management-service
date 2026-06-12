@@ -30,7 +30,12 @@
       "PowerShell(.\\\\mvnw compile -q 2>&1)",
       "Bash(.\\\\mvnw.cmd test *)",
       "Bash(mvn compile *)",
-      "Bash(.\\\\mvnw compile *)"
+      "Bash(.\\\\mvnw compile *)",
+      "Bash(.\\\\mvnw.cmd compile *)",
+      "Bash(psql -U postgres -c \"SELECT COUNT\\(*\\) FROM PRODUCTOS; SELECT COUNT\\(*\\) FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) FROM TIPOS_IMPUESTO;\")",
+      "Bash(psql -c \"SELECT COUNT\\(*\\) FROM PRODUCTOS; SELECT COUNT\\(*\\) FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) FROM TIPOS_IMPUESTO;\")",
+      "Bash(psql -U postgres -d autollantas_db -W -c \"SELECT COUNT\\(*\\) AS productos FROM PRODUCTOS; SELECT COUNT\\(*\\) AS categorias FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) AS impuestos FROM TIPOS_IMPUESTO;\")",
+      "Bash(PGPASSWORD=12345 psql -U postgres -d autollantas_db -c \"SELECT COUNT\\(*\\) AS productos FROM PRODUCTOS; SELECT COUNT\\(*\\) AS categorias FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) AS impuestos FROM TIPOS_IMPUESTO;\")"
     ]
   }
 }

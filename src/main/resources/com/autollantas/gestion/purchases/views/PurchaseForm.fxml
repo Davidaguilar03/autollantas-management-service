@@ -133,7 +133,7 @@
 
                                 <TableColumn fx:id="colDescuento" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="Desc %" />
 
-                                <TableColumn fx:id="colImpuesto" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="Impuesto" />
+                                <TableColumn fx:id="colImpuesto" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA a Favor" />
 
                                 <TableColumn fx:id="colSubtotal" minWidth="120.0" prefWidth="140.0" style="-fx-alignment: CENTER-RIGHT;" text="Total Línea" />
 
@@ -180,6 +180,12 @@
                                     <children>
                                         <Label text="Subtotal" textFill="#7f8c8d" />
                                         <Label fx:id="lblSubtotal" style="-fx-font-weight: bold;" text="\$ 0" textFill="#2c3e50" />
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_RIGHT" spacing="30.0">
+                                    <children>
+                                        <Label text="IVA a Favor:" textFill="#7f8c8d" />
+                                        <Label fx:id="lblIvaFavorTotal" style="-fx-font-weight: bold;" text="\$ 0" textFill="#2c3e50" />
                                     </children>
                                 </HBox>
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">

@@ -1,6 +1,7 @@
 package com.autollantas.gestion.purchases.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
+import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.purchases.model.Purchase;
 import com.autollantas.gestion.purchases.model.PurchaseDetail;
 import com.autollantas.gestion.purchases.model.Supplier;
@@ -212,11 +213,9 @@ public class PurchaseFormController {
 
         colImpuesto.setCellValueFactory(cell ->
                 Bindings.createObjectBinding(() -> {
-                    double unit = cell.getValue().getTax();
-                    double basePrice = cell.getValue().getPrice();
-                    int qty = cell.getValue().getQuantity();
-                    return unit * qty;
-                }, cell.getValue().taxProperty(), cell.getValue().quantityProperty(), cell.getValue().priceProperty())
+                    PurchaseDetailRow row = cell.getValue();
+                    return row.getPrice() * getIvaRate(row.getProduct()) * row.getQuantity();
+                }, cell.getValue().productProperty(), cell.getValue().priceProperty(), cell.getValue().quantityProperty())
         );
         colImpuesto.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
@@ -305,6 +304,15 @@ public class PurchaseFormController {
         lblSubtotal.setText(currencyFormat.format(subtotal));
         lblDescuentos.setText(currencyFormat.format(discounts));
         lblTotalGeneral.setText(currencyFormat.format(total));
+    }
+
+    private double getIvaRate(Product p) {
+        if (p == null || p.getCategory() == null) return 0.0;
+        return p.getCategory().getTaxTypes().stream()
+                .filter(t -> Boolean.TRUE.equals(t.getIsVat()))
+                .mapToDouble(t -> t.getRate() != null ? t.getRate() : 0.0)
+                .findFirst()
+                .orElse(0.0);
     }
 
     @FXML void btnAgregarLineaClick(ActionEvent event) { addLine(); }
@@ -482,14 +490,20 @@ public class PurchaseFormController {
             try {
                 double val = Double.parseDouble(text);
                 if (val <= 0) restoreOriginalPrice(row);
-                else { row.setPrice(val); textField.setText(currencyFormat.format(val)); }
+                else {
+                    row.setPrice(val);
+                    row.setTax(val * getIvaRate(row.getProduct()));
+                    textField.setText(currencyFormat.format(val));
+                }
             } catch (Exception e) { restoreOriginalPrice(row); }
         }
 
         private void restoreOriginalPrice(PurchaseDetailRow row) {
             if (row.getProduct() != null) {
-                row.setPrice(row.getProduct().getBasePrice());
-                textField.setText(currencyFormat.format(row.getPrice()));
+                double cost = row.getProduct().getPurchaseCost() != null ? row.getProduct().getPurchaseCost() : 0.0;
+                row.setPrice(cost);
+                row.setTax(cost * getIvaRate(row.getProduct()));
+                textField.setText(currencyFormat.format(cost));
             } else textField.setText(currencyFormat.format(0));
         }
 
@@ -586,9 +600,10 @@ public class PurchaseFormController {
             if (p != null) {
                 PurchaseDetailRow row = getTableRow().getItem();
                 if (row != null && row.getProduct() != p) {
+                    double unitPrice = p.getPurchaseCost() != null ? p.getPurchaseCost() : 0.0;
                     row.setProduct(p);
-                    row.setPrice(p.getBasePrice());
-                    row.setTax(p.getTaxAmount() != null ? p.getTaxAmount() : 0.0);
+                    row.setPrice(unitPrice);
+                    row.setTax(unitPrice * getIvaRate(p));
                     row.setDiscount(0.0);
                     row.setQuantity(1);
                     tablaDetalles.refresh();
@@ -623,10 +638,8 @@ class PurchaseDetailRow {
         return Bindings.createDoubleBinding(() -> {
             double lineTotal = getPrice() * getQuantity();
             double discAmount = lineTotal * (getDiscount() / 100.0);
-            double base = lineTotal - discAmount;
-            double taxTotal = getTax() * getQuantity();
-            return base + taxTotal;
-        }, price, quantity, discount, tax);
+            return lineTotal - discAmount;
+        }, price, quantity, discount);
     }
 
     public double getLineTotal() { return totalBinding().get(); }

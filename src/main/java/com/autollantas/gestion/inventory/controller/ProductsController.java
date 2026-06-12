@@ -54,9 +54,10 @@ public class ProductsController {
     @FXML private TableColumn<Product, String> colCodigo;
     @FXML private TableColumn<Product, String> colDescripcion;
 
-    @FXML private TableColumn<Product, Double> colPrecioBruto;
-    @FXML private TableColumn<Product, Double> colIva;
-    @FXML private TableColumn<Product, Double> colPrecioTotal;
+    @FXML private TableColumn<Product, Double> colPurchaseCost;
+    @FXML private TableColumn<Product, Double> colTaxAmount;
+    @FXML private TableColumn<Product, Double> colMinSalePrice;
+    @FXML private TableColumn<Product, Double> colSuggestedPrice;
 
     @FXML private TableColumn<Product, Integer> colExistencias;
 
@@ -148,17 +149,17 @@ public class ProductsController {
         estilizarColumnaTexto(colDescripcion);
 
 
-        colPrecioBruto.setCellValueFactory(new PropertyValueFactory<>("basePrice"));
-        colPrecioBruto.setCellFactory(col -> crearCeldaMoneda());
+        colPurchaseCost.setCellValueFactory(new PropertyValueFactory<>("purchaseCost"));
+        colPurchaseCost.setCellFactory(col -> crearCeldaMoneda());
 
+        colTaxAmount.setCellValueFactory(new PropertyValueFactory<>("taxAmount"));
+        colTaxAmount.setCellFactory(col -> crearCeldaMoneda());
 
-        colIva.setCellValueFactory(new PropertyValueFactory<>("taxAmount"));
-        colIva.setCellFactory(col -> crearCeldaMoneda());
+        colMinSalePrice.setCellValueFactory(new PropertyValueFactory<>("minSalePrice"));
+        colMinSalePrice.setCellFactory(col -> crearCeldaMoneda());
 
-
-        colPrecioTotal.setCellValueFactory(new PropertyValueFactory<>("priceWithTax"));
-        colPrecioTotal.setCellFactory(col -> crearCeldaMoneda());
-
+        colSuggestedPrice.setCellValueFactory(new PropertyValueFactory<>("suggestedPrice"));
+        colSuggestedPrice.setCellFactory(col -> crearCeldaMoneda());
 
         colExistencias.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         colExistencias.setCellFactory(col -> crearCeldaStock());
@@ -270,7 +271,7 @@ public class ProductsController {
             }
 
 
-            if (!filtrarPorRangoInteligente(prod.getPriceWithTax(), txtPrecioMin.getText(), txtPrecioMax.getText())) {
+            if (!filtrarPorRangoInteligente(prod.getSuggestedPrice(), txtPrecioMin.getText(), txtPrecioMax.getText())) {
                 return false;
             }
 
@@ -283,6 +284,9 @@ public class ProductsController {
     }
 
     private boolean filtrarPorRangoInteligente(Double valorReal, String minStr, String maxStr) {
+        boolean sinFiltro = (minStr == null || minStr.isEmpty())
+                         && (maxStr == null || maxStr.isEmpty());
+        if (sinFiltro) return true;
         if (valorReal == null) return false;
 
         Double min = parsearValorNumerico(minStr);
@@ -322,6 +326,96 @@ public class ProductsController {
         });
     }
 
+
+    @FXML void btnUtilidadesClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/autollantas/gestion/inventory/views/CategoryMargins.fxml"));
+            loader.setControllerFactory(param -> springContext.getBean(param));
+            Parent root = loader.load();
+
+            Stage modalStage = new Stage();
+            modalStage.initStyle(StageStyle.TRANSPARENT);
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+
+            Stage ventanaPrincipal = (Stage) tablaProductos.getScene().getWindow();
+            modalStage.initOwner(ventanaPrincipal);
+
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            modalStage.setScene(scene);
+
+            modalStage.setX(ventanaPrincipal.getX());
+            modalStage.setY(ventanaPrincipal.getY());
+            modalStage.setWidth(ventanaPrincipal.getWidth());
+            modalStage.setHeight(ventanaPrincipal.getHeight());
+
+            modalStage.showAndWait();
+            cargarDatosDB();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML void btnCategoriasClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/autollantas/gestion/inventory/views/CategoryManagement.fxml"));
+            loader.setControllerFactory(param -> springContext.getBean(param));
+            Parent root = loader.load();
+
+            Stage modalStage = new Stage();
+            modalStage.initStyle(StageStyle.TRANSPARENT);
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+
+            Stage ventanaPrincipal = (Stage) tablaProductos.getScene().getWindow();
+            modalStage.initOwner(ventanaPrincipal);
+
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            modalStage.setScene(scene);
+
+            modalStage.setX(ventanaPrincipal.getX());
+            modalStage.setY(ventanaPrincipal.getY());
+            modalStage.setWidth(ventanaPrincipal.getWidth());
+            modalStage.setHeight(ventanaPrincipal.getHeight());
+
+            modalStage.showAndWait();
+            cargarDatosDB();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML void btnImpuestosClick(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/autollantas/gestion/inventory/views/TaxManagement.fxml"));
+            loader.setControllerFactory(param -> springContext.getBean(param));
+            Parent root = loader.load();
+
+            Stage modalStage = new Stage();
+            modalStage.initStyle(StageStyle.TRANSPARENT);
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+
+            Stage ventanaPrincipal = (Stage) tablaProductos.getScene().getWindow();
+            modalStage.initOwner(ventanaPrincipal);
+
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            modalStage.setScene(scene);
+
+            modalStage.setX(ventanaPrincipal.getX());
+            modalStage.setY(ventanaPrincipal.getY());
+            modalStage.setWidth(ventanaPrincipal.getWidth());
+            modalStage.setHeight(ventanaPrincipal.getHeight());
+
+            modalStage.showAndWait();
+            cargarDatosDB();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML void btnBuscarClick(ActionEvent event) { aplicarFiltros(); }
 

@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
+import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -26,10 +27,12 @@ public class ProductFormController {
     @FXML private TextField txtCodigo;
     @FXML private ComboBox<ProductCategory> comboCategoria;
     @FXML private TextField txtDescripcion;
-    @FXML private TextField txtPrecioBruto;
-    @FXML private TextField txtPorcentajeIva;
-    @FXML private TextField txtMontoIva;
-    @FXML private TextField txtTotal;
+
+    @FXML private TextField txtPurchaseCost;
+    @FXML private TextField txtTaxAmount;
+    @FXML private TextField txtMinSalePrice;
+    @FXML private TextField txtSuggestedPrice;
+
     @FXML private Spinner<Integer> spinnerStock;
 
     private boolean guardado = false;
@@ -42,6 +45,10 @@ public class ProductFormController {
         currencyFormat.setMaximumFractionDigits(0);
         spinnerStock.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
 
+        txtTaxAmount.setEditable(false);
+        txtMinSalePrice.setEditable(false);
+        txtSuggestedPrice.setEditable(false);
+
         configurarComboCategorias();
         configurarLogicaPrecios();
 
@@ -52,58 +59,59 @@ public class ProductFormController {
     }
 
     private void configurarLogicaPrecios() {
-        txtPrecioBruto.textProperty().addListener((obs, oldVal, newVal) -> {
+        txtPurchaseCost.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isEmpty()) {
-                calcularMontos();
+                recalcularTodo();
                 return;
             }
-
             String valorLimpio = newVal.replaceAll("[^0-9]", "");
-
             if (valorLimpio.isEmpty()) return;
-
             try {
                 long numero = Long.parseLong(valorLimpio);
                 String formateado = currencyFormat.format(numero);
-
                 if (!newVal.equals(formateado)) {
-                    txtPrecioBruto.setText(formateado);
-                    Platform.runLater(() -> txtPrecioBruto.positionCaret(txtPrecioBruto.getText().length()));
+                    txtPurchaseCost.setText(formateado);
+                    Platform.runLater(() -> txtPurchaseCost.positionCaret(txtPurchaseCost.getText().length()));
                 }
-
-                calcularMontos();
-
+                recalcularTodo();
             } catch (NumberFormatException e) {
             }
         });
 
-        txtPorcentajeIva.textProperty().addListener((obs, oldVal, newVal) -> calcularMontos());
+        comboCategoria.valueProperty().addListener((obs, oldVal, newVal) -> recalcularTodo());
     }
 
-    private void calcularMontos() {
-        try {
-            String brutoStr = txtPrecioBruto.getText() != null ? txtPrecioBruto.getText().replaceAll("[^0-9]", "") : "";
-            String ivaPorcStr = txtPorcentajeIva.getText() != null ? txtPorcentajeIva.getText().replaceAll(",", ".") : "";
+    private void recalcularTodo() {
+        String costStr = txtPurchaseCost.getText() != null
+                ? txtPurchaseCost.getText().replaceAll("[^0-9]", "") : "";
+        ProductCategory cat = comboCategoria.getValue();
 
-            if (brutoStr.isEmpty()) {
-                txtMontoIva.setText("$ 0");
-                txtTotal.setText("$ 0");
-                return;
+        double precioCompra = 0.0;
+        try { if (!costStr.isEmpty()) precioCompra = Double.parseDouble(costStr); } catch (NumberFormatException ignored) {}
+
+        double tasaIva = 0.0;
+        double otrosTasa = 0.0;
+        if (cat != null && cat.getTaxTypes() != null) {
+            for (TaxType t : cat.getTaxTypes()) {
+                if (t.getRate() == null) continue;
+                if (Boolean.TRUE.equals(t.getIsVat())) {
+                    tasaIva = t.getRate();
+                } else if (!Boolean.TRUE.equals(t.getAppliesToTransaction())) {
+                    otrosTasa += t.getRate();
+                }
             }
-
-            double bruto = Double.parseDouble(brutoStr);
-            double porcentaje = ivaPorcStr.isEmpty() ? 0 : Double.parseDouble(ivaPorcStr.replaceAll("[^0-9.]", ""));
-
-            double montoIva = bruto * (porcentaje / 100);
-            double total = bruto + montoIva;
-
-            txtMontoIva.setText(currencyFormat.format(montoIva));
-            txtTotal.setText(currencyFormat.format(total));
-
-        } catch (NumberFormatException e) {
-            txtMontoIva.setText("$ 0");
-            txtTotal.setText("$ 0");
         }
+
+        double ivaFavor = precioCompra * tasaIva;
+        double otrosImpuestos = precioCompra * otrosTasa;
+        txtTaxAmount.setText(precioCompra > 0 ? currencyFormat.format(ivaFavor) : "$ 0");
+
+        double precioMinimo = precioCompra + otrosImpuestos;
+        txtMinSalePrice.setText(precioCompra > 0 ? currencyFormat.format(precioMinimo) : "$ 0");
+
+        double margen = (cat != null && cat.getTargetMargin() != null) ? cat.getTargetMargin() : 0.0;
+        double precioSugerido = precioMinimo * (1 + margen);
+        txtSuggestedPrice.setText(precioCompra > 0 ? currencyFormat.format(precioSugerido) : "$ 0");
     }
 
     public void setProduct(Product product) {
@@ -119,27 +127,17 @@ public class ProductFormController {
         txtCodigo.setText(product.getCode() != null ? product.getCode() : "");
         txtDescripcion.setText(product.getDescription() != null ? product.getDescription() : "");
 
-        if (product.getBasePrice() > 0) {
-            txtPrecioBruto.setText(currencyFormat.format(product.getBasePrice()));
-
-            if (product.getTaxAmount() > 0) {
-                double porc = (product.getTaxAmount() / product.getBasePrice()) * 100;
-                txtPorcentajeIva.setText(String.format("%.0f", porc));
-            } else {
-                txtPorcentajeIva.setText("0");
-            }
-        } else {
-            txtPrecioBruto.setText("");
-            txtPorcentajeIva.setText("19");
+        if (product.getPurchaseCost() != null && product.getPurchaseCost() > 0) {
+            txtPurchaseCost.setText(currencyFormat.format(product.getPurchaseCost()));
         }
 
-        spinnerStock.getValueFactory().setValue(product.getQuantity());
+        spinnerStock.getValueFactory().setValue(product.getQuantity() != null ? product.getQuantity() : 0);
 
         if (product.getCategory() != null) {
             comboCategoria.setValue(product.getCategory());
         }
 
-        calcularMontos();
+        recalcularTodo();
     }
 
     @FXML
@@ -150,28 +148,19 @@ public class ProductFormController {
             currentProduct.setCode(txtCodigo.getText());
             currentProduct.setDescription(txtDescripcion.getText());
             currentProduct.setCategory(comboCategoria.getValue());
-
-            String brutoLimpio = txtPrecioBruto.getText().replaceAll("[^0-9]", "");
-            double bruto = Double.parseDouble(brutoLimpio);
-
-            String porcentajeStr = txtPorcentajeIva.getText().replaceAll("[^0-9.]", "");
-            double porcentaje = porcentajeStr.isEmpty() ? 0 : Double.parseDouble(porcentajeStr);
-
-            double montoIva = bruto * (porcentaje / 100);
-            double total = bruto + montoIva;
-
-            currentProduct.setBasePrice(bruto);
-            currentProduct.setTaxAmount(montoIva);
-            currentProduct.setPriceWithTax(total);
             currentProduct.setQuantity(spinnerStock.getValue());
 
-            inventoryService.saveProduct(currentProduct);
+            String costStr = txtPurchaseCost.getText().replaceAll("[^0-9]", "");
+            double purchaseCost = Double.parseDouble(costStr);
+            currentProduct.setPurchaseCost(purchaseCost);
+
+            inventoryService.recalculateMinSalePrice(currentProduct);
 
             guardado = true;
             cerrarVentana();
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error numérico", "Revisa que los precios no sean demasiado grandes.");
+            mostrarAlerta("Error numérico", "Revisa que los valores numéricos sean válidos.");
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error técnico", "No se pudo guardar: " + e.getMessage());
@@ -185,29 +174,23 @@ public class ProductFormController {
 
         txtCodigo.setStyle(normalStyle);
         txtDescripcion.setStyle(normalStyle);
-        txtPrecioBruto.setStyle(normalStyle);
+        txtPurchaseCost.setStyle(normalStyle);
         comboCategoria.setStyle(normalStyle);
 
         if (txtCodigo.getText() == null || txtCodigo.getText().trim().isEmpty()) {
-            txtCodigo.setStyle(errorStyle);
-            valido = false;
+            txtCodigo.setStyle(errorStyle); valido = false;
         }
         if (comboCategoria.getValue() == null) {
-            comboCategoria.setStyle(errorStyle);
-            valido = false;
+            comboCategoria.setStyle(errorStyle); valido = false;
         }
         if (txtDescripcion.getText() == null || txtDescripcion.getText().trim().isEmpty()) {
-            txtDescripcion.setStyle(errorStyle);
-            valido = false;
+            txtDescripcion.setStyle(errorStyle); valido = false;
         }
-        if (txtPrecioBruto.getText() == null || txtPrecioBruto.getText().trim().isEmpty()) {
-            txtPrecioBruto.setStyle(errorStyle);
-            valido = false;
+        if (txtPurchaseCost.getText() == null || txtPurchaseCost.getText().trim().isEmpty()) {
+            txtPurchaseCost.setStyle(errorStyle); valido = false;
         }
 
-        if (!valido) {
-            mostrarAlerta("Datos Incompletos", "Por favor completa los campos resaltados en rojo.");
-        }
+        if (!valido) mostrarAlerta("Datos Incompletos", "Por favor completa los campos resaltados en rojo.");
         return valido;
     }
 
@@ -217,16 +200,13 @@ public class ProductFormController {
 
         configurarEstiloCampo(txtCodigo, estiloNormal, estiloFocus);
         configurarEstiloCampo(txtDescripcion, estiloNormal, estiloFocus);
-        configurarEstiloCampo(txtPrecioBruto, estiloNormal, estiloFocus);
-        configurarEstiloCampo(txtPorcentajeIva, estiloNormal, estiloFocus);
+        configurarEstiloCampo(txtPurchaseCost, estiloNormal, estiloFocus);
         comboCategoria.setStyle(estiloNormal);
     }
 
     private void configurarEstiloCampo(TextField campo, String normal, String focus) {
         campo.setStyle(normal);
-        campo.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            campo.setStyle(newVal ? focus : normal);
-        });
+        campo.focusedProperty().addListener((obs, oldVal, newVal) -> campo.setStyle(newVal ? focus : normal));
     }
 
     private void configurarComboCategorias() {
