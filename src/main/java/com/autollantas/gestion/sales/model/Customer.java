@@ -35,4 +35,7 @@ public class Customer {
 
     @Column(name = "celular_cliente")
     private String phone;
+
+    @Column(name = "tipo_documento_cliente")
+    private String documentType;
 }

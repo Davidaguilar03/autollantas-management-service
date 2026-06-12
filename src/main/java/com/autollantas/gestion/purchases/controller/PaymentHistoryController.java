@@ -42,6 +42,8 @@ public class PaymentHistoryController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         configureTable();
     }
 

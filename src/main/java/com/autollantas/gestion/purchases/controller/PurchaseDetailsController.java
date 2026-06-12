@@ -58,6 +58,8 @@ public class PurchaseDetailsController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         configureTable();
     }
 

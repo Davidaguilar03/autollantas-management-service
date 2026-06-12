@@ -66,6 +66,8 @@ public class SaleInvoicesController {
     @FXML private TableColumn<Sale, String> colFormaPago;
     @FXML private TableColumn<Sale, String> colCuenta;
     @FXML private TableColumn<Sale, Double> colPorCobrar;
+    @FXML private TableColumn<Sale, Double> colDiferenciaIva;
+    @FXML private TableColumn<Sale, Double> colUtilidad;
     @FXML private TableColumn<Sale, String> colEstado;
 
     @FXML private Button btnEditar;
@@ -86,6 +88,8 @@ public class SaleInvoicesController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         this.filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Sale> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaFacturas.comparatorProperty());
@@ -292,8 +296,36 @@ public class SaleInvoicesController {
         });
         colPorCobrar.setCellFactory(col -> createPendingCell());
 
+        colDiferenciaIva.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleObjectProperty<>(salesService.calculateDiferenciaIva(cell.getValue()))
+        );
+        colDiferenciaIva.setCellFactory(col -> createSignedCurrencyCell());
+
+        colUtilidad.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleObjectProperty<>(salesService.calculateUtilidad(cell.getValue()))
+        );
+        colUtilidad.setCellFactory(col -> createSignedCurrencyCell());
+
         colEstado.setCellValueFactory(new PropertyValueFactory<>("status"));
         colEstado.setCellFactory(col -> createStatusCell());
+    }
+
+    private TableCell<Sale, Double> createSignedCurrencyCell() {
+        return new TableCell<>() {
+            @Override protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setGraphic(null); }
+                else {
+                    Label lbl = new Label(currencyFormat.format(item));
+                    lbl.setAlignment(Pos.CENTER_RIGHT);
+                    lbl.setStyle("-fx-font-weight: bold;");
+                    Color baseColor = item >= 0 ? COLOR_VERDE_OSCURO : Color.RED;
+                    lbl.textFillProperty().bind(Bindings.when(selectedProperty()).then(Color.WHITE).otherwise(baseColor));
+                    setGraphic(lbl);
+                    setAlignment(Pos.CENTER_RIGHT);
+                }
+            }
+        };
     }
 
     private void styleTextColumn(TableColumn<Sale, String> col) {

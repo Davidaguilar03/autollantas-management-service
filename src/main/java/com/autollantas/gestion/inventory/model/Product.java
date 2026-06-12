@@ -9,7 +9,8 @@ import lombok.Data;
 public class Product {
 
     public Product(Integer quantity, ProductCategory category, String code, String description,
-                   Integer id, Double taxAmount, Double basePrice, Double priceWithTax, String itemType) {
+                   Integer id, Double taxAmount, Double basePrice, Double priceWithTax, String itemType,
+                   Double purchaseCost, Double minSalePrice, Double suggestedPrice) {
         this.quantity = quantity;
         this.category = category;
         this.code = code;
@@ -19,6 +20,9 @@ public class Product {
         this.basePrice = basePrice;
         this.priceWithTax = priceWithTax;
         this.itemType = itemType;
+        this.purchaseCost = purchaseCost;
+        this.minSalePrice = minSalePrice;
+        this.suggestedPrice = suggestedPrice;
     }
 
     public Product() {
@@ -51,4 +55,13 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "id_categoria_producto")
     private ProductCategory category;
+
+    @Column(name = "costo_compra")
+    private Double purchaseCost;
+
+    @Column(name = "precio_minimo_venta")
+    private Double minSalePrice;
+
+    @Column(name = "precio_sugerido")
+    private Double suggestedPrice;
 }

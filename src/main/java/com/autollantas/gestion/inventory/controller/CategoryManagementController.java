@@ -1,0 +1,165 @@
+package com.autollantas.gestion.inventory.controller;
+
+import com.autollantas.gestion.inventory.model.ProductCategory;
+import com.autollantas.gestion.inventory.service.InventoryService;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+
+@SuppressWarnings("ALL")
+@Component
+public class CategoryManagementController {
+
+    @Autowired
+    private InventoryService inventoryService;
+    @Autowired
+    private ApplicationContext springContext;
+
+    @FXML private TableView<ProductCategory> tableCategories;
+    @FXML private TableColumn<ProductCategory, String> colNombre;
+    @FXML private TableColumn<ProductCategory, Integer> colStockAmarillo;
+    @FXML private TableColumn<ProductCategory, Integer> colStockRojo;
+    @FXML private TableColumn<ProductCategory, Integer> colProductCount;
+
+    @FXML private Button btnEditar;
+    @FXML private Button btnEliminar;
+
+    private final ObservableList<ProductCategory> categoryList = FXCollections.observableArrayList();
+
+    @FXML
+    public void initialize() {
+        colNombre.setCellValueFactory(cell -> new SimpleStringProperty(
+                cell.getValue().getName() != null ? cell.getValue().getName() : ""));
+        colStockAmarillo.setCellValueFactory(cell -> {
+            Integer val = cell.getValue().getYellowStockMin();
+            return new SimpleIntegerProperty(val != null ? val : 0).asObject();
+        });
+        colStockRojo.setCellValueFactory(cell -> {
+            Integer val = cell.getValue().getRedStockMin();
+            return new SimpleIntegerProperty(val != null ? val : 0).asObject();
+        });
+        colProductCount.setCellValueFactory(cell -> {
+            int count = inventoryService.findProductsByCategory(cell.getValue()).size();
+            return new SimpleIntegerProperty(count).asObject();
+        });
+
+        tableCategories.setItems(categoryList);
+
+        tableCategories.getSelectionModel().selectedItemProperty().addListener((obs, old, nw) -> {
+            boolean sel = nw != null;
+            btnEditar.setDisable(!sel);
+            btnEliminar.setDisable(!sel);
+        });
+
+        loadCategories();
+    }
+
+    private void loadCategories() {
+        new Thread(() -> {
+            List<ProductCategory> cats = inventoryService.findAllCategories();
+            Platform.runLater(() -> categoryList.setAll(cats));
+        }).start();
+    }
+
+    @FXML
+    public void onNueva(ActionEvent event) {
+        abrirModalCategory(null);
+    }
+
+    @FXML
+    public void onEditar(ActionEvent event) {
+        ProductCategory sel = tableCategories.getSelectionModel().getSelectedItem();
+        if (sel != null) abrirModalCategory(sel);
+    }
+
+    @FXML
+    public void onEliminar(ActionEvent event) {
+        ProductCategory sel = tableCategories.getSelectionModel().getSelectedItem();
+        if (sel == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Eliminar Categoría");
+        confirm.setHeaderText("¿Eliminar la categoría '" + sel.getName() + "'?");
+        confirm.setContentText("Esta acción no se puede deshacer.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean eliminado = inventoryService.deleteCategory(sel);
+            if (!eliminado) {
+                mostrarAlerta(Alert.AlertType.WARNING, "No se puede eliminar",
+                        "La categoría tiene productos asociados.");
+            } else {
+                loadCategories();
+            }
+        }
+    }
+
+    private void abrirModalCategory(ProductCategory category) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/com/autollantas/gestion/inventory/views/CategoryForm.fxml"));
+            loader.setControllerFactory(param -> springContext.getBean(param));
+            Parent root = loader.load();
+
+            CategoryFormController controller = loader.getController();
+            if (category != null) controller.setCategory(category);
+
+            Stage modalStage = new Stage();
+            modalStage.initStyle(StageStyle.TRANSPARENT);
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+
+            Stage ventanaPrincipal = (Stage) tableCategories.getScene().getWindow();
+            modalStage.initOwner(ventanaPrincipal);
+
+            Scene scene = new Scene(root);
+            scene.setFill(Color.TRANSPARENT);
+            modalStage.setScene(scene);
+
+            modalStage.setX(ventanaPrincipal.getX());
+            modalStage.setY(ventanaPrincipal.getY());
+            modalStage.setWidth(ventanaPrincipal.getWidth());
+            modalStage.setHeight(ventanaPrincipal.getHeight());
+
+            modalStage.showAndWait();
+
+            if (controller.isGuardado()) {
+                loadCategories();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void cerrarVentana() {
+        if (tableCategories.getScene() != null) {
+            ((Stage) tableCategories.getScene().getWindow()).close();
+        }
+    }
+
+    private void mostrarAlerta(Alert.AlertType type, String titulo, String contenido) {
+        Alert alert = new Alert(type);
+        alert.setTitle("Gestión de Categorías");
+        alert.setHeaderText(titulo);
+        alert.setContentText(contenido);
+        alert.showAndWait();
+    }
+}

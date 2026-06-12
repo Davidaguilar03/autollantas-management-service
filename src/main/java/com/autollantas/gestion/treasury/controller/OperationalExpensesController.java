@@ -67,6 +67,8 @@ public class OperationalExpensesController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<OperationalExpense> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaCostos.comparatorProperty());

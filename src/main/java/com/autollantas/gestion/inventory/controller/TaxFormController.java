@@ -1,0 +1,113 @@
+package com.autollantas.gestion.inventory.controller;
+
+import com.autollantas.gestion.inventory.model.TaxType;
+import com.autollantas.gestion.inventory.service.InventoryService;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TaxFormController {
+
+    @Autowired
+    private InventoryService inventoryService;
+
+    @FXML private Label lblTitulo;
+    @FXML private TextField txtName;
+    @FXML private TextField txtRate;
+    @FXML private TextField txtDescription;
+    @FXML private RadioButton rbProduct;
+    @FXML private RadioButton rbTransaction;
+    @FXML private Button btnGuardar;
+    @FXML private Button btnCancelar;
+
+    private TaxType currentTaxType;
+    private boolean guardado = false;
+
+    @FXML
+    public void initialize() {
+        rbProduct.setSelected(true);
+        currentTaxType = new TaxType();
+        Platform.runLater(() -> txtName.requestFocus());
+    }
+
+    public void setTaxType(TaxType tax) {
+        this.currentTaxType = tax;
+        lblTitulo.setText("Editar Impuesto");
+        txtName.setText(tax.getName() != null ? tax.getName() : "");
+        txtRate.setText(tax.getRate() != null ? String.valueOf(tax.getRate() * 100) : "");
+        txtDescription.setText(tax.getDescription() != null ? tax.getDescription() : "");
+        if (Boolean.TRUE.equals(tax.getAppliesToTransaction())) {
+            rbTransaction.setSelected(true);
+        } else {
+            rbProduct.setSelected(true);
+        }
+    }
+
+    @FXML
+    public void guardar() {
+        if (!validar()) return;
+        try {
+            currentTaxType.setName(txtName.getText().trim());
+            currentTaxType.setRate(Double.parseDouble(txtRate.getText().trim().replace(",", ".")) / 100.0);
+            currentTaxType.setDescription(txtDescription.getText().trim());
+            currentTaxType.setAppliesToTransaction(rbTransaction.isSelected());
+            inventoryService.saveTaxType(currentTaxType);
+            guardado = true;
+            cerrarVentana();
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo guardar: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void cancelar() {
+        cerrarVentana();
+    }
+
+    private boolean validar() {
+        String errorStyle = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
+        String normalStyle = "-fx-border-color: #cccccc; -fx-border-radius: 4;";
+        txtName.setStyle(normalStyle);
+        txtRate.setStyle(normalStyle);
+
+        boolean valido = true;
+
+        if (txtName.getText() == null || txtName.getText().trim().isEmpty()) {
+            txtName.setStyle(errorStyle);
+            valido = false;
+        }
+
+        String rateStr = txtRate.getText() != null ? txtRate.getText().trim().replace(",", ".") : "";
+        try {
+            double rate = Double.parseDouble(rateStr);
+            if (rate < 0 || rate > 100) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            txtRate.setStyle(errorStyle);
+            valido = false;
+        }
+
+        if (!valido) mostrarAlerta("Datos Incompletos", "Nombre requerido. Tasa debe ser un número entre 0 y 100.");
+        return valido;
+    }
+
+    private void cerrarVentana() {
+        if (txtName.getScene() != null) {
+            ((Stage) txtName.getScene().getWindow()).close();
+        }
+    }
+
+    public boolean isGuardado() {
+        return guardado;
+    }
+
+    private void mostrarAlerta(String titulo, String contenido) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText(titulo);
+        alert.setContentText(contenido);
+        alert.showAndWait();
+    }
+}

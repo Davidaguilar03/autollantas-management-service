@@ -41,6 +41,8 @@ public class CollectionFormController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         dpFechaPago.setValue(LocalDate.now());
         loadCombos();
         configureAmountInput();

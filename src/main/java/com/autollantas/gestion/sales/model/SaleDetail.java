@@ -50,4 +50,10 @@ public class SaleDetail {
 
     @Column(name = "subtotal_venta")
     private Double subtotal;
+
+    @Column(name = "utilidad_linea")
+    private Double profitAmount;
+
+    @Column(name = "diferencia_iva_linea")
+    private Double ivaDifference;
 }

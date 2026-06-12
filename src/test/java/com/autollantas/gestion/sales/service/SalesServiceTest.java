@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -395,7 +396,7 @@ class SalesServiceTest {
         void saveOrUpdateCustomer_clienteNuevo_deberia_guardar() {
             when(customerRepository.findByDocumentNumber("123")).thenReturn(Optional.empty());
 
-            salesService.saveOrUpdateCustomer(null, "Carlos", "123", "c@e.com", "3001");
+            salesService.saveOrUpdateCustomer(null, "Carlos", "123", "c@e.com", "3001", "CC");
 
             ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
             verify(customerRepository).save(captor.capture());
@@ -411,7 +412,7 @@ class SalesServiceTest {
             existente.setDocumentNumber("456");
             when(customerRepository.findByDocumentNumber("456")).thenReturn(Optional.of(existente));
 
-            salesService.saveOrUpdateCustomer(null, "Ana Actualizada", "456", "a@e.com", "222");
+            salesService.saveOrUpdateCustomer(null, "Ana Actualizada", "456", "a@e.com", "222", "CC");
 
             ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
             verify(customerRepository).save(captor.capture());
@@ -427,7 +428,7 @@ class SalesServiceTest {
             existente.setDocumentNumber("123");
             when(customerRepository.findByDocumentNumber("123")).thenReturn(Optional.of(existente));
 
-            salesService.saveOrUpdateCustomer(null, "Carlos A. Perez", "123", "c@e.com", "300");
+            salesService.saveOrUpdateCustomer(null, "Carlos A. Perez", "123", "c@e.com", "300", "CC");
 
             ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
             verify(customerRepository, times(1)).save(captor.capture());
@@ -466,6 +467,118 @@ class SalesServiceTest {
             String result = salesService.generateNextInvoiceNumber();
 
             assertThat(result).startsWith("VEN-");
+        }
+    }
+
+    // ===== GRUPO 8: Utilidad por ventas =====
+
+    @Nested
+    class CalculoUtilidad {
+
+        @Test
+        void unDetalle_retornaProfitAmount() {
+            Sale sale = new Sale();
+            SaleDetail d = new SaleDetail();
+            d.setProfitAmount(84000.0);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d));
+
+            assertThat(salesService.calculateUtilidad(sale)).isCloseTo(84000.0, within(0.01));
+        }
+
+        @Test
+        void dosDetalles_sumaAmbos() {
+            Sale sale = new Sale();
+            SaleDetail d1 = new SaleDetail();
+            d1.setProfitAmount(84000.0);
+            SaleDetail d2 = new SaleDetail();
+            d2.setProfitAmount(50000.0);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d1, d2));
+
+            assertThat(salesService.calculateUtilidad(sale)).isCloseTo(134000.0, within(0.01));
+        }
+
+        @Test
+        void profitAmountNegativo_refleja_perdida() {
+            Sale sale = new Sale();
+            SaleDetail d = new SaleDetail();
+            d.setProfitAmount(-5000.0);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d));
+
+            assertThat(salesService.calculateUtilidad(sale)).isCloseTo(-5000.0, within(0.01));
+        }
+
+        @Test
+        void profitAmountNull_tratadoComoCero() {
+            Sale sale = new Sale();
+            SaleDetail d = new SaleDetail();
+            d.setProfitAmount(null);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d));
+
+            assertThat(salesService.calculateUtilidad(sale)).isEqualTo(0.0);
+        }
+
+        @Test
+        void sinDetalles_retornaCero() {
+            Sale sale = new Sale();
+            when(saleDetailRepository.findBySale(sale)).thenReturn(Collections.emptyList());
+
+            assertThat(salesService.calculateUtilidad(sale)).isEqualTo(0.0);
+        }
+    }
+
+    // ===== GRUPO 9: IVA por pagar en ventas =====
+
+    @Nested
+    class CalculoDiferenciaIva {
+
+        @Test
+        void unDetalle_retornaIvaDifference() {
+            Sale sale = new Sale();
+            SaleDetail d = new SaleDetail();
+            d.setIvaDifference(5700.0);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d));
+
+            assertThat(salesService.calculateDiferenciaIva(sale)).isCloseTo(5700.0, within(0.01));
+        }
+
+        @Test
+        void dosDetalles_sumaAmbos() {
+            Sale sale = new Sale();
+            SaleDetail d1 = new SaleDetail();
+            d1.setIvaDifference(5700.0);
+            SaleDetail d2 = new SaleDetail();
+            d2.setIvaDifference(3000.0);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d1, d2));
+
+            assertThat(salesService.calculateDiferenciaIva(sale)).isCloseTo(8700.0, within(0.01));
+        }
+
+        @Test
+        void ivaDifferenceNegativa_ventaBajoMinimo() {
+            Sale sale = new Sale();
+            SaleDetail d = new SaleDetail();
+            d.setIvaDifference(-1000.0);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d));
+
+            assertThat(salesService.calculateDiferenciaIva(sale)).isCloseTo(-1000.0, within(0.01));
+        }
+
+        @Test
+        void ivaDifferenceNull_tratadoComoCero() {
+            Sale sale = new Sale();
+            SaleDetail d = new SaleDetail();
+            d.setIvaDifference(null);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(d));
+
+            assertThat(salesService.calculateDiferenciaIva(sale)).isEqualTo(0.0);
+        }
+
+        @Test
+        void sinDetalles_retornaCero() {
+            Sale sale = new Sale();
+            when(saleDetailRepository.findBySale(sale)).thenReturn(Collections.emptyList());
+
+            assertThat(salesService.calculateDiferenciaIva(sale)).isEqualTo(0.0);
         }
     }
 }

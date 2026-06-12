@@ -1,6 +1,7 @@
 package com.autollantas.gestion.sales.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
+import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.sales.model.Customer;
 import com.autollantas.gestion.sales.model.Sale;
 import com.autollantas.gestion.sales.model.SaleDetail;
@@ -62,13 +63,18 @@ public class SaleFormController {
     @FXML private TableColumn<SaleDetailRow, Product> colCodigo;
     @FXML private TableColumn<SaleDetailRow, Product> colDescripcion;
     @FXML private TableColumn<SaleDetailRow, Integer> colCantidad;
+    @FXML private TableColumn<SaleDetailRow, Double> colPrecioSugerido;
     @FXML private TableColumn<SaleDetailRow, Double> colPrecio;
+    @FXML private TableColumn<SaleDetailRow, String> colUtilidadMonto;
+    @FXML private TableColumn<SaleDetailRow, Double> colIvaGenerado;
+    @FXML private TableColumn<SaleDetailRow, Double> colDiferenciaIva;
     @FXML private TableColumn<SaleDetailRow, Double> colDescuento;
-    @FXML private TableColumn<SaleDetailRow, Double> colImpuesto;
     @FXML private TableColumn<SaleDetailRow, String> colSubtotal;
     @FXML private TableColumn<SaleDetailRow, Void> colAccion;
 
     @FXML private Label lblSubtotal;
+    @FXML private Label lblDiferenciaIvaTotal;
+    @FXML private Label lblUtilidadTotal;
     @FXML private Label lblDescuentos;
     @FXML private Label lblTotalGeneral;
 
@@ -84,6 +90,8 @@ public class SaleFormController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         loadInitialData();
 
         detailRows = FXCollections.observableArrayList(row -> new javafx.beans.Observable[]{
@@ -134,24 +142,84 @@ public class SaleFormController {
         colCantidad.setCellValueFactory(cell -> cell.getValue().quantityProperty().asObject());
         colCantidad.setCellFactory(col -> new QuantityCell());
 
+        colPrecioSugerido.setCellValueFactory(cell ->
+                Bindings.createObjectBinding(() -> {
+                    Product p = cell.getValue().getProduct();
+                    return p != null && p.getSuggestedPrice() != null ? p.getSuggestedPrice() : 0.0;
+                }, cell.getValue().productProperty())
+        );
+        colPrecioSugerido.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) setText(null);
+                else setText(currencyFormat.format(item));
+            }
+        });
+
         colPrecio.setCellValueFactory(cell -> cell.getValue().priceProperty().asObject());
         colPrecio.setCellFactory(col -> new PriceCell());
 
         colDescuento.setCellValueFactory(cell -> cell.getValue().discountProperty().asObject());
         colDescuento.setCellFactory(col -> new PercentageCell());
 
-        colImpuesto.setCellValueFactory(cell ->
-                Bindings.createObjectBinding(() -> {
-                    double unitario = cell.getValue().getTax();
-                    int cant = cell.getValue().getQuantity();
-                    return unitario * cant;
-                }, cell.getValue().taxProperty(), cell.getValue().quantityProperty())
+        colUtilidadMonto.setCellValueFactory(cell ->
+                Bindings.createStringBinding(() -> {
+                    SaleDetailRow row = cell.getValue();
+                    Product p = row.getProduct();
+                    double minPrice = p != null && p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0;
+                    double monto = (row.getPrice() - minPrice) * row.getQuantity();
+                    double pct = minPrice > 0 ? (row.getPrice() - minPrice) / minPrice * 100 : 0.0;
+                    return currencyFormat.format(monto) + " (" + String.format("%.1f", pct) + "%)";
+                }, cell.getValue().productProperty(), cell.getValue().priceProperty(), cell.getValue().quantityProperty())
         );
-        colImpuesto.setCellFactory(col -> new TableCell<>() {
+        colUtilidadMonto.setCellFactory(col -> new TableCell<SaleDetailRow, String>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); }
+                else {
+                    setText(item);
+                    SaleDetailRow row = getTableRow().getItem();
+                    if (row != null) {
+                        Product p = row.getProduct();
+                        double minPrice = p != null && p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0;
+                        double monto = (row.getPrice() - minPrice) * row.getQuantity();
+                        setStyle(monto >= 0 ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
+                    } else { setStyle(""); }
+                }
+            }
+        });
+
+        colIvaGenerado.setCellValueFactory(cell ->
+                Bindings.createObjectBinding(() -> {
+                    SaleDetailRow row = cell.getValue();
+                    return row.getPrice() * getIvaRate(row.getProduct()) * row.getQuantity();
+                }, cell.getValue().productProperty(), cell.getValue().priceProperty(), cell.getValue().quantityProperty())
+        );
+        colIvaGenerado.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) setText(null);
                 else setText(currencyFormat.format(item));
+            }
+        });
+
+        colDiferenciaIva.setCellValueFactory(cell ->
+                Bindings.createObjectBinding(() -> {
+                    SaleDetailRow row = cell.getValue();
+                    Product p = row.getProduct();
+                    double ivaGenerado = row.getPrice() * getIvaRate(p) * row.getQuantity();
+                    double ivaFavor = p != null && p.getTaxAmount() != null ? p.getTaxAmount() * row.getQuantity() : 0.0;
+                    return ivaGenerado - ivaFavor;
+                }, cell.getValue().productProperty(), cell.getValue().priceProperty(), cell.getValue().quantityProperty())
+        );
+        colDiferenciaIva.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); }
+                else {
+                    setText(currencyFormat.format(item));
+                    setStyle(item >= 0 ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
+                }
             }
         });
 
@@ -191,6 +259,7 @@ public class SaleFormController {
             txtDocumento.setText(sale.getCustomer().getDocumentNumber());
             txtCorreo.setText(sale.getCustomer().getEmail());
             txtCelular.setText(sale.getCustomer().getPhone());
+            comboTipoDoc.setValue(sale.getCustomer().getDocumentType());
         }
 
         comboCuenta.setValue(sale.getAccount());
@@ -339,9 +408,11 @@ public class SaleFormController {
 
         private void restoreOriginalPrice(SaleDetailRow row) {
             if (row.getProduct() != null) {
-                double precioOriginal = row.getProduct().getBasePrice();
-                row.setPrice(precioOriginal);
-                textField.setText(currencyFormat.format(precioOriginal));
+                Product p = row.getProduct();
+                double precio = p.getSuggestedPrice() != null ? p.getSuggestedPrice() :
+                               (p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0);
+                row.setPrice(precio);
+                textField.setText(currencyFormat.format(precio));
             } else {
                 textField.setText(currencyFormat.format(0));
             }
@@ -451,8 +522,10 @@ public class SaleFormController {
                         return;
                     }
                     row.setProduct(p);
-                    row.setPrice(p.getBasePrice());
-                    row.setTax(p.getTaxAmount() != null ? p.getTaxAmount() : 0.0);
+                    double precio = p.getSuggestedPrice() != null ? p.getSuggestedPrice() :
+                                   (p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0);
+                    row.setPrice(precio);
+                    row.setTax(0.0);
                     row.setDiscount(0.0);
                     row.setQuantity(1);
                     tablaDetalles.refresh();
@@ -502,6 +575,7 @@ public class SaleFormController {
                 txtDocumento.setText(seleccionado.getDocumentNumber());
                 txtCorreo.setText(seleccionado.getEmail());
                 txtCelular.setText(seleccionado.getPhone());
+                comboTipoDoc.setValue(seleccionado.getDocumentType());
                 comboCliente.getEditor().setText(seleccionado.getName());
             }
         });
@@ -538,20 +612,39 @@ public class SaleFormController {
         dpFechaCreacion.valueProperty().addListener((obs, oldVal, newVal) -> updateDates.run());
     }
 
+    private double getIvaRate(Product p) {
+        if (p == null || p.getCategory() == null) return 0.0;
+        return p.getCategory().getTaxTypes().stream()
+                .filter(t -> Boolean.TRUE.equals(t.getIsVat()))
+                .mapToDouble(t -> t.getRate() != null ? t.getRate() : 0.0)
+                .findFirst()
+                .orElse(0.0);
+    }
+
     private void recalculateTotals() {
-        double subtotal = 0, descuentos = 0, total = 0;
+        double subtotal = 0, descuentos = 0, total = 0, utilidadTotal = 0, diferenciaIvaTotal = 0;
 
         for (SaleDetailRow row : detailRows) {
             if (row.getProduct() != null) {
+                Product p = row.getProduct();
                 double precioTotal = row.getPrice() * row.getQuantity();
                 double descMonto = precioTotal * (row.getDiscount() / 100.0);
                 subtotal += precioTotal;
                 descuentos += descMonto;
                 total += row.getLineTotal();
+
+                double minPrice = p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0;
+                utilidadTotal += (row.getPrice() - minPrice) * row.getQuantity();
+
+                double ivaGenerado = row.getPrice() * getIvaRate(p) * row.getQuantity();
+                double ivaFavor = p.getTaxAmount() != null ? p.getTaxAmount() * row.getQuantity() : 0.0;
+                diferenciaIvaTotal += ivaGenerado - ivaFavor;
             }
         }
 
         lblSubtotal.setText(currencyFormat.format(subtotal));
+        lblDiferenciaIvaTotal.setText(currencyFormat.format(diferenciaIvaTotal));
+        lblUtilidadTotal.setText(currencyFormat.format(utilidadTotal));
         lblDescuentos.setText(currencyFormat.format(descuentos));
         lblTotalGeneral.setText(currencyFormat.format(total));
     }
@@ -605,6 +698,12 @@ public class SaleFormController {
                         det.setDiscount(row.getDiscount());
                         det.setTax(row.getTax());
                         det.setSubtotal(row.getLineTotal());
+                        Product p = row.getProduct();
+                        double minPrice = p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0;
+                        det.setProfitAmount((row.getPrice() - minPrice) * row.getQuantity());
+                        double tasaIva = getIvaRate(p);
+                        double ivaFavor = (p.getTaxAmount() != null ? p.getTaxAmount() : 0.0) * row.getQuantity();
+                        det.setIvaDifference(row.getPrice() * tasaIva * row.getQuantity() - ivaFavor);
                         return det;
                     })
                     .toList();
@@ -630,7 +729,8 @@ public class SaleFormController {
                 nombreEscrito,
                 docEscrito,
                 txtCorreo.getText(),
-                txtCelular.getText()
+                txtCelular.getText(),
+                comboTipoDoc.getValue()
         );
     }
 
@@ -664,10 +764,8 @@ class SaleDetailRow {
         return Bindings.createDoubleBinding(() -> {
             double totalPrice = getPrice() * getQuantity();
             double discountAmount = totalPrice * (getDiscount() / 100.0);
-            double base = totalPrice - discountAmount;
-            double totalTax = getTax() * getQuantity();
-            return base + totalTax;
-        }, price, quantity, discount, tax);
+            return totalPrice - discountAmount;
+        }, price, quantity, discount);
     }
 
     public double getLineTotal() { return totalBinding().get(); }

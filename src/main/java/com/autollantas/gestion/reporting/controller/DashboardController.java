@@ -84,6 +84,8 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         FilteredList<Movement> filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Movement> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaMovimientos.comparatorProperty());

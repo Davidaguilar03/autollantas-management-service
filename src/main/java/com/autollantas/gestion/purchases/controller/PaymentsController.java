@@ -86,6 +86,8 @@ public class PaymentsController {
 
     @FXML
     public void initialize() {
+        currencyFormat.setMaximumFractionDigits(0);
+        currencyFormat.setMinimumFractionDigits(0);
         filteredData = new FilteredList<>(masterData, p -> true);
         SortedList<Purchase> sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(tablaPagos.comparatorProperty());
@@ -152,7 +154,9 @@ public class PaymentsController {
         if (purchasesService == null) return;
         Platform.runLater(() -> {
             try {
-                List<Purchase> list = purchasesService.findAllPurchases();
+                List<Purchase> list = purchasesService.findAllPurchases().stream()
+                        .filter(p -> p.getPendingBalance() != null && p.getPendingBalance() > 0)
+                        .toList();
                 masterData.setAll(list);
                 updateRecordsInfo();
             } catch (Exception e) {

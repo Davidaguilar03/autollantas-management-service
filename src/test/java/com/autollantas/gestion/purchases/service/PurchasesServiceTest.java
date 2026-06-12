@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -468,6 +469,56 @@ class PurchasesServiceTest {
             String result = purchasesService.generateNextInvoiceNumber();
 
             assertThat(result).startsWith("FAC-");
+        }
+    }
+
+    // ===== GRUPO 8: IVA descontable en compras =====
+
+    @Nested
+    class CalculoIvaDescontable {
+
+        @Test
+        void unDetalle_retornaTaxPorQuantity() {
+            Purchase purchase = new Purchase();
+            PurchaseDetail d = new PurchaseDetail();
+            d.setTax(1900.0);
+            d.setQuantity(10);
+            when(purchaseDetailRepository.findByPurchase(purchase)).thenReturn(List.of(d));
+
+            assertThat(purchasesService.calculateIvaFavor(purchase)).isCloseTo(19000.0, within(0.01));
+        }
+
+        @Test
+        void dosDetalles_sumaTaxDeCadaUno() {
+            Purchase purchase = new Purchase();
+            PurchaseDetail d1 = new PurchaseDetail();
+            d1.setTax(1900.0);
+            d1.setQuantity(10);
+            PurchaseDetail d2 = new PurchaseDetail();
+            d2.setTax(950.0);
+            d2.setQuantity(4);
+            when(purchaseDetailRepository.findByPurchase(purchase)).thenReturn(List.of(d1, d2));
+
+            assertThat(purchasesService.calculateIvaFavor(purchase)).isCloseTo(22800.0, within(0.01));
+        }
+
+        @Test
+        void sinDetalles_retornaCero() {
+            Purchase purchase = new Purchase();
+            when(purchaseDetailRepository.findByPurchase(purchase)).thenReturn(Collections.emptyList());
+
+            assertThat(purchasesService.calculateIvaFavor(purchase)).isEqualTo(0.0);
+        }
+
+        @Test
+        void taxNull_tratadoComoCero_noLanzaNPE() {
+            Purchase purchase = new Purchase();
+            PurchaseDetail d = new PurchaseDetail();
+            d.setTax(null);
+            d.setQuantity(5);
+            when(purchaseDetailRepository.findByPurchase(purchase)).thenReturn(List.of(d));
+
+            assertThat(purchasesService.calculateIvaFavor(purchase)).isEqualTo(0.0);
         }
     }
 }

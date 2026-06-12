@@ -6,6 +6,7 @@ import com.autollantas.gestion.purchases.model.PurchaseDetail;
 import com.autollantas.gestion.treasury.model.Movement;
 import com.autollantas.gestion.treasury.model.Payment;
 import com.autollantas.gestion.inventory.model.Product;
+import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.purchases.model.Supplier;
 import com.autollantas.gestion.purchases.repository.PurchaseRepository;
 import com.autollantas.gestion.treasury.repository.AccountRepository;
@@ -31,6 +32,7 @@ public class PurchasesService {
     private final PaymentRepository paymentRepository;
     private final AccountRepository accountRepository;
     private final MovementRepository movementRepository;
+    private final InventoryService inventoryService;
 
     public PurchasesService(PurchaseRepository purchaseRepository,
                             PurchaseDetailRepository purchaseDetailRepository,
@@ -38,7 +40,8 @@ public class PurchasesService {
                             ProductRepository productRepository,
                             PaymentRepository paymentRepository,
                             AccountRepository accountRepository,
-                            MovementRepository movementRepository) {
+                            MovementRepository movementRepository,
+                            InventoryService inventoryService) {
         this.purchaseRepository = purchaseRepository;
         this.purchaseDetailRepository = purchaseDetailRepository;
         this.supplierRepository = supplierRepository;
@@ -46,6 +49,7 @@ public class PurchasesService {
         this.paymentRepository = paymentRepository;
         this.accountRepository = accountRepository;
         this.movementRepository = movementRepository;
+        this.inventoryService = inventoryService;
     }
 
     @Transactional(readOnly = true)
@@ -86,6 +90,14 @@ public class PurchasesService {
         }
         long next = max > 0 ? max + 1 : 1;
         return String.format("FAC-%05d", next);
+    }
+
+    @Transactional(readOnly = true)
+    public double calculateIvaFavor(Purchase purchase) {
+        return purchaseDetailRepository.findByPurchase(purchase).stream()
+                .mapToDouble(d -> (d.getTax() != null ? d.getTax() : 0.0)
+                        * (d.getQuantity() != null ? d.getQuantity() : 0))
+                .sum();
     }
 
     @Transactional
@@ -134,6 +146,10 @@ public class PurchasesService {
 
             productRepository.findById(product.getId()).ifPresent(realProduct -> {
                 realProduct.setQuantity(realProduct.getQuantity() + detail.getQuantity());
+                if (detail.getUnitPrice() != null) {
+                    realProduct.setPurchaseCost(detail.getUnitPrice());
+                    inventoryService.recalculateMinSalePrice(realProduct);
+                }
                 productRepository.save(realProduct);
             });
         }
