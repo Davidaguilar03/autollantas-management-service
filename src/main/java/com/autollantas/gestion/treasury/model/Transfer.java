@@ -9,12 +9,13 @@ import java.time.LocalDate;
 @Table(name = "TRANSFERENCIAS")
 public class Transfer {
 
-    public Transfer(Account destinationAccount, Account sourceAccount, LocalDate date, Integer id, Double amount) {
+    public Transfer(Account destinationAccount, Account sourceAccount, LocalDate date, Integer id, Double amount, String concept) {
         this.destinationAccount = destinationAccount;
         this.sourceAccount = sourceAccount;
         this.date = date;
         this.id = id;
         this.amount = amount;
+        this.concept = concept;
     }
 
     public Transfer() {
@@ -38,4 +39,7 @@ public class Transfer {
 
     @Column(name = "monto_transferencia")
     private Double amount;
+
+    @Column(name = "concepto_transferencia")
+    private String concept;
 }

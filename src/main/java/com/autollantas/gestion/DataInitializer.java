@@ -395,7 +395,7 @@ public class DataInitializer {
             movI3.setSourceTable("INGRESOS_OCASIONALES");
             movementRepo.save(movI3);
 
-            Transfer tr1 = transferRepo.save(new Transfer(ctaCaja, ctaBanco, LocalDate.now(), null, 100000.0));
+            Transfer tr1 = transferRepo.save(new Transfer(ctaCaja, ctaBanco, LocalDate.now(), null, 100000.0, null));
             ctaCaja.setCurrentBalance(ctaCaja.getCurrentBalance() - 100000.0);
             ctaBanco.setCurrentBalance(ctaBanco.getCurrentBalance() - 100000.0);
             ctaCaja.setCurrentBalance(ctaCaja.getCurrentBalance() + 100000.0);
@@ -408,7 +408,7 @@ public class DataInitializer {
             movTrIn1.setSourceTable("TRANSFERENCIAS");
             movementRepo.save(movTrIn1);
 
-            Transfer tr2 = transferRepo.save(new Transfer(ctaBanco, ctaCaja, LocalDate.now(), null, 500000.0));
+            Transfer tr2 = transferRepo.save(new Transfer(ctaBanco, ctaCaja, LocalDate.now(), null, 500000.0, null));
             ctaCaja.setCurrentBalance(ctaCaja.getCurrentBalance() - 500000.0);
             ctaBanco.setCurrentBalance(ctaBanco.getCurrentBalance() + 500000.0);
             accountRepo.save(ctaBanco);

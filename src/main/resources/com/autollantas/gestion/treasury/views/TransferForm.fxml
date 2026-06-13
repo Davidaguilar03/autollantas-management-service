@@ -37,10 +37,12 @@
             </columnConstraints>
 
             <Label styleClass="lbl-campo" text="Origen" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <ComboBox fx:id="comboOrigen" maxWidth="Infinity" promptText="Seleccione..." styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <ComboBox fx:id="comboOrigen" maxWidth="Infinity" promptText="Seleccione..." styleClass="input-moderno" onAction="#onOrigenChanged" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <Label styleClass="lbl-campo" text="Destino" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-            <ComboBox fx:id="comboDestino" maxWidth="Infinity" promptText="Seleccione..." styleClass="input-moderno" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+            <Label fx:id="lblDestino" text="—" maxWidth="Infinity"
+                   style="-fx-background-color: #f0f2f5; -fx-background-radius: 6; -fx-border-color: #dde2e8; -fx-border-radius: 6; -fx-border-width: 1; -fx-padding: 8 12; -fx-text-fill: #4a5568; -fx-font-size: 13px;"
+                   GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
             <Label styleClass="lbl-campo" text="Monto" GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <TextField fx:id="txtMonto" promptText="\$ 0.0" styleClass="input-moderno, input-total" GridPane.columnIndex="1" GridPane.rowIndex="1" />

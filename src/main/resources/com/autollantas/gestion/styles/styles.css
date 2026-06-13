@@ -937,7 +937,7 @@
 .root { -fx-background-color: #f4f6f8; }
 
 .page-title { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333; }
-.section-title { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; }
+.section-title { -fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; }
 
 .text-field, .date-picker, .combo-box {
     -fx-background-color: #ffffff;
@@ -948,6 +948,23 @@
 }
 .text-field:focused, .date-picker:focused, .combo-box:focused {
     -fx-border-color: #00b19d;
+}
+.acct-combo.combo-box-base:focused,
+.acct-combo:focused {
+    -fx-border-color: #dde2e8;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.acct-datepicker.date-picker:focused,
+.acct-datepicker:focused {
+    -fx-border-color: #dde2e8;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.acct-datepicker .text-field:focused {
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 .combo-highlight {
@@ -1093,6 +1110,269 @@
 .modern-tab-pane .tab:selected { -fx-border-color: transparent transparent #3498db transparent; -fx-border-width: 0 0 3 0; }
 .modern-tab-pane .tab .tab-label { -fx-text-fill: #95a5a6; -fx-font-weight: bold; -fx-font-size: 12px; }
 .modern-tab-pane .tab:selected .tab-label { -fx-text-fill: #3498db; }
+
+/* ── Accounts dashboard ─────────────────────────────────────────────────── */
+
+.accounts-tab-content {
+    -fx-background-color: #f0f2f5;
+    -fx-padding: 18;
+}
+
+.stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 12, 0, 0, 3);
+    -fx-padding: 18 22;
+    -fx-cursor: default;
+}
+
+.stat-card-label {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.stat-card-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+}
+
+.stat-card-value-green  { -fx-text-fill: #27ae60; -fx-font-size: 22px; -fx-font-weight: bold; }
+.stat-card-value-red    { -fx-text-fill: #e74c3c; -fx-font-size: 22px; -fx-font-weight: bold; }
+.stat-card-value-blue   { -fx-text-fill: #2980b9; -fx-font-size: 22px; -fx-font-weight: bold; }
+.stat-card-value-purple { -fx-text-fill: #8e44ad; -fx-font-size: 22px; -fx-font-weight: bold; }
+
+.stat-card-icon {
+    -fx-font-size: 26px;
+}
+
+.section-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.section-subtitle {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 11px;
+}
+
+.transfer-action-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 12, 0, 0, 3);
+    -fx-padding: 20;
+}
+
+.btn-transfer {
+    -fx-background-color: #2980b9;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 12 20;
+}
+
+.btn-transfer:hover {
+    -fx-background-color: #1f6fa0;
+}
+
+/* ── Tab pane ─────────────────────────────────────────────────────────────── */
+.accounts-tab-pane .tab-header-area .tab-header-background { -fx-background-color: #ffffff; }
+.accounts-tab-pane .tab-header-area { -fx-background-color: #ffffff; -fx-border-color: transparent transparent #e4e8ed transparent; -fx-border-width: 0 0 1 0; }
+.accounts-tab-pane .tab { -fx-background-color: transparent; -fx-border-width: 0 0 3 0; -fx-border-color: transparent; -fx-padding: 13 24; }
+.accounts-tab-pane .tab:selected { -fx-border-color: transparent transparent #4f83cc transparent; -fx-background-color: transparent; }
+.accounts-tab-pane .tab .tab-label { -fx-text-fill: #a0aec0; -fx-font-weight: bold; -fx-font-size: 14px; }
+.accounts-tab-pane .tab:selected .tab-label { -fx-text-fill: #4f83cc; -fx-font-size: 14px; }
+.accounts-tab-pane .tab-content-area { -fx-background-color: #f0f2f5; -fx-border-color: transparent; }
+.accounts-tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator { -fx-border-width: 0; }
+
+/* ── Cards ─────────────────────────────────────────────────────────────────── */
+.acct-table-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 16 18;
+}
+
+.acct-action-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 14 16;
+}
+
+/* Acento izquierdo suave — rojo apagado */
+.acct-kpi-card-red {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 12 16;
+    -fx-border-color: transparent transparent transparent #e57373;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 10;
+}
+
+/* Acento izquierdo suave — verde apagado */
+.acct-kpi-card-green {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 12 16;
+    -fx-border-color: transparent transparent transparent #68b27a;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 10;
+}
+
+/* Acento izquierdo suave — violeta apagado */
+.acct-kpi-card-purple {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 12 16;
+    -fx-border-color: transparent transparent transparent #9a74b8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 10;
+}
+
+/* Acento izquierdo suave — azul apagado */
+.acct-kpi-card-blue {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
+    -fx-padding: 12 16;
+    -fx-border-color: transparent transparent transparent #4f83cc;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-radius: 10;
+}
+
+/* Valores KPI — tamaño moderado, colores suaves */
+.acct-kpi-value-red    { -fx-text-fill: #c0584f; -fx-font-size: 18px; -fx-font-weight: bold; }
+.acct-kpi-value-green  { -fx-text-fill: #4a9660; -fx-font-size: 18px; -fx-font-weight: bold; }
+.acct-kpi-value-purple { -fx-text-fill: #7c5aa0; -fx-font-size: 18px; -fx-font-weight: bold; }
+.acct-kpi-value-blue   { -fx-text-fill: #3d6fa8; -fx-font-size: 18px; -fx-font-weight: bold; }
+
+/* Separador suave */
+.acct-sep { -fx-background-color: #edf0f4; }
+
+/* ── Botón transferencia ───────────────────────────────────────────────────── */
+.acct-btn-transfer {
+    -fx-background-color: #4f83cc;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 7;
+    -fx-padding: 11 0;
+    -fx-cursor: hand;
+}
+.acct-btn-transfer:hover {
+    -fx-background-color: #3d6fa8;
+}
+
+/* ── Botón aplicar filtro personalizado ────────────────────────────────────── */
+.acct-btn-apply {
+    -fx-background-color: #3a5f8a;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 6px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 8 0;
+    -fx-cursor: hand;
+}
+.acct-btn-apply:hover {
+    -fx-background-color: #2d4f75;
+}
+
+/* ── Botón reset (inline junto al Aplicar) ─────────────────────────────────── */
+.acct-btn-reset {
+    -fx-background-color: #f0f2f5;
+    -fx-text-fill: #718096;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-border-color: #dde2e8;
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+    -fx-padding: 8 0;
+    -fx-cursor: hand;
+}
+.acct-btn-reset:hover {
+    -fx-background-color: #e8ecf0;
+    -fx-border-color: #b0bac6;
+}
+
+/* ── Combo y datepicker ────────────────────────────────────────────────────── */
+.acct-combo {
+    -fx-background-color: #f7f8fa;
+    -fx-border-color: #dde2e8;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.acct-combo:hover  { -fx-border-color: #b0bac6; }
+.acct-combo:focused { -fx-border-color: #dde2e8; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; }
+
+.acct-datepicker {
+    -fx-background-color: #f7f8fa;
+    -fx-border-color: #dde2e8;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.acct-datepicker:hover  { -fx-border-color: #b0bac6; }
+.acct-datepicker:focused { -fx-border-color: #dde2e8; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; }
+.acct-datepicker .text-field {
+    -fx-background-color: transparent;
+    -fx-font-size: 12px;
+    -fx-padding: 5 8;
+    -fx-text-fill: #4a5568;
+    -fx-highlight-fill: #dde2e8;
+    -fx-highlight-text-fill: #2d3748;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.acct-datepicker .text-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* ── Scroll panel lateral (sin borde visible) ─────────────────────────────── */
+.acct-scroll-panel {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.acct-scroll-panel > .viewport {
+    -fx-background-color: transparent;
+}
+.acct-scroll-panel > .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6px;
+}
+.acct-scroll-panel > .scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e0;
+    -fx-background-radius: 3;
+}
+
+/* ── Labels globales refinados ────────────────────────────────────────────── */
+.section-title  { -fx-text-fill: #2d3748; -fx-font-size: 20px; -fx-font-weight: bold; }
+.section-subtitle { -fx-text-fill: #a0aec0; -fx-font-size: 11px; }
+.stat-card-label  { -fx-text-fill: #a0aec0; -fx-font-size: 14px; -fx-font-weight: bold; }
+
+/* ── End accounts dashboard ─────────────────────────────────────────────── */
 
 .modal-overlay {
     -fx-background-color: rgba(15, 23, 42, 0.6);
@@ -1491,19 +1771,16 @@
 
 .data-table .table-row-cell:selected,
 .data-table:focused .table-row-cell:selected {
-    -fx-background-color: #fde7bb;       /* seleccion en tono marca */
+    -fx-background-color: #fde7bb;
     -fx-table-cell-border-color: transparent;
-}
-
-.data-table .table-row-cell:selected .text {
-    -fx-fill: #0d1b2a;
 }
 
 /* ---- Celdas ---- */
 .data-table .table-cell {
     -fx-alignment: CENTER;
     -fx-padding: 8 10 8 10;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: #111111;
+    -fx-font-size: 13px;
     -fx-border-color: transparent;
 }
 

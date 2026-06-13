@@ -36,7 +36,11 @@
       "Bash(psql -c \"SELECT COUNT\\(*\\) FROM PRODUCTOS; SELECT COUNT\\(*\\) FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) FROM TIPOS_IMPUESTO;\")",
       "Bash(psql -U postgres -d autollantas_db -W -c \"SELECT COUNT\\(*\\) AS productos FROM PRODUCTOS; SELECT COUNT\\(*\\) AS categorias FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) AS impuestos FROM TIPOS_IMPUESTO;\")",
       "Bash(PGPASSWORD=12345 psql -U postgres -d autollantas_db -c \"SELECT COUNT\\(*\\) AS productos FROM PRODUCTOS; SELECT COUNT\\(*\\) AS categorias FROM CATEGORIA_PRODUCTOS; SELECT COUNT\\(*\\) AS impuestos FROM TIPOS_IMPUESTO;\")",
-      "PowerShell(.\\\\mvnw.cmd compile -q 2>&1; if \\($LASTEXITCODE -eq 0\\) { \"BUILD OK\" } else { \"BUILD FAILED\" })"
+      "PowerShell(.\\\\mvnw.cmd compile -q 2>&1; if \\($LASTEXITCODE -eq 0\\) { \"BUILD OK\" } else { \"BUILD FAILED\" })",
+      "Bash(jar cf *)",
+      "PowerShell($javaHome = \\(Get-Command java\\).Source | Split-Path | Split-Path; $jarExe = \"$javaHome\\\\bin\\\\jar.exe\"; & $jarExe cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Done: $LASTEXITCODE\")",
+      "PowerShell(\\(Get-Command java\\).Source; java -version 2>&1)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Java\\\\jdk-21\\\\bin\\\\jar.exe\" cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Resultado: $LASTEXITCODE\")"
     ]
   }
 }
