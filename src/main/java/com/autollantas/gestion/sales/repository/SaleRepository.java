@@ -17,4 +17,10 @@ public interface SaleRepository extends JpaRepository<Sale, Integer> {
 
     @Query(value = "SELECT * FROM ventas ORDER BY id_venta DESC LIMIT 1", nativeQuery = true)
     Optional<Sale> findTopByOrderByIdDesc();
+
+    @Query("SELECT COALESCE(SUM(CASE WHEN s.pendingBalance IS NOT NULL THEN s.pendingBalance ELSE s.total END), 0) FROM Sale s WHERE s.status = 'PENDIENTE'")
+    double sumPendingReceivable();
+
+    @Query("SELECT COALESCE(SUM(s.total), 0) FROM Sale s WHERE s.saleDate BETWEEN :start AND :end")
+    double sumTotalByDateBetween(LocalDate start, LocalDate end);
 }

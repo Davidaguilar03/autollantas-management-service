@@ -117,6 +117,28 @@ public class MainLayoutController {
         sidebarContainer.setManaged(!isVisible);
     }
 
+    /**
+     * Carga una vista Y actualiza el estado activo del sidebar en un solo paso.
+     * Usar desde controladores externos en lugar de llamar loadView + setActive por separado.
+     */
+    public Object navigateTo(String fxmlPath, TitledPane pane, Button subBtn) {
+        Object controller = loadView(fxmlPath);
+        setActive(pane, subBtn);
+        closeSidebarIfMobile();
+        return controller;
+    }
+
+    public TitledPane getTpIngresos()    { return tpIngresos; }
+    public TitledPane getTpEgresos()     { return tpEgresos; }
+    public TitledPane getTpInventario()  { return tpInventario; }
+    public TitledPane getTpPanelControl(){ return tpPanelControl; }
+    public TitledPane getTpCuentas()     { return tpCuentas; }
+    public Button getBtnVentas()              { return btnVentas; }
+    public Button getBtnIngresoOcasional()    { return btnIngresoOcasional; }
+    public Button getBtnCompras()             { return btnCompras; }
+    public Button getBtnCostosOperativos()    { return btnCostosOperativos; }
+    public Button getBtnAlertas()             { return btnAlertas; }
+
     public Object loadView(String fxmlPath) {
         try {
             var url = getClass().getResource(fxmlPath);
@@ -183,8 +205,11 @@ public class MainLayoutController {
         activePane = pane;
         activeSubBtn = subBtn;
 
-        if (activePane != null)
+        if (activePane != null) {
             setTitleInlineStyle(activePane, subBtn == null ? ACTIVE_TITLE_STYLE : PARENT_TITLE_STYLE);
+            // Expande el acordeón para que el usuario siempre vea dónde está
+            if (!activePane.isExpanded()) activePane.setExpanded(true);
+        }
 
         if (activeSubBtn != null && !activeSubBtn.getStyleClass().contains("submenu-btn-active"))
             activeSubBtn.getStyleClass().add("submenu-btn-active");
