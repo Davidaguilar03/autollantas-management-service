@@ -2,12 +2,16 @@ package com.autollantas.gestion.reporting.service;
 
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.purchases.model.Purchase;
+import com.autollantas.gestion.purchases.repository.PurchaseRepository;
 import com.autollantas.gestion.purchases.service.PurchasesService;
+import com.autollantas.gestion.reporting.model.MovementDto;
 import com.autollantas.gestion.sales.model.Sale;
+import com.autollantas.gestion.sales.repository.SaleRepository;
 import com.autollantas.gestion.sales.service.SalesService;
-import com.autollantas.gestion.treasury.model.Movement;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
 import com.autollantas.gestion.treasury.model.OperationalExpense;
+import com.autollantas.gestion.treasury.repository.OccasionalIncomeRepository;
+import com.autollantas.gestion.treasury.repository.OperationalExpenseRepository;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,36 +33,34 @@ import static org.mockito.Mockito.when;
 class DashboardServiceTest {
 
     @Mock SalesService salesService;
+    @Mock SaleRepository saleRepository;
     @Mock PurchasesService purchasesService;
+    @Mock PurchaseRepository purchaseRepository;
     @Mock TreasuryService treasuryService;
     @Mock InventoryService inventoryService;
+    @Mock OperationalExpenseRepository expenseRepository;
+    @Mock OccasionalIncomeRepository incomeRepository;
 
     @InjectMocks DashboardService dashboardService;
 
-    private static final LocalDate HOY = LocalDate.now();
+    private static final LocalDate HOY        = LocalDate.now();
     private static final LocalDate HACE_7_DIAS = HOY.minusDays(7);
 
     // ===== PARTE A: getMovements =====
-    //
-    // DashboardService no tiene "calcularResultadoNeto"; los tests 1-2 verifican
-    // getMovements(), que es donde se construyen y clasifican los movimientos.
 
     @Nested
     class GetMovements {
 
         @Test
         void deberia_incluir_ventasDelPeriodo_comoMovimientosTipoVenta() {
-            // Test 1 adaptado: no existe "calcularIngresosPeriodo".
-            // getMovements() envuelve cada Sale en un Movement con type="Venta".
             Sale venta = new Sale();
             venta.setId(1);
             venta.setSaleDate(HOY);
             venta.setTotal(500000.0);
 
-            when(salesService.findSalesByDateBetween(HACE_7_DIAS, HOY))
-                    .thenReturn(List.of(venta));
+            when(salesService.findSalesByDateBetween(HACE_7_DIAS, HOY)).thenReturn(List.of(venta));
 
-            List<Movement> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
+            List<MovementDto> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getType()).isEqualTo("Venta");
@@ -66,8 +69,6 @@ class DashboardServiceTest {
 
         @Test
         void deberia_combinar_ventasYComprasDelPeriodo_enLaMismaLista() {
-            // Test 2 adaptado: no existe "calcularResultadoNeto".
-            // getMovements() consolida ventas (Venta) y compras (Costo) en una lista.
             Sale venta = new Sale();
             venta.setSaleDate(HOY);
             venta.setTotal(200000.0);
@@ -76,44 +77,42 @@ class DashboardServiceTest {
             compra.setPurchaseDate(HOY);
             compra.setTotal(100000.0);
 
-            when(salesService.findSalesByDateBetween(any(), any()))
-                    .thenReturn(List.of(venta));
-            when(purchasesService.findPurchasesByDateBetween(any(), any()))
-                    .thenReturn(List.of(compra));
+            when(salesService.findSalesByDateBetween(any(), any())).thenReturn(List.of(venta));
+            when(purchasesService.findPurchasesByDateBetween(any(), any())).thenReturn(List.of(compra));
 
-            List<Movement> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
+            List<MovementDto> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
 
             assertThat(result).hasSize(2);
-            assertThat(result).extracting(Movement::getType)
+            assertThat(result).extracting(MovementDto::getType)
                     .containsExactlyInAnyOrder("Venta", "Costo");
+        }
+
+        @Test
+        void deberia_limitar_a_MAX_MOVEMENTS_cuando_hay_muchos_registros() {
+            int total = DashboardService.MAX_MOVEMENTS + 20;
+            List<Sale> ventas = new ArrayList<>();
+            for (int i = 0; i < total; i++) {
+                Sale s = new Sale();
+                s.setSaleDate(HOY.minusDays(i));
+                s.setTotal(10000.0);
+                ventas.add(s);
+            }
+            when(salesService.findSalesByDateBetween(any(), any())).thenReturn(ventas);
+
+            List<MovementDto> result = dashboardService.getMovements(HOY.minusDays(total), HOY);
+
+            assertThat(result).hasSize(DashboardService.MAX_MOVEMENTS);
         }
     }
 
     // ===== PARTE B: getGlobalKpis =====
-    //
-    // getGlobalKpis() usa Sale::getTotal (NO pendingBalance) para ventas PENDIENTE,
-    // y Purchase::getTotal para compras PENDIENTE.
 
     @Nested
     class GetGlobalKpis {
 
         @Test
-        void totalReceivable_deberia_sumar_totalDeVentasPendientes() {
-            // Test 3: solo ventas con status PENDIENTE contribuyen a totalReceivable.
-            Sale pendiente1 = new Sale();
-            pendiente1.setStatus("PENDIENTE");
-            pendiente1.setTotal(400000.0);
-
-            Sale pendiente2 = new Sale();
-            pendiente2.setStatus("PENDIENTE");
-            pendiente2.setTotal(600000.0);
-
-            Sale pagada = new Sale();
-            pagada.setStatus("PAGADA");
-            pagada.setTotal(999000.0); // no debe sumarse
-
-            when(salesService.findAllSales())
-                    .thenReturn(List.of(pendiente1, pendiente2, pagada));
+        void totalReceivable_deberia_usar_query_SUM_directa() {
+            when(saleRepository.sumPendingReceivable()).thenReturn(1000000.0);
 
             DashboardService.DashboardKpis kpis = dashboardService.getGlobalKpis();
 
@@ -121,18 +120,8 @@ class DashboardServiceTest {
         }
 
         @Test
-        void totalPayable_deberia_sumar_totalDeComprasPendientes() {
-            // Test 4: solo compras con status PENDIENTE contribuyen a totalPayable.
-            Purchase pendiente = new Purchase();
-            pendiente.setStatus("PENDIENTE");
-            pendiente.setTotal(2380000.0);
-
-            Purchase pagada = new Purchase();
-            pagada.setStatus("PAGADA");
-            pagada.setTotal(999000.0); // no debe sumarse
-
-            when(purchasesService.findAllPurchases())
-                    .thenReturn(List.of(pendiente, pagada));
+        void totalPayable_deberia_usar_query_SUM_directa() {
+            when(purchaseRepository.sumPendingPayable()).thenReturn(2380000.0);
 
             DashboardService.DashboardKpis kpis = dashboardService.getGlobalKpis();
 
@@ -141,8 +130,8 @@ class DashboardServiceTest {
 
         @Test
         void deberia_retornar_cerosCuandoNoHayPendientes() {
-            when(salesService.findAllSales()).thenReturn(Collections.emptyList());
-            when(purchasesService.findAllPurchases()).thenReturn(Collections.emptyList());
+            when(saleRepository.sumPendingReceivable()).thenReturn(0.0);
+            when(purchaseRepository.sumPendingPayable()).thenReturn(0.0);
 
             DashboardService.DashboardKpis kpis = dashboardService.getGlobalKpis();
 
@@ -151,7 +140,66 @@ class DashboardServiceTest {
         }
     }
 
-    // ===== PARTE C: Gastos e Ingresos en getMovements =====
+    // ===== PARTE C: getPeriodKpis =====
+
+    @Nested
+    class GetPeriodKpis {
+
+        @Test
+        void deberia_sumar_ventas_e_ingresos_ocasionales_como_totalIncome() {
+            when(saleRepository.sumTotalByDateBetween(HACE_7_DIAS, HOY)).thenReturn(500000.0);
+            when(incomeRepository.sumAmountByDateBetween(HACE_7_DIAS, HOY)).thenReturn(100000.0);
+
+            DashboardService.PeriodKpis kpis = dashboardService.getPeriodKpis(HACE_7_DIAS, HOY);
+
+            assertThat(kpis.getTotalIncome()).isEqualTo(600000.0);
+        }
+
+        @Test
+        void deberia_reportar_totalCosts_desde_compras() {
+            when(purchaseRepository.sumTotalByDateBetween(HACE_7_DIAS, HOY)).thenReturn(300000.0);
+
+            DashboardService.PeriodKpis kpis = dashboardService.getPeriodKpis(HACE_7_DIAS, HOY);
+
+            assertThat(kpis.getTotalCosts()).isEqualTo(300000.0);
+        }
+
+        @Test
+        void deberia_reportar_totalExpenses_desde_gastos_operativos() {
+            when(expenseRepository.sumAmountByDateBetween(HACE_7_DIAS, HOY)).thenReturn(80000.0);
+
+            DashboardService.PeriodKpis kpis = dashboardService.getPeriodKpis(HACE_7_DIAS, HOY);
+
+            assertThat(kpis.getTotalExpenses()).isEqualTo(80000.0);
+        }
+
+        @Test
+        void netResult_deberia_ser_ingresos_menos_costos_menos_gastos() {
+            when(saleRepository.sumTotalByDateBetween(any(), any())).thenReturn(1000000.0);
+            when(incomeRepository.sumAmountByDateBetween(any(), any())).thenReturn(0.0);
+            when(purchaseRepository.sumTotalByDateBetween(any(), any())).thenReturn(400000.0);
+            when(expenseRepository.sumAmountByDateBetween(any(), any())).thenReturn(100000.0);
+
+            DashboardService.PeriodKpis kpis = dashboardService.getPeriodKpis(HACE_7_DIAS, HOY);
+
+            assertThat(kpis.getNetResult()).isEqualTo(500000.0);
+        }
+
+        @Test
+        void netResult_negativo_cuando_costos_superan_ingresos() {
+            when(saleRepository.sumTotalByDateBetween(any(), any())).thenReturn(100000.0);
+            when(incomeRepository.sumAmountByDateBetween(any(), any())).thenReturn(0.0);
+            when(purchaseRepository.sumTotalByDateBetween(any(), any())).thenReturn(300000.0);
+            when(expenseRepository.sumAmountByDateBetween(any(), any())).thenReturn(50000.0);
+
+            DashboardService.PeriodKpis kpis = dashboardService.getPeriodKpis(HACE_7_DIAS, HOY);
+
+            assertThat(kpis.getNetResult()).isNegative();
+            assertThat(kpis.getNetResult()).isEqualTo(-250000.0);
+        }
+    }
+
+    // ===== PARTE D: getMovements — Tesorería =====
 
     @Nested
     class GetMovementsTesoreria {
@@ -168,14 +216,13 @@ class DashboardServiceTest {
             gasto2.setAmount(50000.0);
             gasto2.setConcept("Arrendamiento");
 
-            when(treasuryService.findExpensesByDateBetween(any(), any()))
-                    .thenReturn(List.of(gasto1, gasto2));
+            when(treasuryService.findExpensesByDateBetween(any(), any())).thenReturn(List.of(gasto1, gasto2));
 
-            List<Movement> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
+            List<MovementDto> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
 
             assertThat(result).hasSize(2);
             assertThat(result).allMatch(m -> "Gasto".equals(m.getType()));
-            assertThat(result).extracting(Movement::getAmount)
+            assertThat(result).extracting(MovementDto::getAmount)
                     .containsExactlyInAnyOrder(80000.0, 50000.0);
         }
 
@@ -191,14 +238,13 @@ class DashboardServiceTest {
             ingreso2.setAmount(150000.0);
             ingreso2.setConcept("Venta activo");
 
-            when(treasuryService.findIncomesByDateBetween(any(), any()))
-                    .thenReturn(List.of(ingreso1, ingreso2));
+            when(treasuryService.findIncomesByDateBetween(any(), any())).thenReturn(List.of(ingreso1, ingreso2));
 
-            List<Movement> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
+            List<MovementDto> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
 
             assertThat(result).hasSize(2);
             assertThat(result).allMatch(m -> "Ingreso".equals(m.getType()));
-            assertThat(result).extracting(Movement::getAmount)
+            assertThat(result).extracting(MovementDto::getAmount)
                     .containsExactlyInAnyOrder(200000.0, 150000.0);
         }
 
@@ -227,12 +273,12 @@ class DashboardServiceTest {
             when(treasuryService.findExpensesByDateBetween(any(), any())).thenReturn(List.of(gasto));
             when(treasuryService.findIncomesByDateBetween(any(), any())).thenReturn(List.of(ingreso));
 
-            List<Movement> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
+            List<MovementDto> result = dashboardService.getMovements(HACE_7_DIAS, HOY);
 
             assertThat(result).hasSize(4);
-            assertThat(result).extracting(Movement::getType)
+            assertThat(result).extracting(MovementDto::getType)
                     .containsExactlyInAnyOrder("Venta", "Costo", "Gasto", "Ingreso");
-            // sorted descending by date: HOY, HOY-1, HOY-2, HOY-3
+            // orden descendente por fecha: HOY, HOY-1, HOY-2, HOY-3
             assertThat(result.get(0).getType()).isEqualTo("Venta");
             assertThat(result.get(1).getType()).isEqualTo("Gasto");
             assertThat(result.get(2).getType()).isEqualTo("Costo");

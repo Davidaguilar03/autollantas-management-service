@@ -51,7 +51,7 @@
                     <Label styleClass="login-title" text="Iniciar Sesión" textAlignment="CENTER" wrapText="true">
                         <VBox.margin><Insets bottom="2.0" /></VBox.margin>
                     </Label>
-                    <Label styleClass="login-subtitle" text="Ingresa tu contraseña para acceder al sistema" textAlignment="CENTER" wrapText="true" />
+                    <Label styleClass="login-subtitle" text="Ingresa tu contraseña para acceder al sistema de gestión" textAlignment="CENTER" wrapText="true" />
 
                     <!-- Campo contraseña -->
                     <VBox maxWidth="1.7976931348623157E308" spacing="6.0">
