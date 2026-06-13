@@ -1,5 +1,22 @@
 package com.autollantas.gestion.treasury.service;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.Movement;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
@@ -10,21 +27,6 @@ import com.autollantas.gestion.treasury.repository.MovementRepository;
 import com.autollantas.gestion.treasury.repository.OccasionalIncomeRepository;
 import com.autollantas.gestion.treasury.repository.OperationalExpenseRepository;
 import com.autollantas.gestion.treasury.repository.TransferRepository;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 // HALLAZGO ARQUITECTURAL: movementRepository.save() NUNCA se invoca en producción.
 // TreasuryService inyecta MovementRepository solo para lecturas
@@ -60,7 +62,7 @@ class TreasuryServiceTest {
             Account dest = new Account();
             dest.setCurrentBalance(500000.0);
 
-            treasuryService.registerTransfer(source, dest, 300000.0, LocalDate.now());
+            treasuryService.registerTransfer(source, dest, 300000.0, LocalDate.now(), null);
 
             assertThat(source.getCurrentBalance()).isEqualTo(700000.0);
         }
@@ -72,7 +74,7 @@ class TreasuryServiceTest {
             Account dest = new Account();
             dest.setCurrentBalance(500000.0);
 
-            treasuryService.registerTransfer(source, dest, 300000.0, LocalDate.now());
+            treasuryService.registerTransfer(source, dest, 300000.0, LocalDate.now(), null);
 
             assertThat(dest.getCurrentBalance()).isEqualTo(800000.0);
         }
@@ -84,7 +86,7 @@ class TreasuryServiceTest {
             Account dest = new Account();
             dest.setCurrentBalance(0.0);
 
-            treasuryService.registerTransfer(source, dest, 500000.0, LocalDate.now());
+            treasuryService.registerTransfer(source, dest, 500000.0, LocalDate.now(), null);
 
             verify(transferRepository).save(any(Transfer.class));
             verify(accountRepository, times(2)).save(any(Account.class));
@@ -101,7 +103,7 @@ class TreasuryServiceTest {
             Account dest = new Account();
             dest.setCurrentBalance(0.0);
 
-            treasuryService.registerTransfer(source, dest, 500000.0, LocalDate.now());
+            treasuryService.registerTransfer(source, dest, 500000.0, LocalDate.now(), null);
 
             assertThat(source.getCurrentBalance()).isEqualTo(-400000.0);
         }
@@ -283,7 +285,7 @@ class TreasuryServiceTest {
             Account dest = new Account();
             dest.setCurrentBalance(0.0);
 
-            treasuryService.registerTransfer(source, dest, 400000.0, LocalDate.now());
+            treasuryService.registerTransfer(source, dest, 400000.0, LocalDate.now(), null);
 
             verify(movementRepository, times(2)).save(any());
         }

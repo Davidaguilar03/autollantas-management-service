@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -25,18 +26,20 @@ public class TransferFormController {
     @Autowired private TreasuryService treasuryService;
 
     @FXML private ComboBox<Account> comboOrigen;
-    @FXML private ComboBox<Account> comboDestino;
+    @FXML private Label             lblDestino;
     @FXML private TextField txtMonto;
     @FXML private TextField txtConcepto;
 
     private boolean saved = false;
+    private List<Account> allAccounts;
+    private Account destinationAccount;
 
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
 
     @FXML
     public void initialize() {
         currencyFormat.setMaximumFractionDigits(0);
-        configureCombos();
+        configureOrigen();
         loadAccounts();
         configureAmountInput();
     }
@@ -44,14 +47,11 @@ public class TransferFormController {
     private void configureAmountInput() {
         txtMonto.textProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue == null || newValue.isEmpty()) return;
-
             String clean = newValue.replaceAll("[^0-9]", "");
             if (clean.isEmpty()) return;
-
             try {
                 long number = Long.parseLong(clean);
                 String formatted = currencyFormat.format(number);
-
                 if (!newValue.equals(formatted)) {
                     txtMonto.setText(formatted);
                     Platform.runLater(() -> txtMonto.positionCaret(txtMonto.getText().length()));
@@ -61,33 +61,41 @@ public class TransferFormController {
         });
     }
 
-    private void configureCombos() {
+    private void configureOrigen() {
         StringConverter<Account> converter = new StringConverter<>() {
             @Override public String toString(Account a) { return (a == null) ? "" : a.getName(); }
             @Override public Account fromString(String s) { return null; }
         };
         comboOrigen.setConverter(converter);
-        comboDestino.setConverter(converter);
     }
 
     private void loadAccounts() {
-        List<Account> accounts = treasuryService.findAllAccounts();
-        comboOrigen.getItems().setAll(accounts);
-        comboDestino.getItems().setAll(accounts);
+        allAccounts = treasuryService.findAllAccounts();
+        comboOrigen.getItems().setAll(allAccounts);
+    }
+
+    @FXML
+    void onOrigenChanged(ActionEvent event) {
+        Account origen = comboOrigen.getValue();
+        if (origen == null) {
+            lblDestino.setText("—");
+            destinationAccount = null;
+            return;
+        }
+        destinationAccount = allAccounts.stream()
+                .filter(a -> !a.getId().equals(origen.getId()))
+                .findFirst()
+                .orElse(null);
+        lblDestino.setText(destinationAccount != null ? destinationAccount.getName() : "—");
     }
 
     @FXML
     void guardarTransferencia(ActionEvent event) {
         try {
             Account source = comboOrigen.getValue();
-            Account destination = comboDestino.getValue();
 
-            if (source == null || destination == null) {
-                showAlert("Error", "Seleccione cuenta origen y destino.");
-                return;
-            }
-            if (source.getId().equals(destination.getId())) {
-                showAlert("Error", "La cuenta origen y destino no pueden ser la misma.");
+            if (source == null || destinationAccount == null) {
+                showAlert("Error", "Seleccione la cuenta origen.");
                 return;
             }
 
@@ -110,7 +118,9 @@ public class TransferFormController {
                 return;
             }
 
-            treasuryService.registerTransfer(source, destination, amount, LocalDate.now());
+            String concept = (txtConcepto.getText() != null && !txtConcepto.getText().isBlank())
+                    ? txtConcepto.getText().trim() : "Transferencia";
+            treasuryService.registerTransfer(source, destinationAccount, amount, LocalDate.now(), concept);
 
             saved = true;
             cerrarModal(event);

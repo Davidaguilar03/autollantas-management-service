@@ -31,4 +31,8 @@ public class Account {
 
     @Column(name = "saldo_actual")
     private Double currentBalance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_cuenta")
+    private AccountType type;
 }
