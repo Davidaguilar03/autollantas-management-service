@@ -314,6 +314,11 @@ public class MainLayoutController {
     }
 
     @FXML
+    private void btnDialogTestClick(ActionEvent event) {
+        loadView("/com/autollantas/gestion/shared/views/DialogTest.fxml");
+    }
+
+    @FXML
     private void btnCerrarSesionClick(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/Login.fxml"));

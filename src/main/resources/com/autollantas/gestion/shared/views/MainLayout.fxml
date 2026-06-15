@@ -156,6 +156,13 @@
 
             <Region VBox.vgrow="ALWAYS" />
 
+            <Button mnemonicParsing="false" onAction="#btnDialogTestClick"
+                    maxWidth="1.7976931348623157E308"
+                    style="-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: #aab4be; -fx-font-size:11px; -fx-cursor:hand; -fx-background-radius:6;"
+                    text="🧪 Probar Dialogs">
+               <VBox.margin><Insets left="12.0" right="12.0" bottom="4.0" /></VBox.margin>
+            </Button>
+
             <HBox alignment="CENTER">
                <VBox.margin>
                   <Insets bottom="24.0" top="8.0" />

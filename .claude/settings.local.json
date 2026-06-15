@@ -40,7 +40,9 @@
       "Bash(jar cf *)",
       "PowerShell($javaHome = \\(Get-Command java\\).Source | Split-Path | Split-Path; $jarExe = \"$javaHome\\\\bin\\\\jar.exe\"; & $jarExe cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Done: $LASTEXITCODE\")",
       "PowerShell(\\(Get-Command java\\).Source; java -version 2>&1)",
-      "PowerShell(& \"C:\\\\Program Files\\\\Java\\\\jdk-21\\\\bin\\\\jar.exe\" cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Resultado: $LASTEXITCODE\")"
+      "PowerShell(& \"C:\\\\Program Files\\\\Java\\\\jdk-21\\\\bin\\\\jar.exe\" cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Resultado: $LASTEXITCODE\")",
+      "Skill(run)",
+      "Skill(run:*)"
     ]
   }
 }
