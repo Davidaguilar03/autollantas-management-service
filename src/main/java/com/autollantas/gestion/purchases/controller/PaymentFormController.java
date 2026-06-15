@@ -5,6 +5,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -118,39 +119,49 @@ public class PaymentFormController {
     void btnGuardarClick(ActionEvent event) {
         if (!validateForm()) return;
 
-        try {
-            double amount = getNumericValue();
-            Account account = comboCuenta.getValue();
-            LocalDate date = dpFechaPago.getValue();
-            String method = comboMetodoPago.getValue();
+        double amount = getNumericValue();
+        Account account = comboCuenta.getValue();
+        LocalDate date = dpFechaPago.getValue();
+        String method = comboMetodoPago.getValue();
 
-            if (account.getCurrentBalance() < amount) {
-                comboCuenta.setStyle(STYLE_ERROR);
-                ToastNotification.warning(txtValor,
-                    "La cuenta no tiene saldo suficiente para este pago");
-                return;
-            }
-
-            double currentDebt = (currentPurchase.getPendingBalance() != null)
-                    ? currentPurchase.getPendingBalance()
-                    : currentPurchase.getTotal();
-
-            if (amount > (currentDebt + 1.0)) {
-                txtValor.setStyle(STYLE_ERROR);
-                ToastNotification.warning(txtValor,
-                    "El pago supera la deuda actual (" + currencyFormat.format(currentDebt) + ")");
-                return;
-            }
-
-            purchasesService.registerPayment(currentPurchase, account, date, method, amount);
-
-            saved = true;
-            closeModal();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ToastNotification.error(txtValor, "No se pudo registrar el pago");
+        if (account.getCurrentBalance() < amount) {
+            comboCuenta.setStyle(STYLE_ERROR);
+            ToastNotification.warning(txtValor, "La cuenta no tiene saldo suficiente para este pago");
+            return;
         }
+
+        double currentDebt = (currentPurchase.getPendingBalance() != null)
+                ? currentPurchase.getPendingBalance()
+                : currentPurchase.getTotal();
+
+        if (amount > (currentDebt + 1.0)) {
+            txtValor.setStyle(STYLE_ERROR);
+            ToastNotification.warning(txtValor,
+                "El pago supera la deuda actual (" + currencyFormat.format(currentDebt) + ")");
+            return;
+        }
+
+        CustomDialog.confirm(
+            txtValor,
+            "Confirmar pago a proveedor",
+            "Vas a registrar un pago de " + currencyFormat.format(amount)
+                + " a la factura " + currentPurchase.getInvoiceNumber()
+                + " desde " + account.getName() + ". "
+                + (amount >= currentDebt
+                    ? "Con este pago la factura quedará completamente saldada."
+                    : "Saldo restante: " + currencyFormat.format(currentDebt - amount) + "."),
+            () -> {
+                try {
+                    purchasesService.registerPayment(currentPurchase, account, date, method, amount);
+                    saved = true;
+                    closeModal();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastNotification.error(txtValor, "No se pudo registrar el pago");
+                }
+            },
+            null
+        );
     }
 
     private boolean validateForm() {

@@ -4,6 +4,7 @@ import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -146,6 +147,19 @@ public class ProductFormController {
     public void guardarProducto() {
         if (!validarCampos()) return;
 
+        if (currentProduct.getId() != null) {
+            CustomDialog.confirm(txtCodigo,
+                "Guardar cambios",
+                "Vas a modificar el producto \"" + currentProduct.getDescription() + "\". "
+                    + "Los datos anteriores serán reemplazados y los precios mínimo y sugerido se recalcularán. ¿Confirmas?",
+                this::doSave,
+                null);
+        } else {
+            doSave();
+        }
+    }
+
+    private void doSave() {
         try {
             currentProduct.setCode(txtCodigo.getText());
             currentProduct.setDescription(txtDescripcion.getText());

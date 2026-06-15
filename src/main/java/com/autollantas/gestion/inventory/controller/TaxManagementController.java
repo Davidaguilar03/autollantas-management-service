@@ -4,6 +4,7 @@ import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,7 +28,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
@@ -164,21 +164,22 @@ public class TaxManagementController {
         TaxType sel = tableTaxTypes.getSelectionModel().getSelectedItem();
         if (sel == null) return;
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Eliminar Impuesto");
-        confirm.setHeaderText("¿Eliminar el impuesto '" + sel.getName() + "'?");
-        confirm.setContentText("Esta acción no se puede deshacer.");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                inventoryService.deleteTaxType(sel);
-                loadTaxTypes();
-                ToastNotification.success(tableTaxTypes, "Impuesto \"" + sel.getName() + "\" eliminado");
-            } catch (Exception e) {
-                ToastNotification.error(tableTaxTypes, "No se pudo eliminar el impuesto, puede estar en uso");
-            }
-        }
+        CustomDialog.danger(tableTaxTypes,
+            "Eliminar impuesto",
+            "Vas a eliminar el impuesto \"" + sel.getName() + "\" ("
+                + (sel.getRate() != null ? String.format("%.0f%%", sel.getRate() * 100) : "0%") + "). "
+                + "Si está asignado a alguna categoría, la operación no podrá completarse. "
+                + "Esta acción no se puede deshacer.",
+            () -> {
+                try {
+                    inventoryService.deleteTaxType(sel);
+                    loadTaxTypes();
+                    ToastNotification.success(tableTaxTypes, "Impuesto \"" + sel.getName() + "\" eliminado");
+                } catch (Exception e) {
+                    ToastNotification.error(tableTaxTypes, "No se pudo eliminar el impuesto, puede estar en uso");
+                }
+            },
+            null);
     }
 
     @FXML
@@ -189,25 +190,34 @@ public class TaxManagementController {
             return;
         }
 
-        List<TaxType> selectedTaxes = categoryTaxRows.stream()
-                .filter(TaxTypeRow::isSelected)
-                .map(TaxTypeRow::getTaxType)
-                .collect(Collectors.toList());
+        long count = categoryTaxRows.stream().filter(TaxTypeRow::isSelected).count();
 
-        cat.getTaxTypes().clear();
-        cat.getTaxTypes().addAll(selectedTaxes);
+        CustomDialog.confirm(comboCategoryTax,
+            "Guardar asignación de impuestos",
+            "Vas a aplicar " + count + " impuesto(s) a la categoría \"" + cat.getName() + "\". "
+                + "Los precios mínimo y sugerido de todos los productos de esta categoría serán recalculados automáticamente. ¿Confirmas?",
+            () -> {
+                List<TaxType> selectedTaxes = categoryTaxRows.stream()
+                        .filter(TaxTypeRow::isSelected)
+                        .map(TaxTypeRow::getTaxType)
+                        .collect(Collectors.toList());
 
-        new Thread(() -> {
-            inventoryService.saveCategory(cat);
+                cat.getTaxTypes().clear();
+                cat.getTaxTypes().addAll(selectedTaxes);
 
-            List<Product> products = inventoryService.findProductsByCategory(cat);
-            for (Product p : products) {
-                inventoryService.recalculateMinSalePrice(p);
-            }
+                new Thread(() -> {
+                    inventoryService.saveCategory(cat);
 
-            Platform.runLater(() -> ToastNotification.success(comboCategoryTax,
-                    "Impuestos de \"" + cat.getName() + "\" guardados · " + products.size() + " precios recalculados"));
-        }).start();
+                    List<Product> products = inventoryService.findProductsByCategory(cat);
+                    for (Product p : products) {
+                        inventoryService.recalculateMinSalePrice(p);
+                    }
+
+                    Platform.runLater(() -> ToastNotification.success(comboCategoryTax,
+                            "Impuestos de \"" + cat.getName() + "\" guardados · " + products.size() + " precios recalculados"));
+                }).start();
+            },
+            null);
     }
 
     private void abrirModalTax(TaxType taxType) {

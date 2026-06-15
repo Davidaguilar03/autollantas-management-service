@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -259,24 +260,31 @@ public class StockAlertsController {
     void btnGuardarConfiguracionClick(ActionEvent event) {
         tablaConfiguracion.edit(-1, null);
 
-        configMap.clear();
-        for (CategoryConfigModel c : configList) configMap.put(c.getCategoriaNombre(), c);
+        CustomDialog.confirm(tablaAlertas,
+            "Aplicar umbrales de stock",
+            "Vas a reclasificar todos los productos según los nuevos umbrales configurados por categoría. "
+                + "Los estados crítico, bajo y normal se recalcularán para toda la tabla. ¿Confirmas?",
+            () -> {
+                configMap.clear();
+                for (CategoryConfigModel c : configList) configMap.put(c.getCategoriaNombre(), c);
 
-        masterData.forEach(this::analizarProducto);
-        tablaAlertas.refresh();
-        actualizarKPIs();
-        aplicarFiltros();
+                masterData.forEach(this::analizarProducto);
+                tablaAlertas.refresh();
+                actualizarKPIs();
+                aplicarFiltros();
 
-        long criticos = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.CRITICAL).count();
-        long advertencias = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.WARNING).count();
+                long criticos = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.CRITICAL).count();
+                long advertencias = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.WARNING).count();
 
-        if (criticos > 0 || advertencias > 0) {
-            ToastNotification.warning(tablaAlertas,
-                "Umbrales aplicados: " + criticos + " crítico(s), " + advertencias + " bajo(s)");
-        } else {
-            ToastNotification.success(tablaAlertas,
-                "Umbrales aplicados · todos los productos en estado normal");
-        }
+                if (criticos > 0 || advertencias > 0) {
+                    ToastNotification.warning(tablaAlertas,
+                        "Umbrales aplicados: " + criticos + " crítico(s), " + advertencias + " bajo(s)");
+                } else {
+                    ToastNotification.success(tablaAlertas,
+                        "Umbrales aplicados · todos los productos en estado normal");
+                }
+            },
+            null);
     }
 
     @FXML void btnRefreshClick(ActionEvent event) {

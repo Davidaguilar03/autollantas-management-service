@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -72,15 +73,22 @@ public class CategoryMarginsController {
             return;
         }
 
-        cat.setTargetMargin(margen);
-        inventoryService.saveCategory(cat);
-        inventoryService.findProductsByCategory(cat)
-                .forEach(p -> inventoryService.recalculateMinSalePrice(p));
-
-        ToastNotification.success(comboCat, "Utilidad de \"" + cat.getName() + "\" actualizada y precios recalculados");
-        txtMargen.clear();
-        comboCat.setValue(null);
-        cargarTabla();
+        final double margenFinal = margen;
+        CustomDialog.confirm(comboCat,
+            "Guardar utilidad",
+            "Vas a establecer una utilidad del " + txt + "% para la categoría \"" + cat.getName() + "\". "
+                + "El precio sugerido de todos los productos de esta categoría será recalculado automáticamente. ¿Confirmas?",
+            () -> {
+                cat.setTargetMargin(margenFinal);
+                inventoryService.saveCategory(cat);
+                inventoryService.findProductsByCategory(cat)
+                        .forEach(p -> inventoryService.recalculateMinSalePrice(p));
+                ToastNotification.success(comboCat, "Utilidad de \"" + cat.getName() + "\" actualizada y precios recalculados");
+                txtMargen.clear();
+                comboCat.setValue(null);
+                cargarTabla();
+            },
+            null);
     }
 
     @FXML

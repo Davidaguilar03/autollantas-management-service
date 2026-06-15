@@ -9,6 +9,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import javafx.application.Platform;
@@ -352,6 +353,19 @@ public class PurchaseFormController {
             return;
         }
 
+        if (editMode) {
+            CustomDialog.confirm(rootFormulario,
+                "Guardar cambios",
+                "Vas a sobreescribir la factura de compra " + txtNumeroFactura.getText()
+                    + ". Los datos anteriores serán reemplazados, incluyendo los productos y cantidades. ¿Confirmas?",
+                this::doSave,
+                null);
+        } else {
+            doSave();
+        }
+    }
+
+    private void doSave() {
         try {
             Supplier supplier = getOrSaveSupplier();
             Purchase purchase = editMode ? purchaseInEditing : new Purchase();
