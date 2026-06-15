@@ -1,6 +1,8 @@
 package com.autollantas.gestion.reporting.controller;
 
 import com.autollantas.gestion.reporting.service.ReportService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -131,12 +133,16 @@ public class ReportGenerationFormController {
             try (FileOutputStream fos = new FileOutputStream(file)) {
                 fos.write(bytes);
             }
-            showSuccessAlert("Reporte generado", "Archivo guardado en:\n" + file.getAbsolutePath());
+            // Cerrar modal primero, luego mostrar el toast en la ventana principal
             cerrarVentana();
+            ToastNotification.success(
+                MainLayoutController.getInstance().getContentArea(),
+                "Reporte guardado en: " + file.getAbsolutePath()
+            );
         } catch (IOException e) {
-            showErrorAlert("Error al guardar", e.getMessage());
+            ToastNotification.error(cmbTipoReporte, "No se pudo guardar el archivo: " + e.getMessage());
         } catch (Exception e) {
-            showErrorAlert("Error al generar reporte", e.getMessage());
+            ToastNotification.error(cmbTipoReporte, "Error al generar el reporte: " + e.getMessage());
         }
     }
 
@@ -156,16 +162,16 @@ public class ReportGenerationFormController {
 
     private boolean validateForm() {
         if (cmbTipoReporte.getValue() == null) {
-            showErrorAlert("Selección requerida", "Por favor selecciona un Tipo de Reporte.");
+            ToastNotification.warning(cmbTipoReporte, "Selecciona un tipo de reporte antes de continuar");
             cmbTipoReporte.requestFocus();
             return false;
         }
         if (dpInicio.getValue() == null || dpFin.getValue() == null) {
-            showErrorAlert("Fechas inválidas", "Por favor verifica el rango de fechas.");
+            ToastNotification.warning(cmbTipoReporte, "Verifica que el rango de fechas esté completo");
             return false;
         }
         if (dpInicio.getValue().isAfter(dpFin.getValue())) {
-            showErrorAlert("Rango inválido", "La fecha de inicio no puede ser posterior a la fecha fin.");
+            ToastNotification.warning(cmbTipoReporte, "La fecha de inicio no puede ser posterior a la fecha final");
             return false;
         }
         return true;
@@ -178,17 +184,4 @@ public class ReportGenerationFormController {
         }
     }
 
-    private void showErrorAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setHeaderText(title);
-        alert.setContentText(content);
-        alert.show();
-    }
-
-    private void showSuccessAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText(title);
-        alert.setContentText(content);
-        alert.show();
-    }
 }

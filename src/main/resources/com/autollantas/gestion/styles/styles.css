@@ -869,7 +869,7 @@
 
 .tab-pane .tab .tab-label {
     -fx-text-fill: #7f8c8d;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
@@ -1805,4 +1805,95 @@
 .data-table .placeholder .label {
     -fx-text-fill: #95a5a6;
     -fx-font-size: 12px;
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   Popups de esquina superior derecha: success / error / warning
+   ============================================================ */
+
+.toast {
+    -fx-padding: 12 16 12 14;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 14, 0, 0, 5);
+    -fx-pref-height: -1;
+    -fx-max-height: -1;
+}
+
+/* ---- Exito (verde, tono de la app) ---- */
+.toast-success {
+    -fx-background-color: #f0faf4;
+    -fx-background-radius: 10;
+}
+
+.toast-success .toast-icon {
+    -fx-background-color: #5cb98a;
+    -fx-background-radius: 50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-max-width: 24;
+    -fx-max-height: 24;
+    -fx-alignment: center;
+}
+
+.toast-success .toast-message {
+    -fx-text-fill: #1a5c38;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+/* ---- Error (rojo, tono de la app) ---- */
+.toast-error {
+    -fx-background-color: #fff5f5;
+    -fx-background-radius: 10;
+}
+
+.toast-error .toast-icon {
+    -fx-background-color: #e07b7b;
+    -fx-background-radius: 50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-max-width: 24;
+    -fx-max-height: 24;
+    -fx-alignment: center;
+}
+
+.toast-error .toast-message {
+    -fx-text-fill: #7a1a1a;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+/* ---- Advertencia (amarillo/ambar de marca) ---- */
+.toast-warning {
+    -fx-background-color: #fffbf0;
+    -fx-background-radius: 10;
+}
+
+.toast-warning .toast-icon {
+    -fx-background-color: #f1b82c;
+    -fx-background-radius: 50;
+    -fx-text-fill: #3a2500;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-max-width: 24;
+    -fx-max-height: 24;
+    -fx-alignment: center;
+}
+
+.toast-warning .toast-message {
+    -fx-text-fill: #5a3a00;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
 }

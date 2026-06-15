@@ -128,6 +128,8 @@ public class MainLayoutController {
         return controller;
     }
 
+    public StackPane getContentArea()    { return contentArea; }
+
     public TitledPane getTpIngresos()    { return tpIngresos; }
     public TitledPane getTpEgresos()     { return tpEgresos; }
     public TitledPane getTpInventario()  { return tpInventario; }
