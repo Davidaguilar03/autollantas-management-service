@@ -314,22 +314,25 @@ public class MainLayoutController {
     }
 
     @FXML
-    private void btnDialogTestClick(ActionEvent event) {
-        loadView("/com/autollantas/gestion/shared/views/DialogTest.fxml");
-    }
-
-    @FXML
     private void btnCerrarSesionClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/Login.fxml"));
-            loader.setControllerFactory(springContext::getBean);
-            Parent root = loader.load();
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.centerOnScreen();
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        com.autollantas.gestion.shared.util.CustomDialog.confirm(
+            sidebarContainer,
+            "Cerrar sesión",
+            "¿Seguro que deseas salir? Asegúrate de haber guardado cualquier cambio pendiente antes de continuar.",
+            () -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/Login.fxml"));
+                    loader.setControllerFactory(springContext::getBean);
+                    Parent root = loader.load();
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.centerOnScreen();
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            },
+            null
+        );
     }
 }

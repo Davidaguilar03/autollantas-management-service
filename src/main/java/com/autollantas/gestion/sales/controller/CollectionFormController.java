@@ -4,6 +4,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.sales.model.Sale;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import com.autollantas.gestion.sales.service.SalesService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -116,33 +117,40 @@ public class CollectionFormController {
     void btnGuardarClick(ActionEvent event) {
         if (!validateForm()) return;
 
-        try {
-            double amount = getNumericValue();
-            Account destinationAccount = comboCuenta.getValue();
-            LocalDate paymentDate = dpFechaPago.getValue();
-            String paymentMethod = comboMetodoPago.getValue();
+        double amount = getNumericValue();
+        double currentDebt = (currentSale.getPendingBalance() != null)
+                ? currentSale.getPendingBalance()
+                : currentSale.getTotal();
 
-            double currentDebt = (currentSale.getPendingBalance() != null)
-                    ? currentSale.getPendingBalance()
-                    : currentSale.getTotal();
-
-            if (amount > (currentDebt + 1.0)) {
-                txtValor.setStyle(STYLE_ERROR);
-                ToastNotification.warning(txtValor,
-                    "El abono ($" + decimalFormat.format(amount) +
-                    ") supera la deuda ($" + decimalFormat.format(currentDebt) + ")");
-                return;
-            }
-
-            salesService.registerCollection(currentSale, destinationAccount, paymentDate, paymentMethod, amount);
-
-            saved = true;
-            closeModal();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ToastNotification.error(txtValor, "No se pudo registrar el pago");
+        if (amount > (currentDebt + 1.0)) {
+            txtValor.setStyle(STYLE_ERROR);
+            ToastNotification.warning(txtValor,
+                "El abono ($" + decimalFormat.format(amount) +
+                ") supera la deuda ($" + decimalFormat.format(currentDebt) + ")");
+            return;
         }
+
+        CustomDialog.confirm(
+            txtValor,
+            "Confirmar pago",
+            "Vas a registrar un abono de " + currencyFormat.format(amount) +
+            " a la factura " + currentSale.getInvoiceNumber() + ". " +
+            (amount >= currentDebt
+                ? "Con este pago la factura quedará completamente saldada."
+                : "Saldo restante: " + currencyFormat.format(currentDebt - amount) + "."),
+            () -> {
+                try {
+                    salesService.registerCollection(currentSale, comboCuenta.getValue(),
+                            dpFechaPago.getValue(), comboMetodoPago.getValue(), amount);
+                    saved = true;
+                    closeModal();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastNotification.error(txtValor, "No se pudo registrar el pago");
+                }
+            },
+            null
+        );
     }
 
     private boolean validateForm() {

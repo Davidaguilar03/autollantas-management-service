@@ -15,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
@@ -95,10 +96,11 @@ public class CustomDialog {
         owner.widthProperty().addListener((obs, o, n)  -> dialog.setWidth(n.doubleValue()));
         owner.heightProperty().addListener((obs, o, n) -> dialog.setHeight(n.doubleValue()));
 
-        // Tarjeta con tamaño fijo compacto
+        Button[] confirmRef = new Button[1];
         VBox card = buildCard(type, title, message, confirmLabel, cancelLabel,
                 () -> dismiss(dialog, onConfirm),
-                () -> dismiss(dialog, onCancel));
+                () -> dismiss(dialog, onCancel),
+                confirmRef);
 
         // Fondo oscuro
         Rectangle dimmer = new Rectangle();
@@ -120,15 +122,18 @@ public class CustomDialog {
         Scene scene = new Scene(root, Color.TRANSPARENT);
         dimmer.widthProperty().bind(scene.widthProperty());
         dimmer.heightProperty().bind(scene.heightProperty());
+
         dialog.setScene(scene);
         dialog.show();
+        Platform.runLater(() -> confirmRef[0].requestFocus());
 
         animateIn(root, card);
     }
 
     private static VBox buildCard(Type type, String title, String message,
                                   String confirmLabel, String cancelLabel,
-                                  Runnable onConfirm, Runnable onCancel) {
+                                  Runnable onConfirm, Runnable onCancel,
+                                  Button[] confirmRef) {
         Label icon = new Label(iconFor(type));
         icon.getStyleClass().addAll("dialog-icon", iconStyleClass(type));
 
@@ -145,12 +150,11 @@ public class CustomDialog {
         VBox header = new VBox(12, icon, titleLabel);
         header.setAlignment(Pos.CENTER);
 
-        HBox buttons = buildButtons(type, confirmLabel, cancelLabel, onConfirm, onCancel);
+        HBox buttons = buildButtons(type, confirmLabel, cancelLabel, onConfirm, onCancel, confirmRef);
 
         VBox card = new VBox(20, header, msgLabel, buttons);
         card.getStyleClass().addAll("dialog-card", cardAccentClass(type));
         card.setAlignment(Pos.CENTER);
-        // Ancho controlado, alto libre según contenido
         card.setMinWidth(360);
         card.setMaxWidth(500);
         VBox.setMargin(card, new Insets(0));
@@ -159,21 +163,25 @@ public class CustomDialog {
     }
 
     private static HBox buildButtons(Type type, String confirmLabel, String cancelLabel,
-                                     Runnable onConfirm, Runnable onCancel) {
+                                     Runnable onConfirm, Runnable onCancel,
+                                     Button[] confirmRef) {
         HBox box = new HBox(12);
         box.setAlignment(Pos.CENTER);
 
         if (cancelLabel != null) {
             Button cancel = new Button(cancelLabel);
             cancel.getStyleClass().add("dialog-btn-cancel");
+            cancel.setCancelButton(true);
             cancel.setOnAction(e -> onCancel.run());
             box.getChildren().add(cancel);
         }
 
         Button confirm = new Button(confirmLabel);
         confirm.getStyleClass().addAll("dialog-btn-confirm", confirmBtnClass(type));
+        confirm.setDefaultButton(true);
         confirm.setOnAction(e -> onConfirm.run());
         box.getChildren().add(confirm);
+        confirmRef[0] = confirm;
 
         return box;
     }

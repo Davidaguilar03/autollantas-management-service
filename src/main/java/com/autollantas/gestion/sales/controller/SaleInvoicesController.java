@@ -3,6 +3,7 @@ package com.autollantas.gestion.sales.controller;
 import com.autollantas.gestion.sales.model.Sale;
 import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -35,7 +36,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 @SuppressWarnings("ALL")
 @Component
@@ -169,9 +169,7 @@ public class SaleInvoicesController {
         }
 
         Object controllerObj = MainLayoutController.getInstance().loadView("/com/autollantas/gestion/sales/views/SaleForm.fxml");
-
-        if (controllerObj instanceof SaleFormController) {
-            SaleFormController formularioController = (SaleFormController) controllerObj;
+        if (controllerObj instanceof SaleFormController formularioController) {
             formularioController.setSaleForEditing(seleccionada);
         }
     }
@@ -186,23 +184,23 @@ public class SaleInvoicesController {
             return;
         }
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Anular Venta");
-        confirm.setHeaderText("¿Desea anular la factura " + sel.getInvoiceNumber() + "?");
-        confirm.setContentText("Esta acción es irreversible y DEVOLVERÁ los productos al inventario.");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                salesService.cancelSale(sel);
-                tablaFacturas.refresh();
-                applyFilters();
-                ToastNotification.success(tablaFacturas, "Factura " + sel.getInvoiceNumber() + " anulada · stock devuelto al inventario");
-            } catch (Exception e) {
-                e.printStackTrace();
-                ToastNotification.error(tablaFacturas, "No se pudo anular la factura " + sel.getInvoiceNumber());
-            }
-        }
+        CustomDialog.danger(
+            tablaFacturas,
+            "Anular factura " + sel.getInvoiceNumber(),
+            "Esta acción es irreversible. Se anulará la venta y las unidades vendidas serán devueltas al inventario automáticamente.",
+            () -> {
+                try {
+                    salesService.cancelSale(sel);
+                    tablaFacturas.refresh();
+                    applyFilters();
+                    ToastNotification.success(tablaFacturas, "Factura " + sel.getInvoiceNumber() + " anulada · stock devuelto al inventario");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastNotification.error(tablaFacturas, "No se pudo anular la factura " + sel.getInvoiceNumber());
+                }
+            },
+            null
+        );
     }
 
     @FXML

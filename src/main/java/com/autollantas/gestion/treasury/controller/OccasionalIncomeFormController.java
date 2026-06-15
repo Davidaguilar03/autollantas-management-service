@@ -4,6 +4,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -98,6 +99,21 @@ public class OccasionalIncomeFormController {
     public void guardarIngreso() {
         if (!validateFields()) return;
 
+        if (currentIncome.getId() != null) {
+            CustomDialog.confirm(
+                txtConcepto,
+                "Guardar cambios",
+                "Vas a modificar el ingreso \"" + currentIncome.getConcept() + "\". " +
+                "Los datos anteriores serán reemplazados por los cambios que realizaste. ¿Confirmas?",
+                this::doSave,
+                null
+            );
+        } else {
+            doSave();
+        }
+    }
+
+    private void doSave() {
         try {
             boolean isNew = (currentIncome.getId() == null);
 

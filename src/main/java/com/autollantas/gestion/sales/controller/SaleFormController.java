@@ -12,6 +12,7 @@ import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.sales.service.StockAlert;
 import com.autollantas.gestion.sales.service.StockAlertLevel;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -696,6 +697,21 @@ public class SaleFormController {
             return;
         }
 
+        if (editMode) {
+            CustomDialog.confirm(
+                rootFormulario,
+                "Guardar cambios",
+                "Vas a sobreescribir la factura " + txtNumeroFactura.getText() +
+                ". Los datos anteriores serán reemplazados por los cambios que realizaste. ¿Confirmas?",
+                this::doSave,
+                null
+            );
+        } else {
+            doSave();
+        }
+    }
+
+    private void doSave() {
         try {
             Customer customer = getOrSaveCustomer();
 
