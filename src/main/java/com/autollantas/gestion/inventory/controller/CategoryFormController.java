@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -25,6 +26,7 @@ public class CategoryFormController {
 
     @FXML
     public void initialize() {
+        guardado = false;
         currentCategory = null;
         Platform.runLater(() -> txtNombre.requestFocus());
     }
@@ -56,7 +58,7 @@ public class CategoryFormController {
             guardado = true;
             cerrarVentana();
         } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo guardar: " + e.getMessage());
+            ToastNotification.error(txtNombre, "No se pudo guardar la categoría: " + e.getMessage());
         }
     }
 
@@ -95,7 +97,7 @@ public class CategoryFormController {
             valido = false;
         }
 
-        if (!valido) mostrarAlerta("Datos Incompletos", "Nombre requerido. Stocks deben ser números mayores o iguales a 0.");
+        if (!valido) ToastNotification.warning(txtNombre, "Completa los campos resaltados: nombre requerido, stocks deben ser números ≥ 0");
         return valido;
     }
 
@@ -107,12 +109,5 @@ public class CategoryFormController {
 
     public boolean isGuardado() {
         return guardado;
-    }
-
-    private void mostrarAlerta(String titulo, String contenido) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
     }
 }

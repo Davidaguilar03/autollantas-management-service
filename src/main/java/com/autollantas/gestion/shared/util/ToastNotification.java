@@ -37,12 +37,13 @@ public class ToastNotification {
     private static final double BORDER_RADIUS = 10;
     private static final double BORDER_WIDTH  = 3;
 
-    private static final Duration SLIDE_IN = Duration.millis(320);
-    private static final Duration VISIBLE  = Duration.millis(4700);
-    private static final Duration FADE_OUT = Duration.millis(350);
+    private static final Duration SLIDE_IN   = Duration.millis(320);
+    private static final Duration VISIBLE    = Duration.millis(4700);
+    private static final Duration FADE_OUT   = Duration.millis(350);
+    private static final Duration SHIFT_UP   = Duration.millis(250);
 
-    // Slots fijos 0-1-2: null = libre, Group = ocupado
-    private static final Group[]           slots        = new Group[MAX_VISIBLE];
+    // slots[i] == null → libre. El índice es el slot lógico, no la posición Y.
+    private static final Group[]             slots        = new Group[MAX_VISIBLE];
     private static final Queue<PendingToast> pendingQueue = new ArrayDeque<>();
 
     private record PendingToast(Node node, Type type, String message) {}
@@ -73,8 +74,28 @@ public class ToastNotification {
         return -1;
     }
 
-    private static double yForSlot(int slot) {
-        return MARGIN_TOP + slot * (SLOT_HEIGHT + GAP);
+    // Y ideal de un slot = número de slots ocupados con índice < slot
+    private static double computeY(int slot) {
+        int position = 0;
+        for (int i = 0; i < slot; i++) {
+            if (slots[i] != null) position++;
+        }
+        return MARGIN_TOP + position * (SLOT_HEIGHT + GAP);
+    }
+
+    // Anima todos los slots activos hacia su Y ideal actual
+    private static void repackSlots() {
+        for (int i = 0; i < MAX_VISIBLE; i++) {
+            if (slots[i] == null) continue;
+            double targetY = computeY(i);
+            Group g = slots[i];
+            if (Math.abs(g.getLayoutY() - targetY) < 1) continue;
+            Timeline shift = new Timeline(
+                new KeyFrame(Duration.ZERO,  new KeyValue(g.layoutYProperty(), g.getLayoutY())),
+                new KeyFrame(SHIFT_UP,       new KeyValue(g.layoutYProperty(), targetY))
+            );
+            shift.play();
+        }
     }
 
     private static void display(Node anyNode, Type type, String message, int slot) {
@@ -102,7 +123,7 @@ public class ToastNotification {
         Group group = new Group(content, border);
         group.setOpacity(0);
 
-        double posY   = yForSlot(slot);
+        double posY   = computeY(slot);
         double startX = scene.getWidth();
         double endX   = scene.getWidth() - TOAST_WIDTH - MARGIN_RIGHT;
 
@@ -151,6 +172,8 @@ public class ToastNotification {
             seq.setOnFinished(ev -> {
                 overlay.getChildren().remove(group);
                 slots[slot] = null;
+                // Compactar los restantes hacia arriba
+                repackSlots();
                 PendingToast next = pendingQueue.poll();
                 if (next != null) display(next.node(), next.type(), next.message(), slot);
             });

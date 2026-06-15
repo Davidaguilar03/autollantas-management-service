@@ -4,6 +4,7 @@ import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -173,8 +174,9 @@ public class TaxManagementController {
             try {
                 inventoryService.deleteTaxType(sel);
                 loadTaxTypes();
+                ToastNotification.success(tableTaxTypes, "Impuesto \"" + sel.getName() + "\" eliminado");
             } catch (Exception e) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo eliminar. Puede estar en uso.");
+                ToastNotification.error(tableTaxTypes, "No se pudo eliminar el impuesto, puede estar en uso");
             }
         }
     }
@@ -183,7 +185,7 @@ public class TaxManagementController {
     public void onSaveAssignment(ActionEvent event) {
         ProductCategory cat = comboCategoryTax.getValue();
         if (cat == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Atención", "Selecciona una categoría primero.");
+            ToastNotification.warning(comboCategoryTax, "Selecciona una categoría antes de guardar la asignación");
             return;
         }
 
@@ -203,8 +205,8 @@ public class TaxManagementController {
                 inventoryService.recalculateMinSalePrice(p);
             }
 
-            Platform.runLater(() -> mostrarAlerta(Alert.AlertType.INFORMATION, "Guardado",
-                    "Asignación guardada. Precios mínimos recalculados para " + products.size() + " productos."));
+            Platform.runLater(() -> ToastNotification.success(comboCategoryTax,
+                    "Impuestos de \"" + cat.getName() + "\" guardados · " + products.size() + " precios recalculados"));
         }).start();
     }
 
@@ -216,7 +218,8 @@ public class TaxManagementController {
             Parent root = loader.load();
 
             TaxFormController controller = loader.getController();
-            if (taxType != null) controller.setTaxType(taxType);
+            boolean esEdicion = taxType != null;
+            if (esEdicion) controller.setTaxType(taxType);
 
             Stage modalStage = new Stage();
             modalStage.initStyle(StageStyle.TRANSPARENT);
@@ -238,9 +241,15 @@ public class TaxManagementController {
 
             if (controller.isGuardado()) {
                 loadTaxTypes();
+                if (esEdicion) {
+                    ToastNotification.success(tableTaxTypes, "Impuesto \"" + taxType.getName() + "\" actualizado");
+                } else {
+                    ToastNotification.success(tableTaxTypes, "Impuesto creado correctamente");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            ToastNotification.error(tableTaxTypes, "No se pudo abrir el formulario de impuesto");
         }
     }
 
@@ -249,14 +258,6 @@ public class TaxManagementController {
         if (tableTaxTypes.getScene() != null) {
             ((Stage) tableTaxTypes.getScene().getWindow()).close();
         }
-    }
-
-    private void mostrarAlerta(Alert.AlertType type, String titulo, String contenido) {
-        Alert alert = new Alert(type);
-        alert.setTitle("Gestión de Impuestos");
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
     }
 
     public static class TaxTypeRow {
