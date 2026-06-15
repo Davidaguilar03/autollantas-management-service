@@ -2,6 +2,8 @@ package com.autollantas.gestion.purchases.controller;
 
 import com.autollantas.gestion.purchases.model.Purchase;
 import com.autollantas.gestion.purchases.service.PurchasesService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
@@ -155,7 +157,8 @@ public class PaymentsController {
         Platform.runLater(() -> {
             try {
                 List<Purchase> list = purchasesService.findAllPurchases().stream()
-                        .filter(p -> p.getPendingBalance() != null && p.getPendingBalance() > 0)
+                        .filter(p -> "PENDIENTE".equalsIgnoreCase(p.getStatus())
+                                || (p.getPendingBalance() != null && p.getPendingBalance() > 0))
                         .toList();
                 masterData.setAll(list);
                 updateRecordsInfo();
@@ -168,17 +171,18 @@ public class PaymentsController {
     @FXML
     void btnRegistrarPagoClick(ActionEvent event) {
         Purchase selected = tablaPagos.getSelectionModel().getSelectedItem();
-        if (selected == null) return;
-
+        if (selected == null) {
+            ToastNotification.warning(tablaPagos, "Selecciona una factura para registrar el pago");
+            return;
+        }
         if ("PAGADA".equalsIgnoreCase(selected.getStatus())) {
-            showAlert("Factura Saldada", "Esta factura ya está totalmente pagada.");
+            ToastNotification.warning(tablaPagos, "Esta factura ya está completamente pagada");
             return;
         }
         if ("ANULADA".equalsIgnoreCase(selected.getStatus())) {
-            showAlert("Información", "No se puede registrar un pago para una factura anulada.");
+            ToastNotification.warning(tablaPagos, "No se puede registrar un pago en una factura anulada");
             return;
         }
-
         openPaymentForm(selected);
     }
 
@@ -199,11 +203,18 @@ public class PaymentsController {
 
             showModal(root, controller);
 
-            if (controller.isSaved()) loadDataFromDB();
+            if (controller.isSaved()) {
+                String numFactura = purchase.getInvoiceNumber();
+                loadDataFromDB();
+                ToastNotification.success(
+                    MainLayoutController.getInstance().getContentArea(),
+                    "Pago registrado en factura " + numFactura + " correctamente"
+                );
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "No se pudo cargar la ventana de pagos: " + e.getMessage());
+            ToastNotification.error(tablaPagos, "No se pudo abrir el formulario de pago");
         }
     }
 
@@ -220,7 +231,7 @@ public class PaymentsController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "No se pudo cargar el historial: " + e.getMessage());
+            ToastNotification.error(tablaPagos, "No se pudo abrir el historial de pagos");
         }
     }
 
@@ -470,11 +481,4 @@ public class PaymentsController {
         comboMedioPago.getSelectionModel().selectFirst();
     }
 
-    private void showAlert(String title, String content) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle("Gestión de Compras");
-        a.setHeaderText(title);
-        a.setContentText(content);
-        a.showAndWait();
-    }
 }

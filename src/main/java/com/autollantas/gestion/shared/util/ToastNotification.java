@@ -172,7 +172,6 @@ public class ToastNotification {
             seq.setOnFinished(ev -> {
                 overlay.getChildren().remove(group);
                 slots[slot] = null;
-                // Compactar los restantes hacia arriba
                 repackSlots();
                 PendingToast next = pendingQueue.poll();
                 if (next != null) display(next.node(), next.type(), next.message(), slot);

@@ -5,6 +5,7 @@ import com.autollantas.gestion.purchases.model.PurchaseDetail;
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -187,27 +188,28 @@ public class PurchaseInvoicesController {
     @FXML
     void btnEliminarClick(ActionEvent event) {
         Purchase sel = tablaFacturasCompra.getSelectionModel().getSelectedItem();
-        if (sel != null) {
-            if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
-                showAlert("Acción no permitida", "Esta factura ya se encuentra anulada.");
-                return;
-            }
+        if (sel == null) return;
 
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Anular Factura");
-            alert.setHeaderText("Va a anular la factura " + sel.getInvoiceNumber());
-            alert.setContentText("Esta acción revertirá los productos del inventario y cambiará su estado a ANULADA.");
+        if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
+            ToastNotification.warning(tablaFacturasCompra, "La factura " + sel.getInvoiceNumber() + " ya está anulada");
+            return;
+        }
 
-            if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-                try {
-                    purchasesService.cancelPurchase(sel);
-                    tablaFacturasCompra.refresh();
-                    applyFilters();
-                    showAlert("Éxito", "Compra anulada y stock revertido correctamente.");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showAlert("Error", "No se pudo anular: " + e.getMessage());
-                }
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Anular Factura");
+        alert.setHeaderText("Va a anular la factura " + sel.getInvoiceNumber());
+        alert.setContentText("Esta acción revertirá los productos del inventario y cambiará su estado a ANULADA.");
+
+        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            try {
+                purchasesService.cancelPurchase(sel);
+                tablaFacturasCompra.refresh();
+                applyFilters();
+                ToastNotification.success(tablaFacturasCompra,
+                    "Factura " + sel.getInvoiceNumber() + " anulada · stock revertido al inventario");
+            } catch (Exception e) {
+                e.printStackTrace();
+                ToastNotification.error(tablaFacturasCompra, "No se pudo anular la factura");
             }
         }
     }
@@ -300,17 +302,17 @@ public class PurchaseInvoicesController {
     @FXML
     void btnEditarClick(ActionEvent event) {
         Purchase sel = tablaFacturasCompra.getSelectionModel().getSelectedItem();
-        if (sel != null) {
-            if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
-                showAlert("Acción no permitida", "No se puede editar una factura anulada.");
-                return;
-            }
-            Object controllerObj = MainLayoutController.getInstance().loadView("/com/autollantas/gestion/purchases/views/PurchaseForm.fxml");
-            if (controllerObj instanceof PurchaseFormController) {
-                ((PurchaseFormController) controllerObj).setPurchaseForEditing(sel);
-            }
-        } else {
-            showAlert("Selección requerida", "Seleccione una compra para editar.");
+        if (sel == null) {
+            ToastNotification.warning(tablaFacturasCompra, "Selecciona una factura para editar");
+            return;
+        }
+        if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
+            ToastNotification.warning(tablaFacturasCompra, "No se puede editar una factura anulada");
+            return;
+        }
+        Object controllerObj = MainLayoutController.getInstance().loadView("/com/autollantas/gestion/purchases/views/PurchaseForm.fxml");
+        if (controllerObj instanceof PurchaseFormController) {
+            ((PurchaseFormController) controllerObj).setPurchaseForEditing(sel);
         }
     }
 
@@ -349,7 +351,7 @@ public class PurchaseInvoicesController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "No se pudo abrir el detalle: " + e.getMessage());
+            ToastNotification.error(tablaFacturasCompra, "No se pudo abrir el detalle de la factura");
         }
     }
 
@@ -463,16 +465,6 @@ public class PurchaseInvoicesController {
         };
         dpCreacionDesde.setConverter(c); dpCreacionHasta.setConverter(c);
         dpVencimientoDesde.setConverter(c); dpVencimientoHasta.setConverter(c);
-    }
-
-    private void showAlert(String title, String content) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Gestión de Compras");
-            alert.setHeaderText(title);
-            alert.setContentText(content);
-            alert.showAndWait();
-        });
     }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }

@@ -9,6 +9,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -79,6 +80,9 @@ public class PurchaseFormController {
     private ObservableList<Product> allProducts;
     private ObservableList<Account> allAccounts;
 
+    private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
+    private static final String STYLE_NORMAL = "-fx-border-color: transparent; -fx-border-width: 0;";
+
     private Purchase purchaseInEditing;
     private boolean editMode = false;
 
@@ -102,7 +106,11 @@ public class PurchaseFormController {
         setupSupplierSearch();
         setupDatesAndCombos();
 
-        detailRows.addListener((ListChangeListener<PurchaseDetailRow>) c -> recalculateTotals());
+        detailRows.addListener((ListChangeListener<PurchaseDetailRow>) c -> {
+            recalculateTotals();
+            if (detailRows.stream().anyMatch(r -> r.getProduct() != null)) tablaDetalles.setStyle(STYLE_NORMAL);
+        });
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> { if (nw != null) comboCuenta.setStyle(STYLE_NORMAL); });
 
         if (!editMode) addLine();
     }
@@ -330,12 +338,17 @@ public class PurchaseFormController {
 
     @FXML
     void btnGuardarClick(ActionEvent event) {
+        boolean valid = true;
         if (detailRows.isEmpty() || detailRows.stream().noneMatch(r -> r.getProduct() != null)) {
-            showAlert("Error", "Debe agregar al menos un producto válido.");
-            return;
+            tablaDetalles.setStyle(STYLE_ERROR);
+            valid = false;
         }
         if (comboCuenta.getValue() == null) {
-            showAlert("Error", "Debe seleccionar una Cuenta.");
+            comboCuenta.setStyle(STYLE_ERROR);
+            valid = false;
+        }
+        if (!valid) {
+            ToastNotification.warning(tablaDetalles, "Completa los campos resaltados");
             return;
         }
 
@@ -376,12 +389,18 @@ public class PurchaseFormController {
 
             purchasesService.savePurchaseWithDetails(purchase, details, editMode);
 
-            showAlert("Éxito", "Compra guardada correctamente.");
+            String numFactura = purchase.getInvoiceNumber();
+            boolean fueEdicion = editMode;
             navigateBack();
+            ToastNotification.success(
+                MainLayoutController.getInstance().getContentArea(),
+                fueEdicion ? "Factura " + numFactura + " actualizada correctamente"
+                           : "Factura " + numFactura + " registrada correctamente"
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error Crítico", "No se pudo guardar la compra: " + e.getMessage());
+            ToastNotification.error(tablaDetalles, "No se pudo guardar la compra");
         }
     }
 
@@ -400,16 +419,6 @@ public class PurchaseFormController {
 
     private void navigateBack() {
         MainLayoutController.getInstance().loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
-    }
-
-    private void showAlert(String title, String msg) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(msg);
-            alert.show();
-        });
     }
 
     private class QuantityCell extends TableCell<PurchaseDetailRow, Integer> {

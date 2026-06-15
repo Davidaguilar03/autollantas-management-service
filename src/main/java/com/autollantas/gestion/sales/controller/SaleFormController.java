@@ -10,6 +10,7 @@ import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -106,7 +107,12 @@ public class SaleFormController {
         setupCustomerSearch();
         setupDatesAndCombos();
 
-        detailRows.addListener((ListChangeListener<SaleDetailRow>) c -> recalculateTotals());
+        detailRows.addListener((ListChangeListener<SaleDetailRow>) c -> {
+            recalculateTotals();
+            if (detailRows.stream().anyMatch(r -> r.getProduct() != null)) limpiarError(tablaDetalles);
+        });
+
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> { if (nw != null) limpiarError(comboCuenta); });
 
         if (!editMode) {
             addLine();
@@ -325,7 +331,8 @@ public class SaleFormController {
             if (nuevoVal < 1) return;
 
             if (nuevoVal > row.getProduct().getQuantity()) {
-                showAlert("Stock Máximo", "Solo hay " + row.getProduct().getQuantity() + " unidades disponibles.");
+                ToastNotification.warning(tablaDetalles,
+                        "Solo hay " + row.getProduct().getQuantity() + " unidades disponibles de \"" + row.getProduct().getDescription() + "\"");
                 return;
             }
             row.setQuantity(nuevoVal);
@@ -343,7 +350,8 @@ public class SaleFormController {
                 int val = Integer.parseInt(tfCantidad.getText());
                 if (val < 1) val = 1;
                 if (row.getProduct() != null && val > row.getProduct().getQuantity()) {
-                    showAlert("Stock insuficiente", "Máximo disponible: " + row.getProduct().getQuantity());
+                    ToastNotification.warning(tablaDetalles,
+                            "Stock máximo disponible: " + row.getProduct().getQuantity() + " unidades");
                     val = row.getProduct().getQuantity();
                 }
                 row.setQuantity(val);
@@ -517,7 +525,7 @@ public class SaleFormController {
                 SaleDetailRow row = getTableRow().getItem();
                 if (row != null && row.getProduct() != p) {
                     if (p.getQuantity() < 1) {
-                        showAlert("Sin Stock", "Producto agotado.");
+                        ToastNotification.warning(tablaDetalles, "\"" + p.getDescription() + "\" no tiene stock disponible");
                         Platform.runLater(() -> comboBox.getSelectionModel().clearSelection());
                         return;
                     }
@@ -656,14 +664,33 @@ public class SaleFormController {
         tablaDetalles.scrollTo(detailRows.size() - 1);
     }
 
+    private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
+    private static final String STYLE_NORMAL = "-fx-border-color: transparent; -fx-border-width: 0;";
+
+    private void marcarError(javafx.scene.Node node) { node.setStyle(STYLE_ERROR); }
+    private void limpiarError(javafx.scene.Node node) { node.setStyle(STYLE_NORMAL); }
+
     @FXML
     void btnGuardarClick(ActionEvent event) {
-        if (detailRows.isEmpty() || detailRows.stream().noneMatch(r -> r.getProduct() != null)) {
-            showAlert("Error", "Debe agregar al menos un producto válido.");
-            return;
+        boolean valido = true;
+
+        boolean sinProductos = detailRows.isEmpty() || detailRows.stream().noneMatch(r -> r.getProduct() != null);
+        if (sinProductos) {
+            marcarError(tablaDetalles);
+            valido = false;
+        } else {
+            limpiarError(tablaDetalles);
         }
+
         if (comboCuenta.getValue() == null) {
-            showAlert("Error", "Debe seleccionar una Cuenta.");
+            marcarError(comboCuenta);
+            valido = false;
+        } else {
+            limpiarError(comboCuenta);
+        }
+
+        if (!valido) {
+            ToastNotification.warning(rootFormulario, "Completa los campos resaltados antes de guardar");
             return;
         }
 
@@ -710,12 +737,19 @@ public class SaleFormController {
 
             salesService.saveSaleWithDetails(sale, details, editMode);
 
-            showAlert("Éxito", "Venta guardada correctamente.");
+            String numFactura = sale.getInvoiceNumber();
+            boolean fueEdicion = editMode;
             navigateBack();
+            ToastNotification.success(
+                MainLayoutController.getInstance().getContentArea(),
+                fueEdicion
+                    ? "Factura " + numFactura + " actualizada correctamente"
+                    : "Factura " + numFactura + " registrada correctamente"
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error Crítico", "No se pudo guardar la venta: " + e.getMessage());
+            ToastNotification.error(rootFormulario, "No se pudo guardar la venta: " + e.getMessage());
         }
     }
 
@@ -740,15 +774,6 @@ public class SaleFormController {
         MainLayoutController.getInstance().loadView("/com/autollantas/gestion/sales/views/SaleInvoices.fxml");
     }
 
-    private void showAlert(String titulo, String msg) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(titulo);
-            alert.setHeaderText(null);
-            alert.setContentText(msg);
-            alert.show();
-        });
-    }
 }
 
 class SaleDetailRow {

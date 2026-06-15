@@ -3,6 +3,7 @@ package com.autollantas.gestion.sales.controller;
 import com.autollantas.gestion.sales.model.Sale;
 import com.autollantas.gestion.sales.service.SalesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -158,12 +159,12 @@ public class SaleInvoicesController {
         Sale seleccionada = tablaFacturas.getSelectionModel().getSelectedItem();
 
         if (seleccionada == null) {
-            showAlert("Ninguna selección", "Por favor selecciona una venta para editar.", Alert.AlertType.WARNING);
+            ToastNotification.warning(tablaFacturas, "Selecciona una factura para editar");
             return;
         }
 
         if ("ANULADA".equalsIgnoreCase(seleccionada.getStatus())) {
-            showAlert("Acción no permitida", "No se puede editar una factura que ya ha sido ANULADA.", Alert.AlertType.ERROR);
+            ToastNotification.error(tablaFacturas, "No se puede editar una factura anulada");
             return;
         }
 
@@ -175,39 +176,31 @@ public class SaleInvoicesController {
         }
     }
 
-    private void showAlert(String titulo, String contenido, Alert.AlertType tipo) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(contenido);
-        alert.showAndWait();
-    }
-
     @FXML
     void btnAnularClick(ActionEvent event) {
         Sale sel = tablaFacturas.getSelectionModel().getSelectedItem();
-        if (sel != null) {
-            if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
-                showAlert("Atención", "Esta factura ya se encuentra anulada.", Alert.AlertType.WARNING);
-                return;
-            }
+        if (sel == null) return;
 
-            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-            confirm.setTitle("Anular Venta");
-            confirm.setHeaderText("¿Desea anular la factura " + sel.getInvoiceNumber() + "?");
-            confirm.setContentText("Esta acción es irreversible y DEVOLVERÁ los productos al inventario.");
+        if ("ANULADA".equalsIgnoreCase(sel.getStatus())) {
+            ToastNotification.warning(tablaFacturas, "Esta factura ya se encuentra anulada");
+            return;
+        }
 
-            Optional<ButtonType> result = confirm.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                try {
-                    salesService.cancelSale(sel);
-                    tablaFacturas.refresh();
-                    applyFilters();
-                    showAlert("Éxito", "Venta anulada y stock devuelto correctamente.", Alert.AlertType.INFORMATION);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showAlert("Error", "No se pudo anular la venta.", Alert.AlertType.ERROR);
-                }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Anular Venta");
+        confirm.setHeaderText("¿Desea anular la factura " + sel.getInvoiceNumber() + "?");
+        confirm.setContentText("Esta acción es irreversible y DEVOLVERÁ los productos al inventario.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                salesService.cancelSale(sel);
+                tablaFacturas.refresh();
+                applyFilters();
+                ToastNotification.success(tablaFacturas, "Factura " + sel.getInvoiceNumber() + " anulada · stock devuelto al inventario");
+            } catch (Exception e) {
+                e.printStackTrace();
+                ToastNotification.error(tablaFacturas, "No se pudo anular la factura " + sel.getInvoiceNumber());
             }
         }
     }
@@ -250,7 +243,7 @@ public class SaleInvoicesController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "No se pudo abrir el detalle: " + e.getMessage(), Alert.AlertType.ERROR);
+            ToastNotification.error(tablaFacturas, "No se pudo abrir el detalle de la factura");
         }
     }
 

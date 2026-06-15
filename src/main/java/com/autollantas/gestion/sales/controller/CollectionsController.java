@@ -2,6 +2,8 @@ package com.autollantas.gestion.sales.controller;
 
 import com.autollantas.gestion.sales.model.Sale;
 import com.autollantas.gestion.sales.service.SalesService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
@@ -364,14 +366,16 @@ public class CollectionsController {
     @FXML
     void btnRegistrarPagoClick(ActionEvent event) {
         Sale seleccion = tablaFacturas.getSelectionModel().getSelectedItem();
-        if (seleccion == null) return;
-
+        if (seleccion == null) {
+            ToastNotification.warning(tablaFacturas, "Selecciona una factura para registrar el pago");
+            return;
+        }
         if ("PAGADA".equalsIgnoreCase(seleccion.getStatus())) {
-            showAlert("Información", "Esta factura ya está pagada.");
+            ToastNotification.warning(tablaFacturas, "Esta factura ya está completamente pagada");
             return;
         }
         if ("ANULADA".equalsIgnoreCase(seleccion.getStatus())) {
-            showAlert("Información", "No se puede registrar un pago para una factura anulada.");
+            ToastNotification.warning(tablaFacturas, "No se puede registrar un pago en una factura anulada");
             return;
         }
         openCollectionModal(seleccion);
@@ -405,11 +409,18 @@ public class CollectionsController {
 
             modalStage.showAndWait();
 
-            if (controller.isSaved()) loadDataFromDB();
+            if (controller.isSaved()) {
+                String numFactura = sale.getInvoiceNumber();
+                loadDataFromDB();
+                ToastNotification.success(
+                    MainLayoutController.getInstance().getContentArea(),
+                    "Pago registrado en factura " + numFactura + " correctamente"
+                );
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error Crítico", "No se pudo abrir el formulario de pago: " + e.getMessage());
+            ToastNotification.error(tablaFacturas, "No se pudo abrir el formulario de pago");
         }
     }
 
@@ -417,7 +428,7 @@ public class CollectionsController {
     void btnVerDetalleClick(ActionEvent event) {
         Sale seleccion = tablaFacturas.getSelectionModel().getSelectedItem();
         if (seleccion != null) openHistory(seleccion);
-        else showAlert("Atención", "Seleccione un registro para ver el historial.");
+        else ToastNotification.warning(tablaFacturas, "Selecciona una factura para ver el historial");
     }
 
     private void openHistory(Sale sale) {
@@ -450,7 +461,7 @@ public class CollectionsController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error al abrir Historial", "Detalle técnico: " + e.getMessage());
+            ToastNotification.error(tablaFacturas, "No se pudo abrir el historial de cobros");
         }
     }
 
@@ -463,11 +474,4 @@ public class CollectionsController {
         dpVencimientoDesde.setConverter(c); dpVencimientoHasta.setConverter(c);
     }
 
-    private void showAlert(String titulo, String contenido) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Gestión de Recaudos");
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
-    }
 }

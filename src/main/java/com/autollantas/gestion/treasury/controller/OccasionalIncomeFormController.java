@@ -3,6 +3,8 @@ package com.autollantas.gestion.treasury.controller;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
 import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -29,18 +31,26 @@ public class OccasionalIncomeFormController {
     @FXML private TextField txtMonto;
     @FXML private TextArea txtObservaciones;
 
+    private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
+    private static final String STYLE_NORMAL = "-fx-border-color: transparent; -fx-border-width: 0;";
+
     private boolean saved = false;
     private OccasionalIncome currentIncome;
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
 
     @FXML
     public void initialize() {
+        saved = false;
         currencyFormat.setMaximumFractionDigits(0);
         configureAccountCombo();
         configureAmountInput();
 
         this.currentIncome = new OccasionalIncome();
         dpFecha.setValue(LocalDate.now());
+
+        txtConcepto.textProperty().addListener((obs, old, nw) -> { if (nw != null && !nw.trim().isEmpty()) txtConcepto.setStyle(STYLE_NORMAL); });
+        txtMonto.textProperty().addListener((obs, old, nw) -> { if (nw != null && !nw.replaceAll("[^0-9]", "").isEmpty()) txtMonto.setStyle(STYLE_NORMAL); });
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> { if (nw != null) comboCuenta.setStyle(STYLE_NORMAL); });
 
         Platform.runLater(() -> txtConcepto.requestFocus());
     }
@@ -105,30 +115,29 @@ public class OccasionalIncomeFormController {
             cerrarVentana();
 
         } catch (Exception e) {
-            showAlert("Error", "Error al guardar: " + e.getMessage());
+            e.printStackTrace();
+            ToastNotification.error(txtConcepto, "Error al guardar el ingreso");
         }
     }
 
     private boolean validateFields() {
         boolean valid = true;
-        String errorStyle = "-fx-border-color: #e74c3c;";
-        String normalStyle = "";
 
-        txtConcepto.setStyle(normalStyle);
-        txtMonto.setStyle(normalStyle);
-        comboCuenta.setStyle(normalStyle);
+        txtConcepto.setStyle(STYLE_NORMAL);
+        txtMonto.setStyle(STYLE_NORMAL);
+        comboCuenta.setStyle(STYLE_NORMAL);
 
         if (txtConcepto.getText() == null || txtConcepto.getText().trim().isEmpty()) {
-            txtConcepto.setStyle(errorStyle); valid = false;
+            txtConcepto.setStyle(STYLE_ERROR); valid = false;
         }
-        if (txtMonto.getText() == null || txtMonto.getText().trim().isEmpty()) {
-            txtMonto.setStyle(errorStyle); valid = false;
+        if (txtMonto.getText() == null || txtMonto.getText().replaceAll("[^0-9]", "").isEmpty()) {
+            txtMonto.setStyle(STYLE_ERROR); valid = false;
         }
         if (comboCuenta.getValue() == null) {
-            comboCuenta.setStyle(errorStyle); valid = false;
+            comboCuenta.setStyle(STYLE_ERROR); valid = false;
         }
 
-        if (!valid) showAlert("Datos incompletos", "Verifique los campos obligatorios");
+        if (!valid) ToastNotification.warning(txtConcepto, "Completa los campos resaltados");
         return valid;
     }
 
@@ -148,10 +157,4 @@ public class OccasionalIncomeFormController {
 
     public boolean isSaved() { return saved; }
 
-    private void showAlert(String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.show();
-    }
 }

@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -266,13 +267,21 @@ public class StockAlertsController {
         actualizarKPIs();
         aplicarFiltros();
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Nuevos umbrales aplicados. El stock se ha re-evaluado.", ButtonType.OK);
-        alert.setHeaderText("Configuración Aplicada");
-        alert.show();
+        long criticos = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.CRITICAL).count();
+        long advertencias = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.WARNING).count();
+
+        if (criticos > 0 || advertencias > 0) {
+            ToastNotification.warning(tablaAlertas,
+                "Umbrales aplicados: " + criticos + " crítico(s), " + advertencias + " bajo(s)");
+        } else {
+            ToastNotification.success(tablaAlertas,
+                "Umbrales aplicados · todos los productos en estado normal");
+        }
     }
 
     @FXML void btnRefreshClick(ActionEvent event) {
         cargarDatosDB();
+        ToastNotification.success(tablaAlertas, "Datos de stock actualizados");
     }
 
     public enum AlertSeverity { CRITICAL, WARNING, OK }
