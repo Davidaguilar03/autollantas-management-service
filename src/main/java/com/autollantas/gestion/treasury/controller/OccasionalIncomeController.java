@@ -4,6 +4,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -29,7 +30,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 @SuppressWarnings("ALL")
 @Component
@@ -165,22 +165,23 @@ public class OccasionalIncomeController {
     @FXML
     void btnEliminarClick(ActionEvent event) {
         OccasionalIncome selected = tablaIngresos.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Eliminar Ingreso");
-            alert.setHeaderText("¿Está seguro de eliminar este registro?");
-            alert.setContentText("El dinero (" + currencyFormat.format(selected.getAmount()) +
-                    ") será descontado de " + selected.getAccount().getName());
+        if (selected == null) return;
 
-            Optional<ButtonType> res = alert.showAndWait();
-            if (res.isPresent() && res.get() == ButtonType.OK) {
+        CustomDialog.danger(
+            tablaIngresos,
+            "Eliminar ingreso ocasional",
+            "Estás a punto de eliminar el ingreso \"" + selected.getConcept() + "\" por " +
+            currencyFormat.format(selected.getAmount()) + ". Este monto será descontado de " +
+            selected.getAccount().getName() + ". Esta acción no se puede deshacer.",
+            () -> {
                 treasuryService.deleteOccasionalIncome(selected);
                 masterData.remove(selected);
                 updateRecordsLabel();
                 ToastNotification.success(tablaIngresos,
-                    "Ingreso \"" + selected.getConcept() + "\" eliminado");
-            }
-        }
+                    "Ingreso \"" + selected.getConcept() + "\" eliminado correctamente");
+            },
+            null
+        );
     }
 
     @FXML
@@ -191,11 +192,12 @@ public class OccasionalIncomeController {
     @FXML
     void btnEditarClick(ActionEvent event) {
         OccasionalIncome selected = tablaIngresos.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            openForm(selected);
-        } else {
+        if (selected == null) {
             ToastNotification.warning(tablaIngresos, "Selecciona un ingreso para editar");
+            return;
         }
+
+        openForm(selected);
     }
 
     public void openForm(OccasionalIncome income) {

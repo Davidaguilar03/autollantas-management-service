@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -42,6 +43,20 @@ public class CategoryFormController {
     @FXML
     public void guardar() {
         if (!validar()) return;
+
+        if (currentCategory != null) {
+            CustomDialog.confirm(txtNombre,
+                "Guardar cambios",
+                "Vas a modificar la categoría \"" + currentCategory.getName() + "\". "
+                    + "Los umbrales de stock y el nombre serán reemplazados. ¿Confirmas?",
+                this::doSave,
+                null);
+        } else {
+            doSave();
+        }
+    }
+
+    private void doSave() {
         try {
             String nombre = txtNombre.getText().trim();
             int amarillo = Integer.parseInt(txtStockAmarillo.getText().trim());

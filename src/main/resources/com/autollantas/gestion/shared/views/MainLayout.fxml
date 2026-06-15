@@ -156,7 +156,7 @@
 
             <Region VBox.vgrow="ALWAYS" />
 
-            <HBox alignment="CENTER">
+<HBox alignment="CENTER">
                <VBox.margin>
                   <Insets bottom="24.0" top="8.0" />
                </VBox.margin>

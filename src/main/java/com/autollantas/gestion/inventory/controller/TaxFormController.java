@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -52,6 +53,20 @@ public class TaxFormController {
     @FXML
     public void guardar() {
         if (!validar()) return;
+
+        if (currentTaxType.getId() != null) {
+            CustomDialog.confirm(txtName,
+                "Guardar cambios",
+                "Vas a modificar el impuesto \"" + currentTaxType.getName() + "\". "
+                    + "El cambio afectará todas las categorías que lo tengan asignado y sus precios podrían recalcularse. ¿Confirmas?",
+                this::doSave,
+                null);
+        } else {
+            doSave();
+        }
+    }
+
+    private void doSave() {
         try {
             currentTaxType.setName(txtName.getText().trim());
             currentTaxType.setRate(Double.parseDouble(txtRate.getText().trim().replace(",", ".")) / 100.0);

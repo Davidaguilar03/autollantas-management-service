@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -23,7 +24,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings("ALL")
 @Component
@@ -96,21 +96,21 @@ public class CategoryManagementController {
         ProductCategory sel = tableCategories.getSelectionModel().getSelectedItem();
         if (sel == null) return;
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Eliminar Categoría");
-        confirm.setHeaderText("¿Eliminar la categoría '" + sel.getName() + "'?");
-        confirm.setContentText("Esta acción no se puede deshacer.");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            boolean eliminado = inventoryService.deleteCategory(sel);
-            if (!eliminado) {
-                ToastNotification.warning(tableCategories, "No se puede eliminar: la categoría tiene productos asociados");
-            } else {
-                loadCategories();
-                ToastNotification.success(tableCategories, "Categoría \"" + sel.getName() + "\" eliminada");
-            }
-        }
+        CustomDialog.danger(tableCategories,
+            "Eliminar categoría",
+            "Vas a eliminar la categoría \"" + sel.getName() + "\". "
+                + "Si tiene productos asociados, la operación no podrá completarse. "
+                + "Esta acción no se puede deshacer.",
+            () -> {
+                boolean eliminado = inventoryService.deleteCategory(sel);
+                if (!eliminado) {
+                    ToastNotification.warning(tableCategories, "No se puede eliminar: la categoría tiene productos asociados");
+                } else {
+                    loadCategories();
+                    ToastNotification.success(tableCategories, "Categoría \"" + sel.getName() + "\" eliminada");
+                }
+            },
+            null);
     }
 
     private void abrirModalCategory(ProductCategory category) {

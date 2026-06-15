@@ -5,6 +5,7 @@ import com.autollantas.gestion.purchases.model.PurchaseDetail;
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -195,23 +196,25 @@ public class PurchaseInvoicesController {
             return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Anular Factura");
-        alert.setHeaderText("Va a anular la factura " + sel.getInvoiceNumber());
-        alert.setContentText("Esta acción revertirá los productos del inventario y cambiará su estado a ANULADA.");
-
-        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            try {
-                purchasesService.cancelPurchase(sel);
-                tablaFacturasCompra.refresh();
-                applyFilters();
-                ToastNotification.success(tablaFacturasCompra,
-                    "Factura " + sel.getInvoiceNumber() + " anulada · stock revertido al inventario");
-            } catch (Exception e) {
-                e.printStackTrace();
-                ToastNotification.error(tablaFacturasCompra, "No se pudo anular la factura");
-            }
-        }
+        CustomDialog.danger(tablaFacturasCompra,
+            "Anular factura " + sel.getInvoiceNumber(),
+            "Esta acción es irreversible. Se anulará la compra al proveedor "
+                + (sel.getSupplier() != null ? sel.getSupplier().getName() : "")
+                + " por " + currencyFormat.format(sel.getTotal())
+                + " y las unidades compradas serán descontadas del inventario automáticamente.",
+            () -> {
+                try {
+                    purchasesService.cancelPurchase(sel);
+                    tablaFacturasCompra.refresh();
+                    applyFilters();
+                    ToastNotification.success(tablaFacturasCompra,
+                        "Factura " + sel.getInvoiceNumber() + " anulada · stock revertido al inventario");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastNotification.error(tablaFacturasCompra, "No se pudo anular la factura");
+                }
+            },
+            null);
     }
 
     private void styleTextColumn(TableColumn<Purchase, String> col, Pos alignment) {

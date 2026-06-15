@@ -1,6 +1,7 @@
 package com.autollantas.gestion.treasury.controller;
 
 import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.service.TreasuryService;
@@ -92,49 +93,58 @@ public class TransferFormController {
 
     @FXML
     void guardarTransferencia(ActionEvent event) {
-        try {
-            Account source = comboOrigen.getValue();
+        Account source = comboOrigen.getValue();
 
-            if (source == null || destinationAccount == null) {
-                ToastNotification.warning(comboOrigen, "Selecciona la cuenta origen antes de continuar");
-                return;
-            }
-
-            String amountStr = txtMonto.getText().replaceAll("[^0-9]", "");
-
-            if (amountStr.isEmpty()) {
-                ToastNotification.warning(comboOrigen, "Ingresa un monto válido para la transferencia");
-                return;
-            }
-
-            Double amount = Double.parseDouble(amountStr);
-
-            if (amount <= 0) {
-                ToastNotification.warning(comboOrigen, "El monto debe ser mayor a cero");
-                return;
-            }
-
-            if (source.getCurrentBalance() < amount) {
-                ToastNotification.warning(comboOrigen,
-                        "Fondos insuficientes en " + source.getName());
-                return;
-            }
-
-            String concept = (txtConcepto.getText() != null && !txtConcepto.getText().isBlank())
-                    ? txtConcepto.getText().trim() : "Transferencia";
-            treasuryService.registerTransfer(source, destinationAccount, amount, LocalDate.now(), concept);
-
-            saved = true;
-            cerrarModal(event);
-            ToastNotification.success(
-                MainLayoutController.getInstance().getContentArea(),
-                "Transferencia de " + source.getName() + " a " + destinationAccount.getName() + " registrada"
-            );
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ToastNotification.error(comboOrigen, "Error al procesar la transferencia: " + e.getMessage());
+        if (source == null || destinationAccount == null) {
+            ToastNotification.warning(comboOrigen, "Selecciona la cuenta origen antes de continuar");
+            return;
         }
+
+        String amountStr = txtMonto.getText().replaceAll("[^0-9]", "");
+        if (amountStr.isEmpty()) {
+            ToastNotification.warning(comboOrigen, "Ingresa un monto válido para la transferencia");
+            return;
+        }
+
+        Double amount = Double.parseDouble(amountStr);
+
+        if (amount <= 0) {
+            ToastNotification.warning(comboOrigen, "El monto debe ser mayor a cero");
+            return;
+        }
+
+        if (source.getCurrentBalance() < amount) {
+            ToastNotification.warning(comboOrigen, "Fondos insuficientes en " + source.getName());
+            return;
+        }
+
+        String concept = (txtConcepto.getText() != null && !txtConcepto.getText().isBlank())
+                ? txtConcepto.getText().trim() : "Transferencia";
+
+        CustomDialog.confirm(
+            comboOrigen,
+            "Confirmar transferencia",
+            "Vas a transferir " + currencyFormat.format(amount) + " desde "
+                + source.getName() + " hacia " + destinationAccount.getName() + ". "
+                + "El saldo de " + source.getName() + " quedará en "
+                + currencyFormat.format(source.getCurrentBalance() - amount) + ". ¿Confirmas?",
+            () -> {
+                try {
+                    treasuryService.registerTransfer(source, destinationAccount, amount, LocalDate.now(), concept);
+                    saved = true;
+                    Stage stage = (Stage) comboOrigen.getScene().getWindow();
+                    stage.close();
+                    ToastNotification.success(
+                        MainLayoutController.getInstance().getContentArea(),
+                        "Transferencia de " + source.getName() + " a " + destinationAccount.getName() + " registrada"
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastNotification.error(comboOrigen, "Error al procesar la transferencia: " + e.getMessage());
+                }
+            },
+            null
+        );
     }
 
     @FXML

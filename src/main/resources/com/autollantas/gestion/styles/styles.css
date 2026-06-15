@@ -1897,3 +1897,162 @@
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
+
+/* ==========================================================================
+   CUSTOM DIALOG — overlay oscuro + tarjeta centrada sin barra de título
+   ========================================================================== */
+
+/* Fondo semitransparente que bloquea la UI */
+.dialog-overlay {
+    -fx-background-color: rgba(10, 18, 35, 0.62);
+    -fx-alignment: center;
+}
+
+/* Tarjeta principal */
+.dialog-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18px;
+    -fx-border-radius: 18px;
+    -fx-padding: 28px 32px 26px 32px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.28), 40, 0, 0, 8);
+    -fx-alignment: center;
+}
+
+/* Borde de acento superior (4 px, color varía por tipo) */
+.dialog-card-info {
+    -fx-border-color: #3b82f6;
+    -fx-border-width: 4px 0 0 0;
+    -fx-border-radius: 18px 18px 0 0;
+}
+.dialog-card-success {
+    -fx-border-color: #5cb98a;
+    -fx-border-width: 4px 0 0 0;
+    -fx-border-radius: 18px 18px 0 0;
+}
+.dialog-card-warning {
+    -fx-border-color: #f1b82c;
+    -fx-border-width: 4px 0 0 0;
+    -fx-border-radius: 18px 18px 0 0;
+}
+.dialog-card-danger {
+    -fx-border-color: #ef4444;
+    -fx-border-width: 4px 0 0 0;
+    -fx-border-radius: 18px 18px 0 0;
+}
+.dialog-card-confirm {
+    -fx-border-color: #6366f1;
+    -fx-border-width: 4px 0 0 0;
+    -fx-border-radius: 18px 18px 0 0;
+}
+
+/* Icono circular grande */
+.dialog-icon {
+    -fx-min-width: 48px;
+    -fx-min-height: 48px;
+    -fx-max-width: 48px;
+    -fx-max-height: 48px;
+    -fx-background-radius: 50px;
+    -fx-alignment: center;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.dialog-icon-info {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1d4ed8;
+}
+.dialog-icon-success {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #059669;
+}
+.dialog-icon-warning {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #b45309;
+}
+.dialog-icon-danger {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #dc2626;
+}
+.dialog-icon-confirm {
+    -fx-background-color: #ede9fe;
+    -fx-text-fill: #4f46e5;
+}
+
+/* Título */
+.dialog-title {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0d1b2a;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+/* Mensaje */
+.dialog-message {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-text-fill: #4b5563;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-line-spacing: 3px;
+}
+
+/* Botón cancelar */
+.dialog-btn-cancel {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-padding: 12px 30px;
+    -fx-cursor: hand;
+}
+.dialog-btn-cancel:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+/* Botón confirmar — base */
+.dialog-btn-confirm {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-padding: 12px 30px;
+    -fx-cursor: hand;
+}
+
+/* Variantes de color del botón confirmar */
+.dialog-btn-primary {
+    -fx-background-color: #3b82f6;
+}
+.dialog-btn-primary:hover {
+    -fx-background-color: #2563eb;
+}
+
+.dialog-btn-success {
+    -fx-background-color: #5cb98a;
+}
+.dialog-btn-success:hover {
+    -fx-background-color: #3da572;
+}
+
+.dialog-btn-warning {
+    -fx-background-color: #f1b82c;
+    -fx-text-fill: #3a2500;
+}
+.dialog-btn-warning:hover {
+    -fx-background-color: #d9a320;
+}
+
+.dialog-btn-danger {
+    -fx-background-color: #ef4444;
+}
+.dialog-btn-danger:hover {
+    -fx-background-color: #dc2626;
+}

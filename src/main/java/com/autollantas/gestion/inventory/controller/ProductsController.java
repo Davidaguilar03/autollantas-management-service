@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Component;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
@@ -442,22 +442,22 @@ public class ProductsController {
         Product p = tablaProductos.getSelectionModel().getSelectedItem();
         if (p == null) return;
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Eliminar producto");
-        confirm.setHeaderText("¿Eliminar producto de la base de datos?");
-        confirm.setContentText("Va a eliminar permanentemente: " + p.getDescription());
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            try {
-                inventoryService.deleteProduct(p);
-                masterData.remove(p);
-                actualizarInfoRegistros();
-                cargarCategoriasDesdeDatos();
-                ToastNotification.success(tablaProductos, "Producto \"" + p.getDescription() + "\" eliminado");
-            } catch (Exception e) {
-                ToastNotification.error(tablaProductos, "No se pudo eliminar el producto, puede estar en uso en ventas o compras");
-            }
-        }
+        CustomDialog.danger(tablaProductos,
+            "Eliminar producto",
+            "Vas a eliminar permanentemente \"" + p.getDescription() + "\" (código: " + p.getCode() + "). "
+                + "Si el producto está asociado a facturas de venta o compra, la operación no podrá completarse. "
+                + "Esta acción no se puede deshacer.",
+            () -> {
+                try {
+                    inventoryService.deleteProduct(p);
+                    masterData.remove(p);
+                    actualizarInfoRegistros();
+                    cargarCategoriasDesdeDatos();
+                    ToastNotification.success(tablaProductos, "Producto \"" + p.getDescription() + "\" eliminado");
+                } catch (Exception e) {
+                    ToastNotification.error(tablaProductos, "No se pudo eliminar el producto, puede estar en uso en ventas o compras");
+                }
+            },
+            null);
     }
 }

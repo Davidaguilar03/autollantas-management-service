@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 @SuppressWarnings("ALL")
 @Component
@@ -302,14 +302,14 @@ public class OperationalExpensesController {
     @FXML
     void btnEliminarClick(ActionEvent event) {
         OperationalExpense selected = tablaCostos.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmar Eliminación");
-            alert.setHeaderText("¿Eliminar gasto?");
-            alert.setContentText("Concepto: " + selected.getConcept() + "\nMonto: " + currencyFormat.format(selected.getAmount()));
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (selected == null) return;
+        CustomDialog.danger(tablaCostos,
+            "Eliminar gasto operativo",
+            "Estás a punto de eliminar el gasto \"" + selected.getConcept() + "\" por "
+                + currencyFormat.format(selected.getAmount()) + ". "
+                + "Este monto será descontado de " + (selected.getAccount() != null ? selected.getAccount().getName() : "la cuenta") + ". "
+                + "Esta acción no se puede deshacer.",
+            () -> {
                 try {
                     treasuryService.deleteOperationalExpense(selected);
                     masterData.remove(selected);
@@ -320,8 +320,8 @@ public class OperationalExpensesController {
                     e.printStackTrace();
                     ToastNotification.error(tablaCostos, "No se pudo eliminar el gasto");
                 }
-            }
-        }
+            },
+            null);
     }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
