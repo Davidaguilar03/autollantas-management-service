@@ -1,5 +1,6 @@
 package com.autollantas.gestion.treasury.controller;
 
+import com.autollantas.gestion.shared.util.ToastNotification;
 import com.autollantas.gestion.treasury.dto.MovementDTO;
 import com.autollantas.gestion.treasury.dto.TransferDTO;
 import com.autollantas.gestion.treasury.model.Account;
@@ -300,6 +301,7 @@ public class AccountsController {
     }
 
     @FXML void aplicarFiltrosCaja(ActionEvent e) {
+        if (!validarRangoPersonalizado(comboPeriodoCaja, datesDesdeCaja.getValue(), datesHastaCaja.getValue(), "Caja")) return;
         refrescarCaja();
     }
 
@@ -314,6 +316,7 @@ public class AccountsController {
     }
 
     @FXML void aplicarFiltrosBanco(ActionEvent e) {
+        if (!validarRangoPersonalizado(comboPeriodoBanco, datesDesdeBanco.getValue(), datesHastaBanco.getValue(), "Banco")) return;
         refrescarBanco();
     }
 
@@ -328,7 +331,21 @@ public class AccountsController {
     }
 
     @FXML void aplicarFiltrosTrans(ActionEvent e) {
+        if (!validarRangoPersonalizado(comboPeriodoTrans, datesDesdeTrans.getValue(), datesHastaTrans.getValue(), "Transferencias")) return;
         refrescarTrans();
+    }
+
+    private boolean validarRangoPersonalizado(ComboBox<String> combo, LocalDate desde, LocalDate hasta, String seccion) {
+        if (!PERSONALIZADO.equals(combo.getValue())) return true;
+        if (desde == null || hasta == null) {
+            ToastNotification.warning(combo, "Selecciona ambas fechas para filtrar " + seccion);
+            return false;
+        }
+        if (desde.isAfter(hasta)) {
+            ToastNotification.warning(combo, "La fecha de inicio no puede ser posterior a la fecha final");
+            return false;
+        }
+        return true;
     }
 
     // ── Modal transferencia ────────────────────────────────────────────────
@@ -356,11 +373,14 @@ public class AccountsController {
             modalStage.setHeight(mainWindow.getHeight());
             modalStage.showAndWait();
 
-            if (controller.isSaved()) loadDatabaseData();
+            if (controller.isSaved()) {
+                loadDatabaseData();
+                ToastNotification.success(lblTotalGlobal, "Transferencia registrada correctamente");
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "No se pudo abrir el formulario: " + ex.getMessage()).show();
+            ToastNotification.error(lblTotalGlobal, "No se pudo abrir el formulario de transferencia");
         }
     }
 
