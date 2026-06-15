@@ -3,6 +3,7 @@ package com.autollantas.gestion.shared.util;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
+import javafx.animation.ParallelTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -21,110 +22,81 @@ import javafx.scene.shape.StrokeType;
 import javafx.util.Duration;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 public class ToastNotification {
 
     public enum Type { SUCCESS, ERROR, WARNING }
 
-    private static final double TOAST_WIDTH   = 360;
-    private static final double MARGIN_RIGHT  = 20;
-    private static final double MARGIN_TOP    = 16;
-    private static final double SLOT_HEIGHT   = 72;
-    private static final double GAP           = 10;
-    private static final int    MAX_VISIBLE   = 3;
+    private static final double TOAST_WIDTH  = 360;
+    private static final double MARGIN_RIGHT = 20;
+    private static final double MARGIN_TOP   = 16;
+    private static final double SLOT_HEIGHT  = 72;
+    private static final double GAP          = 10;
+    private static final int    MAX_VISIBLE  = 3;
 
     private static final double BORDER_RADIUS = 10;
     private static final double BORDER_WIDTH  = 3;
 
-    private static final Duration SLIDE_IN   = Duration.millis(320);
-    private static final Duration VISIBLE    = Duration.millis(4700);
-    private static final Duration FADE_OUT   = Duration.millis(350);
-    private static final Duration SHIFT_UP   = Duration.millis(250);
+    private static final Duration SLIDE_IN  = Duration.millis(320);
+    private static final Duration VISIBLE   = Duration.millis(4700);
+    private static final Duration FADE_OUT  = Duration.millis(350);
+    private static final Duration SHIFT_DUR = Duration.millis(220);
 
-    // slots[i] == null → libre. El índice es el slot lógico, no la posición Y.
-    private static final Group[]             slots        = new Group[MAX_VISIBLE];
-    private static final Queue<PendingToast> pendingQueue = new ArrayDeque<>();
+    // Lista ordenada de toasts visibles (índice 0 = arriba)
+    private static final List<Group>           active       = new ArrayList<>();
+    private static final Queue<PendingToast>   pendingQueue = new ArrayDeque<>();
 
     private record PendingToast(Node node, Type type, String message) {}
 
     public static void success(Node anyNode, String message) { show(anyNode, Type.SUCCESS, message); }
     public static void error  (Node anyNode, String message) { show(anyNode, Type.ERROR,   message); }
-    public static void warning(Node anyNode, String message) { show(anyNode, Type.WARNING,  message); }
+    public static void warning(Node anyNode, String message) { show(anyNode, Type.WARNING, message); }
 
     public static void success(StackPane root, String message) { show(root, Type.SUCCESS, message); }
     public static void error  (StackPane root, String message) { show(root, Type.ERROR,   message); }
-    public static void warning(StackPane root, String message) { show(root, Type.WARNING,  message); }
+    public static void warning(StackPane root, String message) { show(root, Type.WARNING, message); }
 
     public static void show(Node anyNode, Type type, String message) {
         Platform.runLater(() -> {
-            int slot = firstFreeSlot();
-            if (slot == -1) {
+            if (active.size() >= MAX_VISIBLE) {
                 pendingQueue.add(new PendingToast(anyNode, type, message));
                 return;
             }
-            display(anyNode, type, message, slot);
+            display(anyNode, type, message);
         });
     }
 
-    private static int firstFreeSlot() {
-        for (int i = 0; i < MAX_VISIBLE; i++) {
-            if (slots[i] == null) return i;
-        }
-        return -1;
-    }
-
-    private static int lastFreeSlot() {
-        for (int i = MAX_VISIBLE - 1; i >= 0; i--) {
-            if (slots[i] == null) return i;
-        }
-        return -1;
-    }
-
-    // Y ideal de un slot = número de slots ocupados con índice < slot
-    private static double computeY(int slot) {
-        int position = 0;
-        for (int i = 0; i < slot; i++) {
-            if (slots[i] != null) position++;
-        }
+    private static double targetY(int position) {
         return MARGIN_TOP + position * (SLOT_HEIGHT + GAP);
     }
 
-    // Anima todos los slots activos hacia su Y ideal y llama onDone cuando todos terminan
-    private static void repackSlots(Runnable onDone) {
-        int moving = 0;
-        for (int i = 0; i < MAX_VISIBLE; i++) {
-            if (slots[i] == null) continue;
-            double targetY = computeY(i);
-            Group g = slots[i];
-            if (Math.abs(g.getLayoutY() - targetY) < 1) continue;
-            moving++;
+    // Anima todos los toasts activos a su posición correcta según su índice actual
+    private static void repack(Runnable onDone) {
+        List<Timeline> shifts = new ArrayList<>();
+        for (int i = 0; i < active.size(); i++) {
+            Group g = active.get(i);
+            double target = targetY(i);
+            if (Math.abs(g.getLayoutY() - target) > 0.5) {
+                Timeline t = new Timeline(
+                    new KeyFrame(Duration.ZERO, new KeyValue(g.layoutYProperty(), g.getLayoutY())),
+                    new KeyFrame(SHIFT_DUR,     new KeyValue(g.layoutYProperty(), target))
+                );
+                shifts.add(t);
+            }
         }
-
-        if (moving == 0) {
+        if (shifts.isEmpty()) {
             if (onDone != null) onDone.run();
             return;
         }
-
-        int[] remaining = { moving };
-        for (int i = 0; i < MAX_VISIBLE; i++) {
-            if (slots[i] == null) continue;
-            double targetY = computeY(i);
-            Group g = slots[i];
-            if (Math.abs(g.getLayoutY() - targetY) < 1) continue;
-            Timeline shift = new Timeline(
-                new KeyFrame(Duration.ZERO,  new KeyValue(g.layoutYProperty(), g.getLayoutY())),
-                new KeyFrame(SHIFT_UP,       new KeyValue(g.layoutYProperty(), targetY))
-            );
-            shift.setOnFinished(e -> {
-                remaining[0]--;
-                if (remaining[0] == 0 && onDone != null) onDone.run();
-            });
-            shift.play();
-        }
+        ParallelTransition pt = new ParallelTransition(shifts.toArray(new Timeline[0]));
+        pt.setOnFinished(e -> { if (onDone != null) onDone.run(); });
+        pt.play();
     }
 
-    private static void display(Node anyNode, Type type, String message, int slot) {
+    private static void display(Node anyNode, Type type, String message) {
         Scene scene = anyNode.getScene();
         if (scene == null) return;
 
@@ -149,14 +121,16 @@ public class ToastNotification {
         Group group = new Group(content, border);
         group.setOpacity(0);
 
-        double posY   = computeY(slot);
+        // Entra siempre en la posición más baja disponible
+        int position = active.size();
+        double posY  = targetY(position);
         double startX = scene.getWidth();
         double endX   = scene.getWidth() - TOAST_WIDTH - MARGIN_RIGHT;
 
         group.setLayoutX(startX);
         group.setLayoutY(posY);
 
-        slots[slot] = group;
+        active.add(group);
         overlay.getChildren().add(group);
 
         Timeline slideIn = new Timeline(
@@ -186,8 +160,8 @@ public class ToastNotification {
             border.setStrokeDashOffset(perim);
 
             Timeline borderFill = new Timeline(
-                new KeyFrame(Duration.ZERO,  new KeyValue(border.strokeDashOffsetProperty(), perim)),
-                new KeyFrame(VISIBLE,        new KeyValue(border.strokeDashOffsetProperty(), 0))
+                new KeyFrame(Duration.ZERO, new KeyValue(border.strokeDashOffsetProperty(), perim)),
+                new KeyFrame(VISIBLE,       new KeyValue(border.strokeDashOffsetProperty(), 0))
             );
 
             FadeTransition fadeOut = new FadeTransition(FADE_OUT, group);
@@ -197,13 +171,11 @@ public class ToastNotification {
             SequentialTransition seq = new SequentialTransition(borderFill, fadeOut);
             seq.setOnFinished(ev -> {
                 overlay.getChildren().remove(group);
-                slots[slot] = null;
-                PendingToast next = pendingQueue.poll();
-                repackSlots(() -> {
-                    if (next != null) {
-                        int freeSlot = lastFreeSlot();
-                        if (freeSlot != -1) display(next.node(), next.type(), next.message(), freeSlot);
-                    }
+                active.remove(group);
+                // Repack y luego mostrar el siguiente encolado si hay espacio
+                repack(() -> {
+                    PendingToast next = pendingQueue.poll();
+                    if (next != null) display(next.node(), next.type(), next.message());
                 });
             });
             seq.play();
