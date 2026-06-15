@@ -4,6 +4,7 @@ import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -42,6 +43,7 @@ public class ProductFormController {
 
     @FXML
     public void initialize() {
+        guardado = false;
         currencyFormat.setMaximumFractionDigits(0);
         spinnerStock.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
 
@@ -160,10 +162,10 @@ public class ProductFormController {
             cerrarVentana();
 
         } catch (NumberFormatException e) {
-            mostrarAlerta("Error numérico", "Revisa que los valores numéricos sean válidos.");
+            ToastNotification.warning(txtPurchaseCost, "Revisa que los valores numéricos sean válidos");
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error técnico", "No se pudo guardar: " + e.getMessage());
+            ToastNotification.error(txtCodigo, "No se pudo guardar el producto: " + e.getMessage());
         }
     }
 
@@ -190,7 +192,7 @@ public class ProductFormController {
             txtPurchaseCost.setStyle(errorStyle); valido = false;
         }
 
-        if (!valido) mostrarAlerta("Datos Incompletos", "Por favor completa los campos resaltados en rojo.");
+        if (!valido) ToastNotification.warning(txtCodigo, "Completa los campos resaltados en rojo antes de continuar");
         return valido;
     }
 
@@ -229,10 +231,4 @@ public class ProductFormController {
         return guardado;
     }
 
-    private void mostrarAlerta(String titulo, String contenido) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.show();
-    }
 }

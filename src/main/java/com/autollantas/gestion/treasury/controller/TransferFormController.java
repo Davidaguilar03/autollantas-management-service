@@ -1,12 +1,13 @@
 package com.autollantas.gestion.treasury.controller;
 
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -95,26 +96,27 @@ public class TransferFormController {
             Account source = comboOrigen.getValue();
 
             if (source == null || destinationAccount == null) {
-                showAlert("Error", "Seleccione la cuenta origen.");
+                ToastNotification.warning(comboOrigen, "Selecciona la cuenta origen antes de continuar");
                 return;
             }
 
             String amountStr = txtMonto.getText().replaceAll("[^0-9]", "");
 
             if (amountStr.isEmpty()) {
-                showAlert("Error", "Ingrese un monto válido.");
+                ToastNotification.warning(comboOrigen, "Ingresa un monto válido para la transferencia");
                 return;
             }
 
             Double amount = Double.parseDouble(amountStr);
 
             if (amount <= 0) {
-                showAlert("Error", "El monto debe ser mayor a cero.");
+                ToastNotification.warning(comboOrigen, "El monto debe ser mayor a cero");
                 return;
             }
 
             if (source.getCurrentBalance() < amount) {
-                showAlert("Fondos insuficientes", "La cuenta " + source.getName() + " no tiene saldo suficiente.");
+                ToastNotification.warning(comboOrigen,
+                        "Fondos insuficientes en " + source.getName());
                 return;
             }
 
@@ -124,10 +126,14 @@ public class TransferFormController {
 
             saved = true;
             cerrarModal(event);
+            ToastNotification.success(
+                MainLayoutController.getInstance().getContentArea(),
+                "Transferencia de " + source.getName() + " a " + destinationAccount.getName() + " registrada"
+            );
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "Error al procesar transferencia: " + e.getMessage());
+            ToastNotification.error(comboOrigen, "Error al procesar la transferencia: " + e.getMessage());
         }
     }
 
@@ -136,14 +142,6 @@ public class TransferFormController {
         Node source = (Node) event.getSource();
         Stage stage = (Stage) source.getScene().getWindow();
         stage.close();
-    }
-
-    private void showAlert(String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(header);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 
     public boolean isSaved() {

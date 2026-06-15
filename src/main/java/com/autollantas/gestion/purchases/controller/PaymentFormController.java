@@ -4,6 +4,8 @@ import com.autollantas.gestion.purchases.model.Purchase;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +13,6 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,19 +36,27 @@ public class PaymentFormController {
     @FXML private TextField txtValor;
     @FXML private Button btnGuardar;
 
+    private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
+    private static final String STYLE_NORMAL = "-fx-border-color: transparent; -fx-border-width: 0;";
+
     private Purchase currentPurchase;
-    @Getter private boolean saved = false;
+    private boolean saved = false;
 
     private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("es", "CO"));
     private final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(new Locale("es", "CO"));
 
     @FXML
     public void initialize() {
+        saved = false;
         currencyFormat.setMaximumFractionDigits(0);
         currencyFormat.setMinimumFractionDigits(0);
         dpFechaPago.setValue(LocalDate.now());
         loadCombos();
         setupCurrencyInput();
+
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> { if (nw != null) comboCuenta.setStyle(STYLE_NORMAL); });
+        comboMetodoPago.valueProperty().addListener((obs, old, nw) -> { if (nw != null) comboMetodoPago.setStyle(STYLE_NORMAL); });
+        txtValor.textProperty().addListener((obs, old, nw) -> { if (getNumericValue() > 0) txtValor.setStyle(STYLE_NORMAL); });
     }
 
     private void loadCombos() {
@@ -116,7 +125,9 @@ public class PaymentFormController {
             String method = comboMetodoPago.getValue();
 
             if (account.getCurrentBalance() < amount) {
-                showAlert("Fondos Insuficientes", "La cuenta no tiene saldo suficiente para este pago.");
+                comboCuenta.setStyle(STYLE_ERROR);
+                ToastNotification.warning(txtValor,
+                    "La cuenta no tiene saldo suficiente para este pago");
                 return;
             }
 
@@ -125,37 +136,33 @@ public class PaymentFormController {
                     : currentPurchase.getTotal();
 
             if (amount > (currentDebt + 1.0)) {
-                showAlert("Monto Excedido", "El pago supera la deuda actual (" + currencyFormat.format(currentDebt) + ").");
+                txtValor.setStyle(STYLE_ERROR);
+                ToastNotification.warning(txtValor,
+                    "El pago supera la deuda actual (" + currencyFormat.format(currentDebt) + ")");
                 return;
             }
 
             purchasesService.registerPayment(currentPurchase, account, date, method, amount);
 
-            double newBalance = currentDebt - amount;
-            if (newBalance < 0) newBalance = 0.0;
-
             saved = true;
-            showSuccessAlert("¡Pago Registrado!",
-                    "Egreso guardado correctamente.\nNuevo saldo deuda: " + currencyFormat.format(newBalance));
             closeModal();
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Error", "No se pudo registrar: " + e.getMessage());
+            ToastNotification.error(txtValor, "No se pudo registrar el pago");
         }
     }
 
     private boolean validateForm() {
-        if (comboCuenta.getValue() == null || comboMetodoPago.getValue() == null) {
-            showAlert("Datos incompletos", "Seleccione cuenta y método de pago.");
-            return false;
-        }
-        if (getNumericValue() <= 0) {
-            showAlert("Valor inválido", "El monto debe ser mayor a 0.");
-            return false;
-        }
-        return true;
+        boolean valid = true;
+        if (comboCuenta.getValue() == null) { comboCuenta.setStyle(STYLE_ERROR); valid = false; }
+        if (comboMetodoPago.getValue() == null) { comboMetodoPago.setStyle(STYLE_ERROR); valid = false; }
+        if (getNumericValue() <= 0) { txtValor.setStyle(STYLE_ERROR); valid = false; }
+        if (!valid) ToastNotification.warning(txtValor, "Completa los campos resaltados");
+        return valid;
     }
+
+    public boolean isSaved() { return saved; }
 
     @FXML void btnCancelarClick(ActionEvent event) { closeModal(); }
 
@@ -164,31 +171,4 @@ public class PaymentFormController {
         if (stage != null) stage.close();
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    private void showSuccessAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Gestión de Pagos");
-        alert.setHeaderText(title);
-        alert.setContentText(content);
-        alert.initStyle(StageStyle.UTILITY);
-        DialogPane dialogPane = alert.getDialogPane();
-        dialogPane.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #c0392b; -fx-border-width: 2px;");
-
-        dialogPane.lookup(".header-panel").setStyle("-fx-background-color: #c0392b; -fx-padding: 15px;");
-        javafx.scene.Node headerText = dialogPane.lookup(".header-panel .label");
-        if (headerText != null) headerText.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;");
-
-        Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-        okButton.setText("Aceptar");
-        okButton.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8px 20px; -fx-cursor: hand;");
-        alert.setGraphic(null);
-        alert.showAndWait();
-    }
 }

@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -104,10 +105,10 @@ public class CategoryManagementController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             boolean eliminado = inventoryService.deleteCategory(sel);
             if (!eliminado) {
-                mostrarAlerta(Alert.AlertType.WARNING, "No se puede eliminar",
-                        "La categoría tiene productos asociados.");
+                ToastNotification.warning(tableCategories, "No se puede eliminar: la categoría tiene productos asociados");
             } else {
                 loadCategories();
+                ToastNotification.success(tableCategories, "Categoría \"" + sel.getName() + "\" eliminada");
             }
         }
     }
@@ -120,7 +121,8 @@ public class CategoryManagementController {
             Parent root = loader.load();
 
             CategoryFormController controller = loader.getController();
-            if (category != null) controller.setCategory(category);
+            boolean esEdicion = category != null;
+            if (esEdicion) controller.setCategory(category);
 
             Stage modalStage = new Stage();
             modalStage.initStyle(StageStyle.TRANSPARENT);
@@ -142,9 +144,15 @@ public class CategoryManagementController {
 
             if (controller.isGuardado()) {
                 loadCategories();
+                if (esEdicion) {
+                    ToastNotification.success(tableCategories, "Categoría \"" + category.getName() + "\" actualizada");
+                } else {
+                    ToastNotification.success(tableCategories, "Categoría creada correctamente");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            ToastNotification.error(tableCategories, "No se pudo abrir el formulario de categoría");
         }
     }
 
@@ -153,13 +161,5 @@ public class CategoryManagementController {
         if (tableCategories.getScene() != null) {
             ((Stage) tableCategories.getScene().getWindow()).close();
         }
-    }
-
-    private void mostrarAlerta(Alert.AlertType type, String titulo, String contenido) {
-        Alert alert = new Alert(type);
-        alert.setTitle("Gestión de Categorías");
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
     }
 }

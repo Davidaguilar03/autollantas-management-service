@@ -9,6 +9,7 @@ import com.autollantas.gestion.treasury.controller.OperationalExpensesController
 import com.autollantas.gestion.treasury.controller.OccasionalIncomeController;
 import com.autollantas.gestion.treasury.model.OperationalExpense;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -240,7 +241,19 @@ public class DashboardController {
 
         // En modo Personalizado la carga se dispara solo con el botón Aplicar
         if (btnAplicarFechas != null) {
-            btnAplicarFechas.setOnAction(e -> loadData());
+            btnAplicarFechas.setOnAction(e -> {
+                LocalDate desde = dateDesde.getValue();
+                LocalDate hasta = dateHasta.getValue();
+                if (desde == null || hasta == null) {
+                    ToastNotification.warning(btnAplicarFechas, "Selecciona ambas fechas antes de filtrar");
+                    return;
+                }
+                if (desde.isAfter(hasta)) {
+                    ToastNotification.warning(btnAplicarFechas, "La fecha de inicio no puede ser posterior a la fecha final");
+                    return;
+                }
+                loadData();
+            });
         }
     }
 
@@ -361,13 +374,9 @@ public class DashboardController {
     }
 
     private void showError(String message, Throwable cause) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(message);
-            alert.setContentText(cause != null ? cause.getMessage() : "Error desconocido");
-            alert.show();
-        });
+        Platform.runLater(() ->
+            ToastNotification.error(tablaMovimientos, message)
+        );
     }
 
     private void configureColumns() {
@@ -523,7 +532,7 @@ public class DashboardController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("No se pudo cargar el módulo de reportes", e);
+            ToastNotification.error(tablaMovimientos, "No se pudo abrir el módulo de reportes");
         }
     }
 }

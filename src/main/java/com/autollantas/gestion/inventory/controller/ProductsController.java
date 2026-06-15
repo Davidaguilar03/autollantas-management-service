@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -330,69 +331,20 @@ public class ProductsController {
 
 
     @FXML void btnUtilidadesClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/autollantas/gestion/inventory/views/CategoryMargins.fxml"));
-            loader.setControllerFactory(param -> springContext.getBean(param));
-            Parent root = loader.load();
-
-            Stage modalStage = new Stage();
-            modalStage.initStyle(StageStyle.TRANSPARENT);
-            modalStage.initModality(Modality.APPLICATION_MODAL);
-
-            Stage ventanaPrincipal = (Stage) tablaProductos.getScene().getWindow();
-            modalStage.initOwner(ventanaPrincipal);
-
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            modalStage.setScene(scene);
-
-            modalStage.setX(ventanaPrincipal.getX());
-            modalStage.setY(ventanaPrincipal.getY());
-            modalStage.setWidth(ventanaPrincipal.getWidth());
-            modalStage.setHeight(ventanaPrincipal.getHeight());
-
-            modalStage.showAndWait();
-            cargarDatosDB();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirModalConfiguracion("/com/autollantas/gestion/inventory/views/CategoryMargins.fxml", "utilidades");
     }
 
     @FXML void btnCategoriasClick(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/autollantas/gestion/inventory/views/CategoryManagement.fxml"));
-            loader.setControllerFactory(param -> springContext.getBean(param));
-            Parent root = loader.load();
-
-            Stage modalStage = new Stage();
-            modalStage.initStyle(StageStyle.TRANSPARENT);
-            modalStage.initModality(Modality.APPLICATION_MODAL);
-
-            Stage ventanaPrincipal = (Stage) tablaProductos.getScene().getWindow();
-            modalStage.initOwner(ventanaPrincipal);
-
-            Scene scene = new Scene(root);
-            scene.setFill(Color.TRANSPARENT);
-            modalStage.setScene(scene);
-
-            modalStage.setX(ventanaPrincipal.getX());
-            modalStage.setY(ventanaPrincipal.getY());
-            modalStage.setWidth(ventanaPrincipal.getWidth());
-            modalStage.setHeight(ventanaPrincipal.getHeight());
-
-            modalStage.showAndWait();
-            cargarDatosDB();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirModalConfiguracion("/com/autollantas/gestion/inventory/views/CategoryManagement.fxml", "categorías");
     }
 
     @FXML void btnImpuestosClick(ActionEvent event) {
+        abrirModalConfiguracion("/com/autollantas/gestion/inventory/views/TaxManagement.fxml", "impuestos");
+    }
+
+    private void abrirModalConfiguracion(String fxmlPath, String nombre) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/com/autollantas/gestion/inventory/views/TaxManagement.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             loader.setControllerFactory(param -> springContext.getBean(param));
             Parent root = loader.load();
 
@@ -416,6 +368,7 @@ public class ProductsController {
             cargarDatosDB();
         } catch (Exception e) {
             e.printStackTrace();
+            ToastNotification.error(tablaProductos, "No se pudo abrir el módulo de " + nombre);
         }
     }
 
@@ -436,10 +389,10 @@ public class ProductsController {
             Parent root = loader.load();
 
             ProductFormController controller = loader.getController();
-            if (producto != null) controller.setProduct(producto);
+            boolean esEdicion = producto != null;
+            if (esEdicion) controller.setProduct(producto);
 
             Stage modalStage = new Stage();
-
             modalStage.initStyle(StageStyle.TRANSPARENT);
             modalStage.initModality(Modality.APPLICATION_MODAL);
 
@@ -459,11 +412,16 @@ public class ProductsController {
 
             if (controller.isGuardado()) {
                 cargarDatosDB();
-                if (producto != null) tablaProductos.getSelectionModel().select(producto);
+                if (esEdicion) {
+                    ToastNotification.success(tablaProductos, "Producto \"" + producto.getDescription() + "\" actualizado");
+                } else {
+                    ToastNotification.success(tablaProductos, "Producto creado correctamente");
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+            ToastNotification.error(tablaProductos, "No se pudo abrir el formulario de producto");
         }
     }
 
@@ -477,38 +435,29 @@ public class ProductsController {
         Product seleccion = tablaProductos.getSelectionModel().getSelectedItem();
         if (seleccion != null) {
             abrirModalProduct(seleccion, "Editar Product: " + seleccion.getDescription());
-        } else {
-            mostrarAlerta(Alert.AlertType.WARNING, "Atención", "Selecciona un producto para editar.");
         }
     }
 
     @FXML void btnEliminarClick(ActionEvent event) {
         Product p = tablaProductos.getSelectionModel().getSelectedItem();
-        if (p != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Eliminar");
-            alert.setHeaderText("¿Eliminar producto de la base de datos?");
-            alert.setContentText("Va a eliminar permanentemente: " + p.getDescription());
+        if (p == null) return;
 
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                try {
-                    inventoryService.deleteProduct(p);
-                    masterData.remove(p);
-                    actualizarInfoRegistros();
-                    cargarCategoriasDesdeDatos();
-                } catch (Exception e) {
-                    mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo eliminar el producto. Puede estar en uso en ventas o compras.");
-                }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Eliminar producto");
+        confirm.setHeaderText("¿Eliminar producto de la base de datos?");
+        confirm.setContentText("Va a eliminar permanentemente: " + p.getDescription());
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                inventoryService.deleteProduct(p);
+                masterData.remove(p);
+                actualizarInfoRegistros();
+                cargarCategoriasDesdeDatos();
+                ToastNotification.success(tablaProductos, "Producto \"" + p.getDescription() + "\" eliminado");
+            } catch (Exception e) {
+                ToastNotification.error(tablaProductos, "No se pudo eliminar el producto, puede estar en uso en ventas o compras");
             }
         }
-    }
-
-    private void mostrarAlerta(Alert.AlertType type, String titulo, String contenido) {
-        Alert alert = new Alert(type);
-        alert.setTitle("Gestión de Inventario");
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
     }
 }

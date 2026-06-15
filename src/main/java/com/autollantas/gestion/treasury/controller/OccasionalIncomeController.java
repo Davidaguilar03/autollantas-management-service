@@ -3,6 +3,8 @@ package com.autollantas.gestion.treasury.controller;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.OccasionalIncome;
 import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -175,6 +177,8 @@ public class OccasionalIncomeController {
                 treasuryService.deleteOccasionalIncome(selected);
                 masterData.remove(selected);
                 updateRecordsLabel();
+                ToastNotification.success(tablaIngresos,
+                    "Ingreso \"" + selected.getConcept() + "\" eliminado");
             }
         }
     }
@@ -190,10 +194,7 @@ public class OccasionalIncomeController {
         if (selected != null) {
             openForm(selected);
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText("Selección requerida");
-            alert.setContentText("Selecciona un ingreso para editar.");
-            alert.show();
+            ToastNotification.warning(tablaIngresos, "Selecciona un ingreso para editar");
         }
     }
 
@@ -205,6 +206,7 @@ public class OccasionalIncomeController {
             javafx.scene.Parent root = loader.load();
 
             OccasionalIncomeFormController controller = loader.getController();
+            boolean esEdicion = (income.getId() != null);
             controller.setIncome(income);
 
             Stage modalStage = new Stage();
@@ -227,20 +229,20 @@ public class OccasionalIncomeController {
 
             if (controller.isSaved()) {
                 loadDatabaseData();
-                if (income.getId() != null) {
-                    tablaIngresos.getSelectionModel().select(income);
+                if (esEdicion) {
+                    ToastNotification.success(
+                        MainLayoutController.getInstance().getContentArea(),
+                        "Ingreso \"" + income.getConcept() + "\" actualizado correctamente");
                 } else {
-                    showAlert("Éxito", "Ingreso registrado correctamente.");
+                    ToastNotification.success(
+                        MainLayoutController.getInstance().getContentArea(),
+                        "Ingreso ocasional registrado correctamente");
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error UI");
-            alert.setHeaderText("Error al abrir formulario");
-            alert.setContentText(e.getMessage());
-            alert.show();
+            ToastNotification.error(tablaIngresos, "No se pudo abrir el formulario de ingreso");
         }
     }
 
@@ -328,11 +330,4 @@ public class OccasionalIncomeController {
         dpFechaHasta.setConverter(converter);
     }
 
-    private void showAlert(String header, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Ingresos Ocasionales");
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
 }

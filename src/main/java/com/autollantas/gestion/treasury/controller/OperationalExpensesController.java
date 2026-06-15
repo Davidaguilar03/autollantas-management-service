@@ -3,6 +3,8 @@ package com.autollantas.gestion.treasury.controller;
 import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.model.OperationalExpense;
 import com.autollantas.gestion.treasury.service.TreasuryService;
+import com.autollantas.gestion.shared.controller.MainLayoutController;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -257,6 +259,7 @@ public class OperationalExpensesController {
             Parent root = loader.load();
 
             OperationalExpenseFormController controller = loader.getController();
+            boolean esEdicion = (expense.getId() != null);
             controller.setExpense(expense);
 
             Stage modalStage = new Stage();
@@ -279,14 +282,20 @@ public class OperationalExpensesController {
 
             if (controller.isSaved()) {
                 loadDatabaseData();
-                if (expense.getId() != null) {
-                    tablaCostos.getSelectionModel().select(expense);
+                if (esEdicion) {
+                    ToastNotification.success(
+                        MainLayoutController.getInstance().getContentArea(),
+                        "Gasto \"" + expense.getConcept() + "\" actualizado correctamente");
+                } else {
+                    ToastNotification.success(
+                        MainLayoutController.getInstance().getContentArea(),
+                        "Gasto operativo registrado correctamente");
                 }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error UI", "No se pudo abrir el formulario: " + e.getMessage());
+            ToastNotification.error(tablaCostos, "No se pudo abrir el formulario de gasto");
         }
     }
 
@@ -305,8 +314,11 @@ public class OperationalExpensesController {
                     treasuryService.deleteOperationalExpense(selected);
                     masterData.remove(selected);
                     updateRecordsInfo();
+                    ToastNotification.success(tablaCostos,
+                        "Gasto \"" + selected.getConcept() + "\" eliminado");
                 } catch (Exception e) {
-                    showAlert(Alert.AlertType.ERROR, "Error", "No se pudo eliminar: " + e.getMessage());
+                    e.printStackTrace();
+                    ToastNotification.error(tablaCostos, "No se pudo eliminar el gasto");
                 }
             }
         }
@@ -333,11 +345,4 @@ public class OperationalExpensesController {
         dpFechaHasta.setConverter(converter);
     }
 
-    private void showAlert(Alert.AlertType type, String header, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle("Gestión de Gastos Operativos");
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
 }

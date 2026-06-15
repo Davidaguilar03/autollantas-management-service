@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -29,6 +30,7 @@ public class TaxFormController {
 
     @FXML
     public void initialize() {
+        guardado = false;
         rbProduct.setSelected(true);
         currentTaxType = new TaxType();
         Platform.runLater(() -> txtName.requestFocus());
@@ -59,7 +61,7 @@ public class TaxFormController {
             guardado = true;
             cerrarVentana();
         } catch (Exception e) {
-            mostrarAlerta("Error", "No se pudo guardar: " + e.getMessage());
+            ToastNotification.error(txtName, "No se pudo guardar el impuesto: " + e.getMessage());
         }
     }
 
@@ -90,7 +92,7 @@ public class TaxFormController {
             valido = false;
         }
 
-        if (!valido) mostrarAlerta("Datos Incompletos", "Nombre requerido. Tasa debe ser un número entre 0 y 100.");
+        if (!valido) ToastNotification.warning(txtName, "Nombre requerido. La tasa debe ser un número entre 0 y 100");
         return valido;
     }
 
@@ -102,12 +104,5 @@ public class TaxFormController {
 
     public boolean isGuardado() {
         return guardado;
-    }
-
-    private void mostrarAlerta(String titulo, String contenido) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
     }
 }

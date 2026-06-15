@@ -2,6 +2,7 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
+import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -55,19 +56,19 @@ public class CategoryMarginsController {
     public void guardar() {
         ProductCategory cat = comboCat.getValue();
         if (cat == null) {
-            mostrarAlerta("Selecciona una categoría.");
+            ToastNotification.warning(comboCat, "Selecciona una categoría antes de continuar");
             return;
         }
         String txt = txtMargen.getText() != null ? txtMargen.getText().trim().replace(",", ".") : "";
         if (txt.isEmpty()) {
-            mostrarAlerta("Ingresa el porcentaje de utilidad.");
+            ToastNotification.warning(txtMargen, "Ingresa el porcentaje de utilidad");
             return;
         }
         double margen;
         try {
             margen = Double.parseDouble(txt) / 100.0;
         } catch (NumberFormatException e) {
-            mostrarAlerta("El porcentaje debe ser un número válido.");
+            ToastNotification.warning(txtMargen, "El porcentaje debe ser un número válido");
             return;
         }
 
@@ -76,11 +77,7 @@ public class CategoryMarginsController {
         inventoryService.findProductsByCategory(cat)
                 .forEach(p -> inventoryService.recalculateMinSalePrice(p));
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("Utilidad guardada");
-        alert.setContentText("Margen actualizado para '" + cat.getName() + "' y precios recalculados.");
-        alert.showAndWait();
-
+        ToastNotification.success(comboCat, "Utilidad de \"" + cat.getName() + "\" actualizada y precios recalculados");
         txtMargen.clear();
         comboCat.setValue(null);
         cargarTabla();
@@ -91,12 +88,5 @@ public class CategoryMarginsController {
         if (tableCategories.getScene() != null) {
             ((Stage) tableCategories.getScene().getWindow()).close();
         }
-    }
-
-    private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText("Datos incompletos");
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }
