@@ -9,6 +9,8 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.treasury.service.TreasuryService;
 import com.autollantas.gestion.sales.service.SalesService;
+import com.autollantas.gestion.sales.service.StockAlert;
+import com.autollantas.gestion.sales.service.StockAlertLevel;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
@@ -735,7 +737,7 @@ public class SaleFormController {
                     })
                     .toList();
 
-            salesService.saveSaleWithDetails(sale, details, editMode);
+            List<StockAlert> stockAlerts = salesService.saveSaleWithDetails(sale, details, editMode);
 
             String numFactura = sale.getInvoiceNumber();
             boolean fueEdicion = editMode;
@@ -746,6 +748,16 @@ public class SaleFormController {
                     ? "Factura " + numFactura + " actualizada correctamente"
                     : "Factura " + numFactura + " registrada correctamente"
             );
+            for (StockAlert alert : stockAlerts) {
+                String msg = "\"" + alert.productName() + "\" · stock " + alert.quantity() + " uds.";
+                if (alert.level() == StockAlertLevel.CRITICAL) {
+                    ToastNotification.error(MainLayoutController.getInstance().getContentArea(),
+                        "Stock crítico: " + msg);
+                } else {
+                    ToastNotification.warning(MainLayoutController.getInstance().getContentArea(),
+                        "Stock bajo: " + msg);
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

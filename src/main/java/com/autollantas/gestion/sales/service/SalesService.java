@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,7 +130,7 @@ public class SalesService {
     }
 
     @Transactional
-    public Sale saveSaleWithDetails(Sale sale, List<SaleDetail> newDetails, boolean editMode) {
+    public List<StockAlert> saveSaleWithDetails(Sale sale, List<SaleDetail> newDetails, boolean editMode) {
         Sale savedSale = saleRepository.save(sale);
 
         if (editMode) {
@@ -144,6 +145,7 @@ public class SalesService {
             saleDetailRepository.deleteAll(oldDetails);
         }
 
+        List<StockAlert> alerts = new ArrayList<>();
         for (SaleDetail detail : newDetails) {
             detail.setSale(savedSale);
             saleDetailRepository.save(detail);
@@ -154,6 +156,18 @@ public class SalesService {
             productRepository.findById(product.getId()).ifPresent(realProduct -> {
                 realProduct.setQuantity(realProduct.getQuantity() - detail.getQuantity());
                 productRepository.save(realProduct);
+
+                int qty = realProduct.getQuantity() != null ? realProduct.getQuantity() : 0;
+                var cat = realProduct.getCategory();
+                if (cat != null) {
+                    int red    = cat.getRedStockMin()    != null ? cat.getRedStockMin()    : 0;
+                    int yellow = cat.getYellowStockMin() != null ? cat.getYellowStockMin() : 0;
+                    if (qty <= red) {
+                        alerts.add(new StockAlert(realProduct.getDescription(), qty, StockAlertLevel.CRITICAL));
+                    } else if (qty <= yellow) {
+                        alerts.add(new StockAlert(realProduct.getDescription(), qty, StockAlertLevel.WARNING));
+                    }
+                }
             });
         }
 
@@ -169,7 +183,7 @@ public class SalesService {
             movementRepository.save(movement);
         }
 
-        return savedSale;
+        return alerts;
     }
 
     @Transactional

@@ -74,6 +74,13 @@ public class ToastNotification {
         return -1;
     }
 
+    private static int lastFreeSlot() {
+        for (int i = MAX_VISIBLE - 1; i >= 0; i--) {
+            if (slots[i] == null) return i;
+        }
+        return -1;
+    }
+
     // Y ideal de un slot = número de slots ocupados con índice < slot
     private static double computeY(int slot) {
         int position = 0;
@@ -83,8 +90,23 @@ public class ToastNotification {
         return MARGIN_TOP + position * (SLOT_HEIGHT + GAP);
     }
 
-    // Anima todos los slots activos hacia su Y ideal actual
-    private static void repackSlots() {
+    // Anima todos los slots activos hacia su Y ideal y llama onDone cuando todos terminan
+    private static void repackSlots(Runnable onDone) {
+        int moving = 0;
+        for (int i = 0; i < MAX_VISIBLE; i++) {
+            if (slots[i] == null) continue;
+            double targetY = computeY(i);
+            Group g = slots[i];
+            if (Math.abs(g.getLayoutY() - targetY) < 1) continue;
+            moving++;
+        }
+
+        if (moving == 0) {
+            if (onDone != null) onDone.run();
+            return;
+        }
+
+        int[] remaining = { moving };
         for (int i = 0; i < MAX_VISIBLE; i++) {
             if (slots[i] == null) continue;
             double targetY = computeY(i);
@@ -94,6 +116,10 @@ public class ToastNotification {
                 new KeyFrame(Duration.ZERO,  new KeyValue(g.layoutYProperty(), g.getLayoutY())),
                 new KeyFrame(SHIFT_UP,       new KeyValue(g.layoutYProperty(), targetY))
             );
+            shift.setOnFinished(e -> {
+                remaining[0]--;
+                if (remaining[0] == 0 && onDone != null) onDone.run();
+            });
             shift.play();
         }
     }
@@ -172,9 +198,13 @@ public class ToastNotification {
             seq.setOnFinished(ev -> {
                 overlay.getChildren().remove(group);
                 slots[slot] = null;
-                repackSlots();
                 PendingToast next = pendingQueue.poll();
-                if (next != null) display(next.node(), next.type(), next.message(), slot);
+                repackSlots(() -> {
+                    if (next != null) {
+                        int freeSlot = lastFreeSlot();
+                        if (freeSlot != -1) display(next.node(), next.type(), next.message(), freeSlot);
+                    }
+                });
             });
             seq.play();
         });
