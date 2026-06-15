@@ -64,6 +64,16 @@ public class CustomDialog {
         show(anyNode, Type.DANGER, title, message, "Eliminar", "Cancelar", onConfirm, onCancel);
     }
 
+    public static void confirm(Window ownerWindow, String title, String message,
+                               Runnable onConfirm, Runnable onCancel) {
+        showFromWindow(ownerWindow, Type.CONFIRM, title, message, "Confirmar", "Cancelar", onConfirm, onCancel);
+    }
+
+    public static void danger(Window ownerWindow, String title, String message,
+                              Runnable onConfirm, Runnable onCancel) {
+        showFromWindow(ownerWindow, Type.DANGER, title, message, "Salir", "Cancelar", onConfirm, onCancel);
+    }
+
     public static void custom(Node anyNode, Type type, String title, String message,
                               String confirmLabel, String cancelLabel,
                               Runnable onConfirm, Runnable onCancel) {
@@ -74,14 +84,24 @@ public class CustomDialog {
     // Lógica interna
     // -------------------------------------------------------------------------
 
+    private static void showFromWindow(Window owner, Type type, String title, String message,
+                                       String confirmLabel, String cancelLabel,
+                                       Runnable onConfirm, Runnable onCancel) {
+        if (owner == null) return;
+        buildAndShow(owner, type, title, message, confirmLabel, cancelLabel, onConfirm, onCancel);
+    }
+
     private static void show(Node anyNode, Type type, String title, String message,
                              String confirmLabel, String cancelLabel,
                              Runnable onConfirm, Runnable onCancel) {
-
         Scene ownerScene = anyNode.getScene();
         if (ownerScene == null) return;
-        Window owner = ownerScene.getWindow();
+        buildAndShow(ownerScene.getWindow(), type, title, message, confirmLabel, cancelLabel, onConfirm, onCancel);
+    }
 
+    private static void buildAndShow(Window owner, Type type, String title, String message,
+                                     String confirmLabel, String cancelLabel,
+                                     Runnable onConfirm, Runnable onCancel) {
         // Stage transparente sin decoración — cubre exactamente la ventana owner
         Stage dialog = new Stage(StageStyle.TRANSPARENT);
         dialog.initOwner(owner);

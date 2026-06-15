@@ -1,6 +1,8 @@
 package com.autollantas.gestion;
 
+import com.autollantas.gestion.shared.util.CustomDialog;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -52,12 +54,27 @@ public class AutollantasApplication extends Application {
 
         stage.setTitle("Autollantas A&C");
         stage.setScene(scene);
+
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            CustomDialog.danger(
+                stage,
+                "Cerrar aplicación",
+                "¿Seguro que deseas cerrar Autollantas A&C? Asegúrate de haber guardado cualquier cambio pendiente antes de continuar.",
+                () -> {
+                    Platform.exit();
+                    springContext.close();
+                },
+                null
+            );
+        });
+
         stage.show();
     }
 
     @Override
     public void stop() {
-        springContext.close();
+        if (springContext != null && springContext.isActive()) springContext.close();
     }
 
     public static void main(String[] args) {
