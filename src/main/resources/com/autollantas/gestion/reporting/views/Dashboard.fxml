@@ -23,8 +23,8 @@
 <ScrollPane fitToHeight="true" fitToWidth="true" focusTraversable="false" hbarPolicy="NEVER" style="-fx-background-color: #f5f6fa; -fx-background: #f5f6fa;" stylesheets="@../../styles/styles.css" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.reporting.controller.DashboardController">
 
     <content>
-        <VBox spacing="20.0" style="-fx-background-color: #f5f6fa;">
-            <padding><Insets bottom="24.0" left="24.0" right="24.0" top="20.0" /></padding>
+        <VBox spacing="12.0" style="-fx-background-color: #f5f6fa;">
+            <padding><Insets bottom="19.0" left="24.0" right="24.0" top="16.0" /></padding>
 
             <!-- Encabezado -->
             <HBox alignment="CENTER_LEFT" spacing="16.0">
@@ -57,10 +57,10 @@
                     <ColumnConstraints hgrow="ALWAYS" minWidth="190.0" percentWidth="25.0" />
                     <ColumnConstraints hgrow="ALWAYS" minWidth="190.0" percentWidth="25.0" />
                 </columnConstraints>
-                <rowConstraints><RowConstraints minHeight="110.0" /></rowConstraints>
+                <rowConstraints><RowConstraints minHeight="94.0" /></rowConstraints>
 
                 <!-- Ingresos -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-green">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-green">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-green">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/ingresos.png" /></image></ImageView>
@@ -73,7 +73,7 @@
                 </VBox>
 
                 <!-- Gastos -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-red" GridPane.columnIndex="1">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-red" GridPane.columnIndex="1">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-red">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/gastos.png" /></image></ImageView>
@@ -86,7 +86,7 @@
                 </VBox>
 
                 <!-- Costos -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-yellow" GridPane.columnIndex="2">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-yellow" GridPane.columnIndex="2">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-yellow">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/costos.png" /></image></ImageView>
@@ -99,7 +99,7 @@
                 </VBox>
 
                 <!-- Resultado neto -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-purple" GridPane.columnIndex="3">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-purple" GridPane.columnIndex="3">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-purple">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/resultados.png" /></image></ImageView>
@@ -120,10 +120,10 @@
                     <ColumnConstraints hgrow="ALWAYS" minWidth="190.0" percentWidth="25.0" />
                     <ColumnConstraints hgrow="ALWAYS" minWidth="190.0" percentWidth="25.0" />
                 </columnConstraints>
-                <rowConstraints><RowConstraints minHeight="110.0" /></rowConstraints>
+                <rowConstraints><RowConstraints minHeight="94.0" /></rowConstraints>
 
                 <!-- Por cobrar -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-blue">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-blue">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-blue">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/cobrar.png" /></image></ImageView>
@@ -136,7 +136,7 @@
                 </VBox>
 
                 <!-- Por pagar -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-pink" GridPane.columnIndex="1">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-pink" GridPane.columnIndex="1">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-pink">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/pagar.png" /></image></ImageView>
@@ -149,7 +149,7 @@
                 </VBox>
 
                 <!-- Saldo total -->
-                <VBox spacing="10.0" style="-fx-padding: 16 18 16 18;" styleClass="dashboard-card,card-cyan" GridPane.columnIndex="2">
+                <VBox spacing="10.0" style="-fx-padding: 13 18 13 18;" styleClass="dashboard-card,card-cyan" GridPane.columnIndex="2">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-cyan">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/saldo.png" /></image></ImageView>
@@ -162,7 +162,7 @@
                 </VBox>
 
                 <!-- Alertas de stock -->
-                <VBox onMouseClicked="#verAlertasStock" spacing="10.0" style="-fx-padding: 16 18 16 18; -fx-cursor: hand;" styleClass="dashboard-card,card-orange" GridPane.columnIndex="3">
+                <VBox onMouseClicked="#verAlertasStock" spacing="10.0" style="-fx-padding: 13 18 13 18; -fx-cursor: hand;" styleClass="dashboard-card,card-orange" GridPane.columnIndex="3">
                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                         <StackPane maxHeight="46.0" maxWidth="46.0" minHeight="46.0" minWidth="46.0" styleClass="icon-chip-orange">
                             <ImageView fitHeight="26.0" fitWidth="26.0" preserveRatio="true"><image><Image url="@../../images/alerta.png" /></image></ImageView>
@@ -180,7 +180,7 @@
 
                 <!-- Tabla de movimientos -->
                 <VBox minWidth="460.0" spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 12, 0, 0, 3);" HBox.hgrow="ALWAYS">
-                    <padding><Insets bottom="16.0" left="18.0" right="18.0" top="16.0" /></padding>
+                    <padding><Insets bottom="13.0" left="18.0" right="18.0" top="13.0" /></padding>
 
                     <HBox alignment="CENTER_LEFT">
                         <VBox spacing="3.0">
@@ -190,7 +190,7 @@
 
                     <Label style="-fx-font-size: 10px; -fx-text-fill: #b0bac6; -fx-padding: 0 0 2 0;" text="Doble clic en un movimiento para ir a su módulo." />
 
-                    <StyledTableView fx:id="tablaMovimientos" prefHeight="320.0" style="-fx-fixed-cell-size: 34px;" VBox.vgrow="ALWAYS">
+                    <StyledTableView fx:id="tablaMovimientos" prefHeight="272.0" style="-fx-fixed-cell-size: 34px;" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn fx:id="colFecha" prefWidth="88.0" style="-fx-alignment: CENTER;" text="Fecha" />
                             <TableColumn fx:id="colTipo" prefWidth="82.0" style="-fx-alignment: CENTER;" text="Tipo" />
@@ -202,11 +202,11 @@
                 </VBox>
 
                 <!-- Panel lateral -->
-                <VBox minWidth="290.0" prefWidth="310.0" spacing="14.0">
+                <VBox minWidth="290.0" prefWidth="310.0" spacing="14.0" HBox.hgrow="SOMETIMES">
 
                     <!-- Acciones rápidas -->
                     <VBox spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 12, 0, 0, 3);">
-                        <padding><Insets bottom="16.0" left="18.0" right="18.0" top="16.0" /></padding>
+                        <padding><Insets bottom="13.0" left="18.0" right="18.0" top="13.0" /></padding>
                         <Label style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2d3748;" text="Acciones rápidas" />
                         <Region maxHeight="1.0" minHeight="1.0" style="-fx-background-color: #f0f2f7;" />
                         <GridPane hgap="10.0" vgap="10.0">
@@ -235,16 +235,16 @@
 
                     <!-- Centro de Reportes -->
                     <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 12, 0, 0, 3);" VBox.vgrow="ALWAYS">
-                        <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                        <padding><Insets bottom="16.0" left="20.0" right="20.0" top="16.0" /></padding>
 
                         <Label text="Centro de Reportes" textFill="#34495e">
                             <font><Font name="System Bold" size="16.0" /></font>
                         </Label>
 
-                        <Button fx:id="btnCrearReporte" alignment="CENTER" contentDisplay="TOP" graphicTextGap="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirDialogoReportes" prefHeight="158.0" prefWidth="270.0" styleClass="btn-reporte-dashed" text="CREAR NUEVO REPORTE" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS" VBox.vgrow="ALWAYS">
-                            <font><Font name="System Bold" size="14.0" /></font>
+                        <Button fx:id="btnCrearReporte" alignment="CENTER" contentDisplay="TOP" graphicTextGap="14.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#abrirDialogoReportes" prefHeight="160.0" prefWidth="378.0" styleClass="btn-reporte-dashed" text="Crear Nuevo Reporte" textAlignment="CENTER" textOverrun="WORD_ELLIPSIS" VBox.vgrow="ALWAYS">
+                            <font><Font name="System Bold" size="20.0" /></font>
                             <graphic>
-                                <ImageView fx:id="imgReporteAnimada" fitHeight="42.0" fitWidth="42.0" opacity="0.7" pickOnBounds="true" preserveRatio="true">
+                                <ImageView fx:id="imgReporteAnimada" fitHeight="59.0" fitWidth="59.0" opacity="0.7" pickOnBounds="true" preserveRatio="true" smooth="true">
                                     <image><Image url="@../../images/reportfile.png" /></image>
                                 </ImageView>
                             </graphic>
