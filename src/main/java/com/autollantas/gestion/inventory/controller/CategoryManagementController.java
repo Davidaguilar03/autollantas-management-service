@@ -47,6 +47,40 @@ public class CategoryManagementController {
     public void initialize() {
         colNombre.setCellValueFactory(cell -> new SimpleStringProperty(
                 cell.getValue().getName() != null ? cell.getValue().getName() : ""));
+        colNombre.setCellFactory(col -> new TableCell<ProductCategory, String>() {
+            private final Label chip = new Label();
+            {
+                chip.setStyle(
+                    "-fx-background-radius: 8;" +
+                    "-fx-padding: 3 10 3 10;" +
+                    "-fx-font-size: 11px;" +
+                    "-fx-font-weight: bold;"
+                );
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    ProductCategory cat = getTableView().getItems().get(getIndex());
+                    String color = (cat != null && cat.getColor() != null && !cat.getColor().isEmpty())
+                        ? cat.getColor() : "#94a3b8";
+                    chip.setText(item);
+                    chip.setStyle(
+                        "-fx-background-color: " + color + ";" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 3 10 3 10;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
+                    );
+                    setGraphic(chip);
+                    setText(null);
+                }
+            }
+        });
         colProductCount.setCellValueFactory(cell -> {
             int count = inventoryService.findProductsByCategory(cell.getValue()).size();
             return new SimpleIntegerProperty(count).asObject();

@@ -63,6 +63,7 @@ public class MainLayoutController {
     @FXML private Button btnCostosOperativos;
     @FXML private Button btnProductos;
     @FXML private Button btnAlertas;
+    @FXML private Button btnImpuestos;
 
     private TitledPane activePane = null;
     private Button activeSubBtn = null;
@@ -266,6 +267,11 @@ public class MainLayoutController {
     @FXML void btnAlertasClick(ActionEvent event) {
         loadView("/com/autollantas/gestion/inventory/views/StockAlerts.fxml");
         setActive(tpInventario, btnAlertas);
+        closeSidebarIfMobile();
+    }
+    @FXML void btnImpuestosClick(ActionEvent event) {
+        loadView("/com/autollantas/gestion/inventory/views/TaxManagement.fxml");
+        setActive(tpInventario, btnImpuestos);
         closeSidebarIfMobile();
     }
     @FXML void btnCuentasClick(MouseEvent event) {

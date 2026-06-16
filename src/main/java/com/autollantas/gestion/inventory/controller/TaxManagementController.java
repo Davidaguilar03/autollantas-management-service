@@ -1,12 +1,12 @@
 package com.autollantas.gestion.inventory.controller;
 
-import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -22,13 +22,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.StringConverter;
+import com.autollantas.gestion.inventory.model.Product;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 @Component
@@ -48,33 +49,38 @@ public class TaxManagementController {
     @FXML private Button btnEditTax;
     @FXML private Button btnDeleteTax;
 
-    @FXML private ComboBox<ProductCategory> comboCategoryTax;
-    @FXML private TableView<TaxTypeRow> tableCategoryTaxes;
-    @FXML private TableColumn<TaxTypeRow, Boolean> colCatTaxCheck;
-    @FXML private TableColumn<TaxTypeRow, String> colCatTaxName;
-    @FXML private TableColumn<TaxTypeRow, String> colCatTaxRate;
-    @FXML private TableColumn<TaxTypeRow, String> colCatTaxApplies;
+    @FXML private TableView<CategoryAssignRow> tableCategoryAssignment;
+    @FXML private TableColumn<CategoryAssignRow, Boolean> colAssignCheck;
+    @FXML private TableColumn<CategoryAssignRow, String> colAssignCatName;
+    @FXML private Button btnSelectAll;
+    @FXML private Button btnDeselectAll;
+
+    @FXML private ComboBox<ProductCategory> comboCat;
+    @FXML private TextField txtMargen;
+    @FXML private TableView<ProductCategory> tableCategories;
+    @FXML private TableColumn<ProductCategory, String> colCategoriaNombre;
+    @FXML private TableColumn<ProductCategory, String> colMargen;
 
     private final ObservableList<TaxType> taxList = FXCollections.observableArrayList();
-    private final ObservableList<TaxTypeRow> categoryTaxRows = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         configurarTablaTaxTypes();
-        configurarTablaCategoryTaxes();
+        configurarTablaCategoryAssignment();
         loadTaxTypes();
-        loadCategories();
 
-        tableTaxTypes.getSelectionModel().selectedItemProperty().addListener((obs, old, nw) -> {
-            boolean sel = nw != null;
+        tableTaxTypes.getSelectionModel().selectedItemProperty().addListener((obs, old, tax) -> {
+            boolean sel = tax != null;
             btnEditTax.setDisable(!sel);
-            boolean esIva = sel && Boolean.TRUE.equals(nw.getIsVat());
+            boolean esIva = sel && Boolean.TRUE.equals(tax.getIsVat());
             btnDeleteTax.setDisable(!sel || esIva);
+
+            if (tax != null) loadCategoryAssignments(tax);
         });
 
-        comboCategoryTax.valueProperty().addListener((obs, old, nw) -> {
-            if (nw != null) onCategorySelected();
-        });
+        configurarTablaMargen();
+        cargarTablaMargen();
+        cargarComboCat();
     }
 
     private void configurarTablaTaxTypes() {
@@ -93,59 +99,41 @@ public class TaxManagementController {
         tableTaxTypes.setItems(taxList);
     }
 
-    private void configurarTablaCategoryTaxes() {
-        colCatTaxCheck.setCellValueFactory(cell -> cell.getValue().selectedProperty());
-        colCatTaxCheck.setCellFactory(CheckBoxTableCell.forTableColumn(colCatTaxCheck));
-        colCatTaxName.setCellValueFactory(cell -> new SimpleStringProperty(
-                cell.getValue().getTaxType().getName() != null ? cell.getValue().getTaxType().getName() : ""));
-        colCatTaxRate.setCellValueFactory(cell -> {
-            Double rate = cell.getValue().getTaxType().getRate();
-            return new SimpleStringProperty(rate != null ? String.format("%.0f%%", rate * 100) : "0%");
-        });
-        colCatTaxApplies.setCellValueFactory(cell -> {
-            Boolean t = cell.getValue().getTaxType().getAppliesToTransaction();
-            return new SimpleStringProperty(Boolean.TRUE.equals(t) ? "Transacción" : "Producto");
-        });
-        tableCategoryTaxes.setItems(categoryTaxRows);
-        tableCategoryTaxes.setEditable(true);
+    private void configurarTablaCategoryAssignment() {
+        colAssignCheck.setCellValueFactory(c -> c.getValue().assignedProperty());
+        colAssignCheck.setCellFactory(CheckBoxTableCell.forTableColumn(colAssignCheck));
+        colAssignCatName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getName()));
+        tableCategoryAssignment.setEditable(true);
     }
 
-    public void loadTaxTypes() {
+    private void loadTaxTypes() {
         new Thread(() -> {
             List<TaxType> taxes = inventoryService.findAllTaxTypes();
             Platform.runLater(() -> taxList.setAll(taxes));
         }).start();
     }
 
-    public void loadCategories() {
+    private void loadCategoryAssignments(TaxType tax) {
         new Thread(() -> {
-            List<ProductCategory> cats = inventoryService.findAllCategories();
-            Platform.runLater(() -> {
-                comboCategoryTax.setConverter(new StringConverter<>() {
-                    @Override public String toString(ProductCategory c) { return c != null ? c.getName() : ""; }
-                    @Override public ProductCategory fromString(String s) { return null; }
-                });
-                comboCategoryTax.setItems(FXCollections.observableArrayList(cats));
-            });
+            List<ProductCategory> allCats = inventoryService.findAllCategories();
+            ObservableList<CategoryAssignRow> rows = FXCollections.observableArrayList();
+            for (ProductCategory cat : allCats) {
+                boolean has = cat.getTaxTypes().stream()
+                        .anyMatch(t -> t.getId().equals(tax.getId()));
+                rows.add(new CategoryAssignRow(cat, has));
+            }
+            Platform.runLater(() -> tableCategoryAssignment.setItems(rows));
         }).start();
     }
 
-    public void onCategorySelected() {
-        ProductCategory cat = comboCategoryTax.getValue();
-        if (cat == null) return;
+    @FXML
+    public void onSelectAll(ActionEvent event) {
+        tableCategoryAssignment.getItems().forEach(r -> r.setAssigned(true));
+    }
 
-        new Thread(() -> {
-            List<TaxType> allTaxes = inventoryService.findAllTaxTypes();
-            List<TaxType> assigned = cat.getTaxTypes();
-
-            Platform.runLater(() -> {
-                categoryTaxRows.clear();
-                for (TaxType t : allTaxes) {
-                    boolean isSelected = assigned.stream().anyMatch(a -> a.getId().equals(t.getId()));
-                    categoryTaxRows.add(new TaxTypeRow(t, isSelected));
-                }
-            });
-        }).start();
+    @FXML
+    public void onDeselectAll(ActionEvent event) {
+        tableCategoryAssignment.getItems().forEach(r -> r.setAssigned(false));
     }
 
     @FXML
@@ -184,39 +172,38 @@ public class TaxManagementController {
 
     @FXML
     public void onSaveAssignment(ActionEvent event) {
-        ProductCategory cat = comboCategoryTax.getValue();
-        if (cat == null) {
-            ToastNotification.warning(comboCategoryTax, "Selecciona una categoría antes de guardar la asignación");
+        TaxType tax = tableTaxTypes.getSelectionModel().getSelectedItem();
+        if (tax == null) {
+            ToastNotification.warning(tableTaxTypes, "Selecciona un impuesto antes de guardar la asignación");
             return;
         }
 
-        long count = categoryTaxRows.stream().filter(TaxTypeRow::isSelected).count();
+        ObservableList<CategoryAssignRow> rows = tableCategoryAssignment.getItems();
+        if (rows.isEmpty()) {
+            ToastNotification.warning(tableTaxTypes, "No hay categorías disponibles");
+            return;
+        }
 
-        CustomDialog.confirm(comboCategoryTax,
+        long count = rows.stream().filter(CategoryAssignRow::isAssigned).count();
+
+        CustomDialog.confirm(tableTaxTypes,
             "Guardar asignación de impuestos",
-            "Vas a aplicar " + count + " impuesto(s) a la categoría \"" + cat.getName() + "\". "
-                + "Los precios mínimo y sugerido de todos los productos de esta categoría serán recalculados automáticamente. ¿Confirmas?",
-            () -> {
-                List<TaxType> selectedTaxes = categoryTaxRows.stream()
-                        .filter(TaxTypeRow::isSelected)
-                        .map(TaxTypeRow::getTaxType)
-                        .collect(Collectors.toList());
-
-                cat.getTaxTypes().clear();
-                cat.getTaxTypes().addAll(selectedTaxes);
-
-                new Thread(() -> {
-                    inventoryService.saveCategory(cat);
-
-                    List<Product> products = inventoryService.findProductsByCategory(cat);
-                    for (Product p : products) {
-                        inventoryService.recalculateMinSalePrice(p);
+            "Vas a aplicar \"" + tax.getName() + "\" a " + count + " categoría(s). "
+                + "Los precios de los productos afectados serán recalculados. ¿Confirmas?",
+            () -> new Thread(() -> {
+                for (CategoryAssignRow row : rows) {
+                    ProductCategory cat = row.getCategory();
+                    boolean currentlyHas = cat.getTaxTypes().stream()
+                            .anyMatch(t -> t.getId().equals(tax.getId()));
+                    if (row.isAssigned() && !currentlyHas) {
+                        inventoryService.addTaxToCategory(cat, tax);
+                    } else if (!row.isAssigned() && currentlyHas) {
+                        inventoryService.removeTaxFromCategory(cat, tax);
                     }
-
-                    Platform.runLater(() -> ToastNotification.success(comboCategoryTax,
-                            "Impuestos de \"" + cat.getName() + "\" guardados · " + products.size() + " precios recalculados"));
-                }).start();
-            },
+                }
+                Platform.runLater(() -> ToastNotification.success(tableTaxTypes,
+                        "Asignación de \"" + tax.getName() + "\" guardada correctamente"));
+            }).start(),
             null);
     }
 
@@ -263,25 +250,77 @@ public class TaxManagementController {
         }
     }
 
-    @FXML
-    public void cerrarVentana() {
-        if (tableTaxTypes.getScene() != null) {
-            ((Stage) tableTaxTypes.getScene().getWindow()).close();
-        }
+    private void configurarTablaMargen() {
+        colCategoriaNombre.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colMargen.setCellValueFactory(cell -> {
+            Double m = cell.getValue().getTargetMargin();
+            return new SimpleStringProperty(m != null ? String.format("%.0f%%", m * 100) : "0%");
+        });
+        tableCategories.setEditable(false);
     }
 
-    public static class TaxTypeRow {
-        private final TaxType taxType;
-        private final SimpleBooleanProperty selected;
+    private void cargarComboCat() {
+        List<ProductCategory> cats = inventoryService.findAllCategories();
+        comboCat.setConverter(new StringConverter<>() {
+            @Override public String toString(ProductCategory c) { return c != null ? c.getName() : ""; }
+            @Override public ProductCategory fromString(String s) { return null; }
+        });
+        comboCat.setItems(FXCollections.observableArrayList(cats));
+    }
 
-        public TaxTypeRow(TaxType taxType, boolean selected) {
-            this.taxType = taxType;
-            this.selected = new SimpleBooleanProperty(selected);
+    private void cargarTablaMargen() {
+        List<ProductCategory> cats = inventoryService.findAllCategories();
+        tableCategories.setItems(FXCollections.observableArrayList(cats));
+    }
+
+    @FXML
+    public void guardarMargen(ActionEvent event) {
+        ProductCategory cat = comboCat.getValue();
+        String txt = txtMargen.getText() != null ? txtMargen.getText().trim() : "";
+        if (cat == null || txt.isEmpty()) {
+            ToastNotification.warning(comboCat, "Selecciona una categoría e ingresa el porcentaje");
+            return;
+        }
+        double margenParsed = 0;
+        try {
+            margenParsed = Double.parseDouble(txt) / 100.0;
+            if (margenParsed < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            ToastNotification.warning(txtMargen, "Ingresa un número válido mayor a 0");
+            return;
+        }
+        final double margen = margenParsed;
+        CustomDialog.confirm(comboCat,
+            "Guardar margen",
+            "Vas a asignar " + txt + "% de utilidad a \"" + cat.getName() + "\". ¿Confirmas?",
+            () -> new Thread(() -> {
+                cat.setTargetMargin(margen);
+                inventoryService.saveCategory(cat);
+                List<Product> prods = inventoryService.findProductsByCategory(cat);
+                prods.forEach(inventoryService::recalculateMinSalePrice);
+                Platform.runLater(() -> {
+                    comboCat.setValue(null);
+                    txtMargen.clear();
+                    cargarTablaMargen();
+                    ToastNotification.success(comboCat, "Margen guardado correctamente");
+                });
+            }).start(),
+            null);
+    }
+
+    static class CategoryAssignRow {
+        private final BooleanProperty assigned;
+        private final ProductCategory category;
+
+        CategoryAssignRow(ProductCategory cat, boolean assigned) {
+            this.category = cat;
+            this.assigned = new SimpleBooleanProperty(assigned);
         }
 
-        public TaxType getTaxType() { return taxType; }
-        public SimpleBooleanProperty selectedProperty() { return selected; }
-        public boolean isSelected() { return selected.get(); }
-        public void setSelected(boolean val) { selected.set(val); }
+        public BooleanProperty assignedProperty() { return assigned; }
+        public boolean isAssigned() { return assigned.get(); }
+        public void setAssigned(boolean v) { assigned.set(v); }
+        public ProductCategory getCategory() { return category; }
+        public String getName() { return category.getName(); }
     }
 }

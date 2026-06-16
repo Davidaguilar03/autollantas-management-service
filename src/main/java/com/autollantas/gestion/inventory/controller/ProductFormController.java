@@ -2,7 +2,6 @@ package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.inventory.model.ProductCategory;
-import com.autollantas.gestion.inventory.model.TaxType;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
@@ -11,6 +10,9 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,8 +34,6 @@ public class ProductFormController {
 
     @FXML private TextField txtPurchaseCost;
     @FXML private TextField txtTaxAmount;
-    @FXML private TextField txtMinSalePrice;
-    @FXML private TextField txtSuggestedPrice;
 
     @FXML private Spinner<Integer> spinnerStock;
 
@@ -49,8 +49,6 @@ public class ProductFormController {
         spinnerStock.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
 
         txtTaxAmount.setEditable(false);
-        txtMinSalePrice.setEditable(false);
-        txtSuggestedPrice.setEditable(false);
 
         configurarComboCategorias();
         configurarLogicaPrecios();
@@ -87,34 +85,12 @@ public class ProductFormController {
     private void recalcularTodo() {
         String costStr = txtPurchaseCost.getText() != null
                 ? txtPurchaseCost.getText().replaceAll("[^0-9]", "") : "";
-        ProductCategory cat = comboCategoria.getValue();
 
         double precioCompra = 0.0;
         try { if (!costStr.isEmpty()) precioCompra = Double.parseDouble(costStr); } catch (NumberFormatException ignored) {}
 
-        double tasaIva = 0.0;
-        double otrosTasa = 0.0;
-        if (cat != null && cat.getTaxTypes() != null) {
-            for (TaxType t : cat.getTaxTypes()) {
-                if (t.getRate() == null) continue;
-                if (Boolean.TRUE.equals(t.getIsVat())) {
-                    tasaIva = t.getRate();
-                } else if (!Boolean.TRUE.equals(t.getAppliesToTransaction())) {
-                    otrosTasa += t.getRate();
-                }
-            }
-        }
-
-        double ivaFavor = precioCompra * tasaIva;
-        double otrosImpuestos = precioCompra * otrosTasa;
+        double ivaFavor = precioCompra * 0.19;
         txtTaxAmount.setText(precioCompra > 0 ? currencyFormat.format(ivaFavor) : "$ 0");
-
-        double precioMinimo = precioCompra + otrosImpuestos;
-        txtMinSalePrice.setText(precioCompra > 0 ? currencyFormat.format(precioMinimo) : "$ 0");
-
-        double margen = (cat != null && cat.getTargetMargin() != null) ? cat.getTargetMargin() : 0.0;
-        double precioSugerido = precioMinimo * (1 + margen);
-        txtSuggestedPrice.setText(precioCompra > 0 ? currencyFormat.format(precioSugerido) : "$ 0");
     }
 
     public void setProduct(Product product) {
@@ -232,6 +208,37 @@ public class ProductFormController {
             @Override public String toString(ProductCategory cat) { return cat != null ? cat.getName() : ""; }
             @Override public ProductCategory fromString(String string) { return null; }
         });
+
+        Callback<ListView<ProductCategory>, ListCell<ProductCategory>> cellFactory = lv -> new ListCell<>() {
+            private final Label chip = new Label();
+            {
+                chip.setStyle("-fx-background-radius: 6; -fx-padding: 2 8 2 8; -fx-font-size: 11px; -fx-font-weight: bold;");
+            }
+            @Override
+            protected void updateItem(ProductCategory cat, boolean empty) {
+                super.updateItem(cat, empty);
+                if (empty || cat == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    String color = (cat.getColor() != null && !cat.getColor().isEmpty())
+                        ? cat.getColor() : "#94a3b8";
+                    chip.setText(cat.getName());
+                    chip.setStyle(
+                        "-fx-background-color: " + color + ";" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-padding: 2 8 2 8;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
+                    );
+                    setGraphic(chip);
+                    setText(null);
+                }
+            }
+        };
+        comboCategoria.setCellFactory(cellFactory);
+        comboCategoria.setButtonCell(cellFactory.call(null));
     }
 
     @FXML

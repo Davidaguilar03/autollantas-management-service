@@ -136,6 +136,8 @@
                               </HBox>
 
                               <Button fx:id="btnAlertas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnAlertasClick" styleClass="submenu-btn" text="Alertas de Stock" />
+
+                              <Button fx:id="btnImpuestos" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnImpuestosClick" styleClass="submenu-btn" text="Impuestos y Márgenes" />
                            </children>
                         </VBox>
                      </content>

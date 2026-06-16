@@ -39,6 +39,9 @@ public class ProductCategory {
     @Column(name = "margen_utilidad")
     private Double targetMargin;
 
+    @Column(name = "color_categoria")
+    private String color;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "CATEGORIA_IMPUESTOS",

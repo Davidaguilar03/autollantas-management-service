@@ -1,6 +1,7 @@
 package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
+import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
@@ -136,12 +137,47 @@ public class ProductsController {
         colCategoria.setCellValueFactory(cell -> {
             String nombreCat = "Sin Categoría";
             if (cell.getValue().getCategory() != null) {
-
                 nombreCat = obtenerNombreCategoria(cell.getValue());
             }
             return new SimpleStringProperty(nombreCat);
         });
-        estilizarColumnaTexto(colCategoria);
+        colCategoria.setCellFactory(col -> new TableCell<Product, String>() {
+            private final Label chip = new Label();
+            {
+                chip.setStyle(
+                    "-fx-background-radius: 8;" +
+                    "-fx-padding: 3 10 3 10;" +
+                    "-fx-font-size: 11px;" +
+                    "-fx-font-weight: bold;"
+                );
+                chip.setMaxWidth(Double.MAX_VALUE);
+                chip.setAlignment(javafx.geometry.Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    Product product = getTableView().getItems().get(getIndex());
+                    ProductCategory cat = product != null ? product.getCategory() : null;
+                    String color = (cat != null && cat.getColor() != null && !cat.getColor().isEmpty())
+                        ? cat.getColor() : "#94a3b8";
+                    chip.setText(item);
+                    chip.setStyle(
+                        "-fx-background-color: " + color + ";" +
+                        "-fx-background-radius: 8;" +
+                        "-fx-padding: 3 10 3 10;" +
+                        "-fx-font-size: 11px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-text-fill: white;"
+                    );
+                    setGraphic(chip);
+                    setText(null);
+                }
+            }
+        });
 
 
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("code"));
@@ -330,17 +366,10 @@ public class ProductsController {
     }
 
 
-    @FXML void btnUtilidadesClick(ActionEvent event) {
-        abrirModalConfiguracion("/com/autollantas/gestion/inventory/views/CategoryMargins.fxml", "utilidades");
-    }
-
     @FXML void btnCategoriasClick(ActionEvent event) {
         abrirModalConfiguracion("/com/autollantas/gestion/inventory/views/CategoryManagement.fxml", "categorías");
     }
 
-    @FXML void btnImpuestosClick(ActionEvent event) {
-        abrirModalConfiguracion("/com/autollantas/gestion/inventory/views/TaxManagement.fxml", "impuestos");
-    }
 
     private void abrirModalConfiguracion(String fxmlPath, String nombre) {
         try {
