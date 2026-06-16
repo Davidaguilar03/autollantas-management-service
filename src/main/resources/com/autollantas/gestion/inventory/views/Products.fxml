@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f0f2f5;" styleClass="main-background" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.ProductsController">
@@ -198,9 +199,36 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Button fx:id="btnImpuestos" mnemonicParsing="false" onAction="#btnImpuestosClick" prefHeight="40.0" styleClass="btn-secondary" text="Impuestos" />
-                        <Button fx:id="btnCategorias" mnemonicParsing="false" onAction="#btnCategoriasClick" prefHeight="40.0" styleClass="btn-secondary" text="Categorías" />
-                        <Button fx:id="btnUtilidades" mnemonicParsing="false" onAction="#btnUtilidadesClick" prefHeight="40.0" styleClass="btn-secondary" text="Utilidades" />
+                        <Button fx:id="btnImpuestos" contentDisplay="LEFT" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnImpuestosClick"
+                                prefHeight="48.0" styleClass="mini-card-btn,mini-card-cyan" text="Impuestos">
+                            <graphic>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-cyan">
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;" text="\%" />
+                                </StackPane>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="btnCategorias" contentDisplay="LEFT" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnCategoriasClick"
+                                prefHeight="48.0" styleClass="mini-card-btn,mini-card-purple" text="Categorías">
+                            <graphic>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-purple">
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;" text="≡" />
+                                </StackPane>
+                            </graphic>
+                        </Button>
+                        <Button fx:id="btnUtilidades" contentDisplay="LEFT" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnUtilidadesClick"
+                                prefHeight="48.0" styleClass="mini-card-btn,mini-card-blue" text="Utilidades">
+                            <graphic>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-blue">
+                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;" text="↑" />
+                                </StackPane>
+                            </graphic>
+                        </Button>
 
                         <Label fx:id="lblInfoRegistros" style="-fx-font-weight: bold;" text="Cargando..." textFill="#666666">
                             <padding>

@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
+<?import com.autollantas.gestion.shared.util.StyledTableView?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -15,7 +16,7 @@
 
 <StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.CategoryMarginsController">
 
-    <VBox alignment="TOP_CENTER" maxHeight="480" maxWidth="700" spacing="15" styleClass="card-form">
+    <VBox alignment="TOP_CENTER" maxHeight="540" maxWidth="750" spacing="15" styleClass="card-form">
         <padding>
             <Insets bottom="25.0" left="30.0" right="30.0" top="20.0" />
         </padding>
@@ -42,7 +43,9 @@
 
         <Separator style="-fx-opacity: 0.5;" />
 
-        <TableView fx:id="tableCategories" prefHeight="220" VBox.vgrow="ALWAYS">
+        <StyledTableView fx:id="tableCategories" editable="false"
+                         prefHeight="220" style="-fx-fixed-cell-size: 44px;"
+                         styleClass="tabla-readonly" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="colCategoriaNombre" prefWidth="380.0" text="Categoría" />
                 <TableColumn fx:id="colMargen" prefWidth="220.0" text="Utilidad (%%)" />
@@ -50,7 +53,7 @@
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
-        </TableView>
+        </StyledTableView>
 
     </VBox>
 </StackPane>
