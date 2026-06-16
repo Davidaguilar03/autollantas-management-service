@@ -187,13 +187,14 @@ public class SaleFormController {
                 if (empty || item == null) { setText(null); setStyle(""); }
                 else {
                     setText(item);
+                    setAlignment(Pos.CENTER);
                     SaleDetailRow row = getTableRow().getItem();
                     if (row != null) {
                         Product p = row.getProduct();
                         double minPrice = p != null && p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0;
                         double monto = (row.getPrice() - minPrice) * row.getQuantity();
-                        setStyle(monto >= 0 ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
-                    } else { setStyle(""); }
+                        setStyle(monto >= 0 ? "-fx-alignment: CENTER; -fx-text-fill: #27ae60;" : "-fx-alignment: CENTER; -fx-text-fill: #e74c3c;");
+                    } else { setStyle("-fx-alignment: CENTER;"); }
                 }
             }
         });
@@ -227,7 +228,8 @@ public class SaleFormController {
                 if (empty || item == null) { setText(null); setStyle(""); }
                 else {
                     setText(currencyFormat.format(item));
-                    setStyle(item >= 0 ? "-fx-text-fill: #27ae60;" : "-fx-text-fill: #e74c3c;");
+                    setAlignment(Pos.CENTER);
+                    setStyle(item >= 0 ? "-fx-alignment: CENTER; -fx-text-fill: #27ae60;" : "-fx-alignment: CENTER; -fx-text-fill: #e74c3c;");
                 }
             }
         });
@@ -379,7 +381,7 @@ public class SaleFormController {
         private final TextField textField = new TextField();
 
         public PriceCell() {
-            textField.setAlignment(Pos.CENTER_RIGHT);
+            textField.setAlignment(Pos.CENTER);
             textField.setStyle("-fx-background-color: transparent; -fx-text-fill: black;");
 
             textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
@@ -434,6 +436,7 @@ public class SaleFormController {
             super.updateItem(item, empty);
             if (empty || item == null) { setGraphic(null); }
             else {
+                setAlignment(Pos.CENTER);
                 if (!textField.isFocused()) textField.setText(currencyFormat.format(item));
                 setGraphic(textField);
             }

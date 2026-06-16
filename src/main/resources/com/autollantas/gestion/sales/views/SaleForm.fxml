@@ -19,12 +19,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <ScrollPane fitToHeight="false" fitToWidth="true" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.sales.controller.SaleFormController">
     <content>
-        <VBox fx:id="rootFormulario" spacing="20.0" styleClass="f-venta-main-container" stylesheets="@../../styles/styles.css">
+        <VBox fx:id="rootFormulario" spacing="14.0" styleClass="f-venta-main-container" stylesheets="@../../styles/styles.css">
             <padding>
                 <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
             </padding>
@@ -66,54 +67,47 @@
 
                 <Separator />
 
-                <GridPane hgap="25.0" prefHeight="210.0" prefWidth="894.0" vgap="25.0">
+                <GridPane hgap="16.0">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="176.0" minWidth="130.0" prefWidth="176.0" />
-                        <ColumnConstraints hgrow="ALWAYS" maxWidth="289.0" minWidth="181.0" prefWidth="214.0" />
-                        <ColumnConstraints halignment="RIGHT" hgrow="NEVER" maxWidth="313.0" minWidth="98.66668701171875" prefWidth="142.0" />
-                        <ColumnConstraints hgrow="ALWAYS" maxWidth="330.33331298828125" minWidth="117.0" prefWidth="288.0" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="33.34" />
                     </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="35.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="35.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
                     <children>
+                        <!-- Columna 1: Esencial -->
+                        <VBox spacing="6.0">
+                            <Label styleClass="f-venta-label-campo" text="Nombre/razón social*" />
+                            <ComboBox fx:id="comboCliente" editable="true" maxWidth="1.7976931348623157E308" prefHeight="40.0" promptText="Buscar o escribir nuevo..." styleClass="f-venta-combo-box" />
+                            <Label styleClass="f-venta-label-campo" text="Fecha de creación*" />
+                            <DatePicker fx:id="dpFechaCreacion" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-date-picker" />
+                            <Label styleClass="f-venta-label-campo" text="Fecha de vencimiento*" />
+                            <DatePicker fx:id="dpFechaVencimiento" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-date-picker" />
+                        </VBox>
 
-                        <Label styleClass="f-venta-label-campo" text="Fecha de creación*" />
-                        <DatePicker fx:id="dpFechaCreacion" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-date-picker" GridPane.columnIndex="1" />
+                        <!-- Columna 2: Pago -->
+                        <VBox spacing="6.0" GridPane.columnIndex="1">
+                            <Label styleClass="f-venta-label-campo" text="Cuenta*" />
+                            <ComboBox fx:id="comboCuenta" maxWidth="1.7976931348623157E308" prefHeight="40.0" promptText="Seleccionar" styleClass="f-venta-combo-box" />
+                            <Label styleClass="f-venta-label-campo" text="Forma de pago *" />
+                            <ComboBox fx:id="comboFormaPago" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-combo-box" />
+                            <Label styleClass="f-venta-label-campo" text="Medio de pago *" />
+                            <ComboBox fx:id="comboMedioPago" maxWidth="1.7976931348623157E308" prefHeight="40.0" promptText="Seleccionar" styleClass="f-venta-combo-box" />
+                        </VBox>
 
-                        <Label styleClass="f-venta-label-campo" text="Fecha de vencimiento*" GridPane.rowIndex="1" />
-                        <DatePicker fx:id="dpFechaVencimiento" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-date-picker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <Label styleClass="f-venta-label-campo" text="Forma de pago *" GridPane.rowIndex="2" />
-                        <ComboBox fx:id="comboFormaPago" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-combo-box" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                        <Label styleClass="f-venta-label-campo" text="Medio de pago *" GridPane.rowIndex="3" />
-                        <ComboBox fx:id="comboMedioPago" maxWidth="1.7976931348623157E308" prefHeight="40.0" promptText="Seleccionar" styleClass="f-venta-combo-box" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                        <Label styleClass="f-venta-label-campo" text="Cuenta*" GridPane.rowIndex="4" />
-                        <ComboBox fx:id="comboCuenta" maxWidth="1.7976931348623157E308" prefHeight="40.0" promptText="Seleccionar" styleClass="f-venta-combo-box" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-
-                        <Label prefHeight="49.0" prefWidth="136.0" styleClass="f-venta-label-campo" text="Nombre/razón social*" textOverrun="CLIP" GridPane.columnIndex="2" />
-                        <ComboBox fx:id="comboCliente" editable="true" prefHeight="43.0" prefWidth="298.0" promptText="Buscar o escribir nuevo..." styleClass="f-venta-combo-box" GridPane.columnIndex="3" />
-
-                        <Label styleClass="f-venta-label-campo" text="Documento" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <HBox spacing="10.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
-                            <children>
-                                <ComboBox fx:id="comboTipoDoc" prefHeight="40.0" prefWidth="100.0" styleClass="f-venta-combo-box" />
-                                <TextField fx:id="txtDocumento" prefHeight="40.0" promptText="Número" styleClass="f-venta-input-texto" HBox.hgrow="ALWAYS" />
-                            </children>
-                        </HBox>
-
-                        <Label styleClass="f-venta-label-campo" text="Correo" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <TextField fx:id="txtCorreo" prefHeight="40.0" promptText="alguien@ejemplo.com" styleClass="f-venta-input-texto" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-
-                        <Label styleClass="f-venta-label-campo" text="Celular" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                        <TextField fx:id="txtCelular" prefHeight="40.0" styleClass="f-venta-input-texto" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-
+                        <!-- Columna 3: Contacto opcional -->
+                        <VBox spacing="6.0" GridPane.columnIndex="2">
+                            <Label styleClass="f-venta-label-campo" text="Documento" />
+                            <HBox spacing="10.0">
+                                <children>
+                                    <ComboBox fx:id="comboTipoDoc" prefHeight="40.0" prefWidth="100.0" styleClass="f-venta-combo-box" />
+                                    <TextField fx:id="txtDocumento" prefHeight="40.0" promptText="Número" styleClass="f-venta-input-texto" HBox.hgrow="ALWAYS" />
+                                </children>
+                            </HBox>
+                            <Label styleClass="f-venta-label-campo" text="Correo" />
+                            <TextField fx:id="txtCorreo" maxWidth="1.7976931348623157E308" prefHeight="40.0" promptText="alguien@ejemplo.com" styleClass="f-venta-input-texto" />
+                            <Label styleClass="f-venta-label-campo" text="Celular" />
+                            <TextField fx:id="txtCelular" maxWidth="1.7976931348623157E308" prefHeight="40.0" styleClass="f-venta-input-texto" />
+                        </VBox>
                     </children>
                 </GridPane>
 
@@ -127,13 +121,13 @@
                                 <TableColumn fx:id="colCodigo" minWidth="80.0" prefWidth="90.0" text="Código" />
                                 <TableColumn fx:id="colDescripcion" minWidth="220.0" prefWidth="260.0" text="Descripción del Producto" />
                                 <TableColumn fx:id="colCantidad" minWidth="90.0" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Cantidad" />
-                                <TableColumn fx:id="colPrecioSugerido" minWidth="90.0" prefWidth="95.0" style="-fx-alignment: CENTER-RIGHT;" text="P. Sugerido" />
-                                <TableColumn fx:id="colPrecio" minWidth="100.0" prefWidth="110.0" style="-fx-alignment: CENTER-RIGHT;" text="P. Venta/Unid" />
-                                <TableColumn fx:id="colUtilidadMonto" minWidth="110.0" prefWidth="125.0" style="-fx-alignment: CENTER-RIGHT;" text="Utilidad" />
-                                <TableColumn fx:id="colIvaGenerado" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA Gen." />
-                                <TableColumn fx:id="colDiferenciaIva" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER-RIGHT;" text="IVA p/Pagar" />
+                                <TableColumn fx:id="colPrecioSugerido" minWidth="90.0" prefWidth="95.0" style="-fx-alignment: CENTER;" text="P. Sugerido" />
+                                <TableColumn fx:id="colPrecio" minWidth="100.0" prefWidth="110.0" style="-fx-alignment: CENTER;" text="P. Venta/Unid" />
+                                <TableColumn fx:id="colUtilidadMonto" minWidth="110.0" prefWidth="125.0" style="-fx-alignment: CENTER;" text="Utilidad" />
+                                <TableColumn fx:id="colIvaGenerado" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="IVA Gen." />
+                                <TableColumn fx:id="colDiferenciaIva" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="IVA p/Pagar" />
                                 <TableColumn fx:id="colDescuento" minWidth="55.0" prefWidth="60.0" style="-fx-alignment: CENTER;" text="Desc %" />
-                                <TableColumn fx:id="colSubtotal" minWidth="95.0" prefWidth="105.0" style="-fx-alignment: CENTER-RIGHT;" text="Total" />
+                                <TableColumn fx:id="colSubtotal" minWidth="95.0" prefWidth="105.0" style="-fx-alignment: CENTER;" text="Total" />
                                 <TableColumn fx:id="colAccion" maxWidth="50.0" minWidth="40.0" prefWidth="40.0" style="-fx-alignment: CENTER;" text="" />
                             </columns>
                             <columnResizePolicy>
@@ -161,17 +155,13 @@
 
                 <HBox spacing="40.0">
                     <children>
-                        <VBox spacing="20.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="f-venta-lbl-obligatorio" text="Los campos marcados con * son obligatorios" />
-                                <VBox prefHeight="119.0" prefWidth="574.0" spacing="5.0">
-                                    <Label styleClass="f-venta-label-campo" text="Notas" textFill="#34495e" />
-                                    <TextArea fx:id="txtNotas" prefHeight="80.0" styleClass="f-venta-textarea-notas" wrapText="true" />
-                                </VBox>
-                            </children>
+                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                            <Label styleClass="f-venta-lbl-obligatorio" text="Los campos marcados con * son obligatorios" />
+                            <Label styleClass="f-venta-label-campo" text="Notas" textFill="#34495e" />
+                            <TextArea fx:id="txtNotas" prefHeight="52.0" styleClass="f-venta-textarea-notas" wrapText="true" />
                         </VBox>
 
-                        <VBox alignment="TOP_RIGHT" minWidth="280.0" spacing="10.0">
+                        <VBox alignment="TOP_RIGHT" minWidth="280.0" spacing="10.0" HBox.hgrow="NEVER">
                             <children>
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">
                                     <children>
@@ -211,29 +201,27 @@
                     </children>
                 </HBox>
 
-                <HBox alignment="CENTER_RIGHT" spacing="20.0">
+                <HBox alignment="CENTER_RIGHT" spacing="12.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#btnCancelarClick" prefHeight="40.0" style="-fx-background-color: #ecf0f1; -fx-text-fill: #7f8c8d; -fx-border-color: #bdc3c7; -fx-border-radius: 4; -fx-background-radius: 4;" text="Cancelar">
-                            <font>
-                                <Font size="14.0" />
-                            </font>
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                            <padding>
-                                <Insets bottom="8.0" left="20.0" right="20.0" top="8.0" />
-                            </padding>
+                        <Button contentDisplay="LEFT" graphicTextGap="12.0" mnemonicParsing="false"
+                                onAction="#btnCancelarClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-gray" text="Cancelar">
+                            <graphic>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-gray">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✗" />
+                                </StackPane>
+                            </graphic>
                         </Button>
-                        <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#btnGuardarClick" prefHeight="40.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 4; -fx-font-weight: bold;" text="Guardar Venta">
-                            <font>
-                                <Font size="14.0" />
-                            </font>
-                            <cursor>
-                                <Cursor fx:constant="HAND" />
-                            </cursor>
-                            <padding>
-                                <Insets bottom="8.0" left="25.0" right="25.0" top="8.0" />
-                            </padding>
+                        <Button contentDisplay="LEFT" graphicTextGap="12.0" mnemonicParsing="false"
+                                onAction="#btnGuardarClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-green" text="Guardar Venta">
+                            <graphic>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-green">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✓" />
+                                </StackPane>
+                            </graphic>
                         </Button>
                     </children>
                     <padding>

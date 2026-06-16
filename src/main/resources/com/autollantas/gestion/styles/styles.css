@@ -2068,26 +2068,38 @@
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-text-fill: #4a5568;
-    -fx-border-width: 1 1 1 4;
+    -fx-border-width: 1.5;
     -fx-border-style: solid;
     -fx-alignment: CENTER;
 }
 .mini-card-btn:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.13), 14, 0, 0, 4);
-    -fx-translate-y: -1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 16, 0, 0, 4);
+    -fx-background-color: #fafbff;
 }
 .mini-card-btn:pressed {
-    -fx-translate-y: 0;
-    -fx-background-color: #f7f8fc;
+    -fx-background-color: #f0f2f8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 1);
 }
 
-.mini-card-cyan   { -fx-border-color: #d8eeec #d8eeec #d8eeec #4db6ac; }
-.mini-card-purple { -fx-border-color: #ede8f6 #ede8f6 #ede8f6 #9b7eca; }
-.mini-card-blue   { -fx-border-color: #e2eaf5 #e2eaf5 #e2eaf5 #6398c8; }
+.mini-card-cyan   { -fx-border-color: #4db6ac; }
+.mini-card-purple { -fx-border-color: #9b7eca; }
+.mini-card-blue   { -fx-border-color: #6398c8; }
+.mini-card-green  { -fx-border-color: #27ae60; }
+.mini-card-gray   { -fx-border-color: #94a3b8; }
 
 .mini-card-chip-cyan   { -fx-background-color: #40b8b0; -fx-background-radius: 8; }
 .mini-card-chip-purple { -fx-background-color: #a888e8; -fx-background-radius: 8; }
 .mini-card-chip-blue   { -fx-background-color: #60a0dc; -fx-background-radius: 8; }
+.mini-card-chip-green  { -fx-background-color: #27ae60; -fx-background-radius: 8; }
+.mini-card-chip-gray   { -fx-background-color: #94a3b8; -fx-background-radius: 8; }
+
+.mini-card-orange { -fx-border-color: #e67e22; }
+.mini-card-red    { -fx-border-color: #e74c3c; }
+.mini-card-teal   { -fx-border-color: #4db6ac; }
+
+.mini-card-chip-orange { -fx-background-color: #e67e22; -fx-background-radius: 8; }
+.mini-card-chip-red    { -fx-background-color: #e74c3c; -fx-background-radius: 8; }
+.mini-card-chip-teal   { -fx-background-color: #4db6ac; -fx-background-radius: 8; }
 
 /* ── Tabla solo lectura ─────────────────────────────────────────────────── */
 .tabla-readonly .table-row-cell {

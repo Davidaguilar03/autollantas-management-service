@@ -52,13 +52,36 @@
 
                         <HBox spacing="10.0">
                             <children>
-                                <Button fx:id="btnNewTax" mnemonicParsing="false" onAction="#onNewTax" prefHeight="40.0" styleClass="btn-success" text="Nuevo Impuesto">
-                                    <padding>
-                                        <Insets left="12.0" right="12.0" />
-                                    </padding>
+                                <Button fx:id="btnNewTax" contentDisplay="LEFT" graphicTextGap="12.0"
+                                        mnemonicParsing="false" onAction="#onNewTax" prefHeight="48.0"
+                                        styleClass="mini-card-btn,mini-card-green" text="Nuevo Impuesto">
+                                    <graphic>
+                                        <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
+                                                   styleClass="mini-card-chip-green">
+                                            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="＋" StackPane.alignment="CENTER" />
+                                        </StackPane>
+                                    </graphic>
                                 </Button>
-                                <Button fx:id="btnEditTax" disable="true" mnemonicParsing="false" onAction="#onEditTax" prefHeight="40.0" styleClass="btn-warning" text="Editar" />
-                                <Button fx:id="btnDeleteTax" disable="true" mnemonicParsing="false" onAction="#onDeleteTax" prefHeight="40.0" styleClass="btn-danger" text="Eliminar" />
+                                <Button fx:id="btnEditTax" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
+                                        mnemonicParsing="false" onAction="#onEditTax" prefHeight="48.0"
+                                        styleClass="mini-card-btn,mini-card-orange" text="Editar">
+                                    <graphic>
+                                        <StackPane alignment="CENTER" minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                   styleClass="mini-card-chip-orange">
+                                            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✎" StackPane.alignment="CENTER" />
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="btnDeleteTax" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
+                                        mnemonicParsing="false" onAction="#onDeleteTax" prefHeight="48.0"
+                                        styleClass="mini-card-btn,mini-card-red" text="Eliminar">
+                                    <graphic>
+                                        <StackPane alignment="CENTER" minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                   styleClass="mini-card-chip-red">
+                                            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✕" StackPane.alignment="CENTER" />
+                                        </StackPane>
+                                    </graphic>
+                                </Button>
                             </children>
                         </HBox>
                     </children>
@@ -90,10 +113,15 @@
 
                         <HBox alignment="CENTER_RIGHT">
                             <children>
-                                <Button fx:id="btnSaveAssignment" mnemonicParsing="false" onAction="#onSaveAssignment" prefHeight="40.0" styleClass="btn-primary" text="Guardar Asignación">
-                                    <padding>
-                                        <Insets left="12.0" right="12.0" />
-                                    </padding>
+                                <Button fx:id="btnSaveAssignment" contentDisplay="LEFT" graphicTextGap="12.0"
+                                        mnemonicParsing="false" onAction="#onSaveAssignment" prefHeight="48.0"
+                                        styleClass="mini-card-btn,mini-card-blue" text="Guardar Asignación">
+                                    <graphic>
+                                        <StackPane alignment="CENTER" minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                   styleClass="mini-card-chip-blue">
+                                            <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✓" StackPane.alignment="CENTER" />
+                                        </StackPane>
+                                    </graphic>
                                 </Button>
                             </children>
                         </HBox>
