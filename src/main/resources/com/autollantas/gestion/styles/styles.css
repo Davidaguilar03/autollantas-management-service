@@ -1490,9 +1490,9 @@
     -fx-border-width: 2;
     -fx-cursor: hand;
     -fx-text-fill: #5a6a80;
-    -fx-font-size: 12px;
-    -fx-padding: 16 12 16 12;
-    -fx-graphic-text-gap: 10;
+    -fx-font-size: 17px;
+    -fx-padding: 22 17 22 17;
+    -fx-graphic-text-gap: 14;
 }
 
 .btn-reporte-dashed:hover {
