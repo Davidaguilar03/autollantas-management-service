@@ -495,7 +495,7 @@ public class PurchaseFormController {
         private final TextField textField = new TextField();
 
         public PriceCell() {
-            textField.setAlignment(Pos.CENTER_RIGHT);
+            textField.setAlignment(Pos.CENTER);
             textField.setStyle("-fx-background-color: transparent; -fx-text-fill: black;");
             textField.focusedProperty().addListener((obs, was, isNow) -> {
                 if (isNow) {
@@ -540,6 +540,7 @@ public class PurchaseFormController {
             super.updateItem(item, empty);
             if (empty || item == null) setGraphic(null);
             else {
+                setAlignment(Pos.CENTER);
                 if (!textField.isFocused()) textField.setText(currencyFormat.format(item));
                 setGraphic(textField);
             }

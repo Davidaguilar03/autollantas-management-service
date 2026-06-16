@@ -18,6 +18,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="700.0" prefWidth="1200.0" style="-fx-background-color: #f0f2f5;" styleClass="main-background" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.purchases.controller.PaymentsController">
@@ -55,10 +56,10 @@
 
                         <GridPane hgap="15.0" vgap="10.0">
                             <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="100.0" prefWidth="120.0" />
-                                <ColumnConstraints hgrow="ALWAYS" maxWidth="332.33331298828125" minWidth="200.0" prefWidth="276.0" />
-                                <ColumnConstraints hgrow="ALWAYS" maxWidth="591.0" minWidth="300.0" prefWidth="591.0" />
-                                <ColumnConstraints hgrow="NEVER" maxWidth="135.0" minWidth="98.6666259765625" prefWidth="117.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="85.0" prefWidth="102.0" />
+                                <ColumnConstraints hgrow="ALWAYS" maxWidth="282.0" minWidth="170.0" prefWidth="235.0" />
+                                <ColumnConstraints hgrow="ALWAYS" maxWidth="502.0" minWidth="255.0" prefWidth="502.0" />
+                                <ColumnConstraints hgrow="NEVER" maxWidth="200.0" minWidth="160.0" prefWidth="160.0" />
                             </columnConstraints>
                             <rowConstraints>
                                 <RowConstraints minHeight="50.0" vgrow="SOMETIMES" />
@@ -145,18 +146,28 @@
                                     </children>
                                 </HBox>
 
-                                <VBox alignment="CENTER" prefWidth="103.0" spacing="10.0" GridPane.columnIndex="3" GridPane.rowSpan="2">
+                                <VBox alignment="CENTER" minWidth="160.0" spacing="10.0" GridPane.columnIndex="3" GridPane.rowSpan="2">
                                     <children>
-                                        <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#btnBuscarClick" prefHeight="35.0" prefWidth="133.0" styleClass="btn-primaryy" text="Filtrar">
+                                        <Button contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity"
+                                                mnemonicParsing="false" onAction="#btnBuscarClick" prefHeight="48.0"
+                                                styleClass="mini-card-btn,mini-card-blue" text="Filtrar">
                                             <graphic>
-                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                                    <image>
-                                                        <Image url="@../../images/filtrar.png" />
-                                                    </image>
-                                                </ImageView>
+                                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                           styleClass="mini-card-chip-blue">
+                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="⊟" />
+                                                </StackPane>
                                             </graphic>
                                         </Button>
-                                        <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#btnLimpiarFiltrosClick" styleClass="btn-secondary-outline" text="Limpiar" />
+                                        <Button contentDisplay="LEFT" graphicTextGap="8.0" maxWidth="Infinity"
+                                                mnemonicParsing="false" onAction="#btnLimpiarFiltrosClick" prefHeight="48.0"
+                                                styleClass="mini-card-btn,mini-card-gray" text="Limpiar">
+                                            <graphic>
+                                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                           styleClass="mini-card-chip-gray">
+                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="↺" />
+                                                </StackPane>
+                                            </graphic>
+                                        </Button>
                                     </children>
                                 </VBox>
 
@@ -192,26 +203,25 @@
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
                   <Region />
-                        <Button fx:id="btnRegistrarPago" disable="true" graphicTextGap="8.0" mnemonicParsing="false" onAction="#btnRegistrarPagoClick" prefHeight="40.0" styleClass="btn-success" text="Agregar Pago">
+                        <Button fx:id="btnRegistrarPago" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnRegistrarPagoClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-green" text="Agregar Pago">
                             <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../images/agregar.png" />
-                                    </image>
-                                </ImageView>
+                                <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
+                                           styleClass="mini-card-chip-green">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="＋" StackPane.alignment="CENTER" />
+                                </StackPane>
                             </graphic>
-                            <padding>
-                                <Insets left="15.0" right="15.0" />
-                            </padding>
                         </Button>
 
-                        <Button fx:id="btnVerDetalle" disable="true" graphicTextGap="8.0" mnemonicParsing="false" onAction="#btnVerDetalleClick" prefHeight="40.0" styleClass="btn-info" text="Ver Detalles">
+                        <Button fx:id="btnVerDetalle" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnVerDetalleClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-teal" text="Ver Detalles">
                             <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../images/resultados.png" />
-                                    </image>
-                                </ImageView>
+                                <StackPane minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
+                                           styleClass="mini-card-chip-teal">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 0 0 1 0;" text="⊙" />
+                                </StackPane>
                             </graphic>
                         </Button>
 

@@ -38,7 +38,16 @@
                 <Label styleClass="lbl-campo" text="Utilidad (%%)" />
                 <TextField fx:id="txtMargen" prefWidth="120" promptText="Ej: 30" styleClass="input-moderno" />
             </VBox>
-            <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#guardar" prefHeight="32.0" styleClass="btn-success" text="Guardar" />
+            <Button fx:id="btnGuardar" contentDisplay="LEFT" graphicTextGap="12.0"
+                    mnemonicParsing="false" onAction="#guardar" prefHeight="48.0"
+                    styleClass="mini-card-btn,mini-card-green" text="Guardar">
+                <graphic>
+                    <StackPane alignment="CENTER" minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                               styleClass="mini-card-chip-green">
+                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✓" StackPane.alignment="CENTER" />
+                    </StackPane>
+                </graphic>
+            </Button>
         </HBox>
 
         <Separator style="-fx-opacity: 0.5;" />

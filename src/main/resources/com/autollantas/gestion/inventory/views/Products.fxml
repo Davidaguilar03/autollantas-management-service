@@ -94,17 +94,28 @@
                                     </children>
                                 </VBox>
 
-                                <HBox alignment="BOTTOM_LEFT" prefHeight="124.0" prefWidth="270.0" spacing="10.0" GridPane.columnIndex="4" GridPane.rowSpan="2">
+                                <HBox alignment="BOTTOM_LEFT" minWidth="160.0" prefHeight="124.0" spacing="10.0" GridPane.columnIndex="4" GridPane.rowSpan="2">
                                     <children>
-                                        <Button mnemonicParsing="false" onAction="#btnBuscarClick" prefHeight="36.0" prefWidth="105.0" styleClass="btn-primaryy" text="Filtrar">
+                                        <Button contentDisplay="LEFT" graphicTextGap="8.0" mnemonicParsing="false"
+                                                onAction="#btnBuscarClick" prefHeight="48.0"
+                                                styleClass="mini-card-btn,mini-card-blue" text="Filtrar">
                                             <graphic>
-                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                                    <image>
-                                                        <Image url="@../../images/filtrar.png" />
-                                                    </image>
-                                                </ImageView>
-                                            </graphic></Button>
-                                        <Button mnemonicParsing="false" onAction="#btnLimpiarFiltrosClick" styleClass="btn-secondary-outline" text="Limpiar" />
+                                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                           styleClass="mini-card-chip-blue">
+                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="⊟" />
+                                                </StackPane>
+                                            </graphic>
+                                        </Button>
+                                        <Button contentDisplay="LEFT" graphicTextGap="8.0" mnemonicParsing="false"
+                                                onAction="#btnLimpiarFiltrosClick" prefHeight="48.0"
+                                                styleClass="mini-card-btn,mini-card-gray" text="Limpiar">
+                                            <graphic>
+                                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                           styleClass="mini-card-chip-gray">
+                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="↺" />
+                                                </StackPane>
+                                            </graphic>
+                                        </Button>
                                     </children>
                                 </HBox>
 
@@ -164,36 +175,36 @@
 
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
-                        <Button graphicTextGap="8.0" mnemonicParsing="false" onAction="#btnNuevoProductoClick" prefHeight="40.0" styleClass="btn-success" text="Nuevo Producto">
+                        <Button contentDisplay="LEFT" graphicTextGap="12.0" mnemonicParsing="false"
+                                onAction="#btnNuevoProductoClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-green" text="Nuevo Producto">
                             <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../images/agregar.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                            <padding>
-                                <Insets left="15.0" right="15.0" />
-                            </padding>
-                        </Button>
-
-                        <Button fx:id="btnEditar" disable="true" graphicTextGap="8.0" mnemonicParsing="false" onAction="#btnEditarClick" prefHeight="40.0" styleClass="btn-warning" text="Editar">
-                            <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../images/editar.png" />
-                                    </image>
-                                </ImageView>
+                                <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
+                                           styleClass="mini-card-chip-green">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="＋" StackPane.alignment="CENTER" />
+                                </StackPane>
                             </graphic>
                         </Button>
 
-                        <Button fx:id="btnEliminar" disable="true" graphicTextGap="8.0" mnemonicParsing="false" onAction="#btnEliminarClick" prefHeight="40.0" styleClass="btn-danger" text="Eliminar">
+                        <Button fx:id="btnEditar" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnEditarClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-orange" text="Editar">
                             <graphic>
-                                <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                    <image>
-                                        <Image url="@../../images/eliminar.png" />
-                                    </image>
-                                </ImageView>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-orange">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✎" />
+                                </StackPane>
+                            </graphic>
+                        </Button>
+
+                        <Button fx:id="btnEliminar" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
+                                mnemonicParsing="false" onAction="#btnEliminarClick" prefHeight="48.0"
+                                styleClass="mini-card-btn,mini-card-red" text="Eliminar">
+                            <graphic>
+                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                           styleClass="mini-card-chip-red">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="✕" />
+                                </StackPane>
                             </graphic>
                         </Button>
 
@@ -205,7 +216,7 @@
                             <graphic>
                                 <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
                                            styleClass="mini-card-chip-cyan">
-                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;" text="\%" />
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="\%" />
                                 </StackPane>
                             </graphic>
                         </Button>
@@ -215,7 +226,7 @@
                             <graphic>
                                 <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
                                            styleClass="mini-card-chip-purple">
-                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;" text="≡" />
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-padding: 0 0 3 0;" text="≡" />
                                 </StackPane>
                             </graphic>
                         </Button>
@@ -225,7 +236,7 @@
                             <graphic>
                                 <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
                                            styleClass="mini-card-chip-blue">
-                                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: white;" text="↑" />
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="↑" />
                                 </StackPane>
                             </graphic>
                         </Button>
