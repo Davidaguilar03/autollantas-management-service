@@ -15,7 +15,7 @@
 
 <StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.TaxManagementController">
 
-    <VBox alignment="TOP_CENTER" maxHeight="650" maxWidth="900" spacing="15" styleClass="card-form">
+    <VBox alignment="TOP_CENTER" maxHeight="720" maxWidth="980" spacing="15" styleClass="card-form">
         <padding>
             <Insets bottom="25.0" left="30.0" right="30.0" top="20.0" />
         </padding>
@@ -38,12 +38,12 @@
                     <children>
                         <Label style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #2c3e50;" text="Tipos de Impuesto" />
 
-                        <StyledTableView fx:id="tableTaxTypes" style="-fx-fixed-cell-size: 30px;" VBox.vgrow="ALWAYS">
+                        <StyledTableView fx:id="tableTaxTypes" style="-fx-fixed-cell-size: 44px;" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colTaxName" prefWidth="150.0" style="-fx-alignment: CENTER;" text="Nombre" />
-                                <TableColumn fx:id="colTaxRate" prefWidth="100.0" style="-fx-alignment: CENTER;" text="Tasa %" />
-                                <TableColumn fx:id="colTaxApplies" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Aplica a" />
-                                <TableColumn fx:id="colTaxDesc" prefWidth="200.0" style="-fx-alignment: CENTER;" text="Descripción" />
+                                <TableColumn fx:id="colTaxName" prefWidth="135.0" style="-fx-alignment: CENTER;" text="Nombre" />
+                                <TableColumn fx:id="colTaxRate" prefWidth="85.0" style="-fx-alignment: CENTER;" text="Tasa %" />
+                                <TableColumn fx:id="colTaxApplies" prefWidth="115.0" style="-fx-alignment: CENTER;" text="Aplica a" />
+                                <TableColumn fx:id="colTaxDesc" prefWidth="245.0" style="-fx-alignment: CENTER;" text="Descripción" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -76,7 +76,7 @@
                             </children>
                         </HBox>
 
-                        <StyledTableView fx:id="tableCategoryTaxes" editable="true" style="-fx-fixed-cell-size: 30px;" VBox.vgrow="ALWAYS">
+                        <StyledTableView fx:id="tableCategoryTaxes" editable="true" style="-fx-fixed-cell-size: 44px;" VBox.vgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="colCatTaxCheck" editable="true" prefWidth="70.0" style="-fx-alignment: CENTER;" text="Aplica" />
                                 <TableColumn fx:id="colCatTaxName" prefWidth="150.0" style="-fx-alignment: CENTER;" text="Nombre" />

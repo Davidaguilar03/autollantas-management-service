@@ -36,8 +36,6 @@ public class CategoryManagementController {
 
     @FXML private TableView<ProductCategory> tableCategories;
     @FXML private TableColumn<ProductCategory, String> colNombre;
-    @FXML private TableColumn<ProductCategory, Integer> colStockAmarillo;
-    @FXML private TableColumn<ProductCategory, Integer> colStockRojo;
     @FXML private TableColumn<ProductCategory, Integer> colProductCount;
 
     @FXML private Button btnEditar;
@@ -49,14 +47,6 @@ public class CategoryManagementController {
     public void initialize() {
         colNombre.setCellValueFactory(cell -> new SimpleStringProperty(
                 cell.getValue().getName() != null ? cell.getValue().getName() : ""));
-        colStockAmarillo.setCellValueFactory(cell -> {
-            Integer val = cell.getValue().getYellowStockMin();
-            return new SimpleIntegerProperty(val != null ? val : 0).asObject();
-        });
-        colStockRojo.setCellValueFactory(cell -> {
-            Integer val = cell.getValue().getRedStockMin();
-            return new SimpleIntegerProperty(val != null ? val : 0).asObject();
-        });
         colProductCount.setCellValueFactory(cell -> {
             int count = inventoryService.findProductsByCategory(cell.getValue()).size();
             return new SimpleIntegerProperty(count).asObject();

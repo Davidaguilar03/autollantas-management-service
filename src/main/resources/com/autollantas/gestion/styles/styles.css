@@ -50,7 +50,7 @@
 
 .login-subtitle {
     -fx-font-size: 20px;
-    -fx-font-weight: semi-bold;
+    -fx-font-weight: 600;
     -fx-text-fill: rgba(255,255,255,0.85);
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-wrap-text: true;
@@ -2055,4 +2055,52 @@
 }
 .dialog-btn-danger:hover {
     -fx-background-color: #dc2626;
+}
+
+/* ── Mini-cards: botones de configuración en Products ───────────────────── */
+.mini-card-btn {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 10, 0, 0, 2);
+    -fx-cursor: hand;
+    -fx-padding: 10 18 10 18;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+    -fx-border-width: 1 1 1 4;
+    -fx-border-style: solid;
+    -fx-alignment: CENTER;
+}
+.mini-card-btn:hover {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.13), 14, 0, 0, 4);
+    -fx-translate-y: -1;
+}
+.mini-card-btn:pressed {
+    -fx-translate-y: 0;
+    -fx-background-color: #f7f8fc;
+}
+
+.mini-card-cyan   { -fx-border-color: #d8eeec #d8eeec #d8eeec #4db6ac; }
+.mini-card-purple { -fx-border-color: #ede8f6 #ede8f6 #ede8f6 #9b7eca; }
+.mini-card-blue   { -fx-border-color: #e2eaf5 #e2eaf5 #e2eaf5 #6398c8; }
+
+.mini-card-chip-cyan   { -fx-background-color: #40b8b0; -fx-background-radius: 8; }
+.mini-card-chip-purple { -fx-background-color: #a888e8; -fx-background-radius: 8; }
+.mini-card-chip-blue   { -fx-background-color: #60a0dc; -fx-background-radius: 8; }
+
+/* ── Tabla solo lectura ─────────────────────────────────────────────────── */
+.tabla-readonly .table-row-cell {
+    -fx-background-color: #f8f9fa;
+}
+.tabla-readonly .table-row-cell:odd {
+    -fx-background-color: #f1f3f5;
+}
+.tabla-readonly .table-row-cell:filled:hover {
+    -fx-background-color: #e9ecef;
+}
+.tabla-readonly .table-row-cell:selected,
+.tabla-readonly:focused .table-row-cell:selected {
+    -fx-background-color: #dee2e6;
+    -fx-table-cell-border-color: transparent;
 }
