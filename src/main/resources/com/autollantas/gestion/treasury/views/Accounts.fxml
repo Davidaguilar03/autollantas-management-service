@@ -13,6 +13,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -26,10 +28,6 @@
             <padding><Insets bottom="16" left="28" right="28" top="16" /></padding>
             <Label style="-fx-text-fill: #2d3748; -fx-font-size: 25; -fx-font-weight: bold;" text="Cuentas" />
             <Region HBox.hgrow="ALWAYS" />
-            <VBox alignment="CENTER_RIGHT" spacing="1">
-                <Label style="-fx-text-fill: #a0aec0; -fx-font-size: 12px; -fx-font-weight: bold;" text="BALANCE TOTAL" />
-                <Label fx:id="lblTotalGlobal" style="-fx-text-fill: #38a169; -fx-font-size: 22px; -fx-font-weight: bold;" text="--" />
-            </VBox>
         </HBox>
 
         <!-- TAB PANE PRINCIPAL -->
@@ -39,215 +37,251 @@
                 <!-- ══════ TAB: CAJA EFECTIVO ══════ -->
                 <Tab text="Caja Efectivo">
                     <content>
-                        <HBox spacing="14" styleClass="accounts-tab-content">
+                        <VBox spacing="16.0" style="-fx-padding: 16;">
 
-                            <!-- Tabla movimientos -->
-                            <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT">
-                                    <VBox spacing="2">
-                                        <Label styleClass="section-title" text="Movimientos" />
-                                    </VBox>
-                                </HBox>
-                                <Separator styleClass="acct-sep" />
-                                <StyledTableView fx:id="tablaMovCaja" fixedCellSize="36" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="colCajaMovFecha" prefWidth="100" text="Fecha" />
-                                        <TableColumn fx:id="colCajaMovTipo" prefWidth="80" text="Tipo" />
-                                        <TableColumn fx:id="colCajaMovConcepto" prefWidth="233.0" text="Concepto" />
-                                        <TableColumn fx:id="colCajaMovMonto" prefWidth="87.0" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
-                                    </columns>
-                                </StyledTableView>
+                            <!-- Balance Total -->
+                            <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
+                                <Label alignment="CENTER" text="BALANCE TOTAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                <Label fx:id="lblTotalGlobal" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #38a169;" />
                             </VBox>
 
-                            <!-- Panel lateral Caja -->
-                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
-                                <content>
-                                    <VBox spacing="10">
-                                        <padding><Insets bottom="2" top="2" /></padding>
+                            <!-- KPIs -->
+                            <GridPane hgap="16.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.34" />
+                                </columnConstraints>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
+                                    <Label alignment="CENTER" text="SALDO ACTUAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblSaldoCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #7c3aed;" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
+                                    <Label alignment="CENTER" text="INGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblIngCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="2">
+                                    <Label alignment="CENTER" text="EGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblEgrCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #dc2626;" />
+                                </VBox>
+                            </GridPane>
 
-                                        <!-- Filtros -->
-                                        <VBox spacing="9" styleClass="acct-action-card">
-                                            <HBox alignment="CENTER_LEFT">
-                                                <Label styleClass="section-title" text="Filtros" />
-                                            </HBox>
-                                            <Label styleClass="stat-card-label" text="Periodo" />
-                                            <ComboBox fx:id="comboPeriodoCaja" maxWidth="Infinity" onAction="#onPeriodoCajaChanged" promptText="Seleccionar" styleClass="acct-combo" />
-                                            <VBox fx:id="rangoCaja" managed="false" spacing="6" visible="false">
-                                                <Label styleClass="stat-card-label" text="Desde" />
-                                                <DatePicker fx:id="datesDesdeCaja" maxWidth="Infinity" styleClass="acct-datepicker" />
-                                                <Label styleClass="stat-card-label" text="Hasta" />
-                                                <DatePicker fx:id="datesHastaCaja" maxWidth="Infinity" styleClass="acct-datepicker" />
+                            <!-- Tabla + panel lateral Caja -->
+                            <HBox spacing="14" styleClass="accounts-tab-content" VBox.vgrow="ALWAYS">
+                                <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="section-title" text="Movimientos de Caja" />
+                                        </VBox>
+                                    </HBox>
+                                    <Separator styleClass="acct-sep" />
+                                    <StyledTableView fx:id="tablaMovCaja" fixedCellSize="36" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="colCajaMovFecha" prefWidth="100" text="Fecha" />
+                                            <TableColumn fx:id="colCajaMovTipo" prefWidth="80" text="Tipo" />
+                                            <TableColumn fx:id="colCajaMovConcepto" prefWidth="233.0" text="Concepto" />
+                                            <TableColumn fx:id="colCajaMovMonto" prefWidth="87.0" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
+                                        </columns>
+                                    </StyledTableView>
+                                </VBox>
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
+                                    <content>
+                                        <VBox spacing="10">
+                                            <padding><Insets bottom="2" top="2" /></padding>
+                                            <VBox spacing="9" styleClass="acct-action-card">
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <Label styleClass="section-title" text="Filtros" />
+                                                </HBox>
+                                                <Label styleClass="stat-card-label" text="Periodo" />
+                                                <ComboBox fx:id="comboPeriodoCaja" maxWidth="Infinity" onAction="#onPeriodoCajaChanged" promptText="Seleccionar" styleClass="acct-combo" />
+                                                <VBox fx:id="rangoCaja" managed="false" spacing="6" visible="false">
+                                                    <Label styleClass="stat-card-label" text="Desde" />
+                                                    <DatePicker fx:id="datesDesdeCaja" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                    <Label styleClass="stat-card-label" text="Hasta" />
+                                                    <DatePicker fx:id="datesHastaCaja" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                </VBox>
+                                                <HBox spacing="8">
+                                                    <Button maxWidth="Infinity" onAction="#resetFiltrosCaja" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
+                                                    <Button maxWidth="Infinity" onAction="#aplicarFiltrosCaja" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
+                                                </HBox>
                                             </VBox>
-                                            <HBox spacing="8">
-                                                <Button maxWidth="Infinity" onAction="#resetFiltrosCaja" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
-                                                <Button maxWidth="Infinity" onAction="#aplicarFiltrosCaja" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
-                                            </HBox>
                                         </VBox>
+                                    </content>
+                                </ScrollPane>
+                            </HBox>
 
-                                        <VBox spacing="3" styleClass="acct-kpi-card-red">
-                                            <Label styleClass="stat-card-label" text="EGRESOS" />
-                                            <Label fx:id="lblEgrCaja" styleClass="acct-kpi-value-red" text="--" />
-                                        </VBox>
-
-                                        <VBox spacing="3" styleClass="acct-kpi-card-green">
-                                            <Label styleClass="stat-card-label" text="INGRESOS" />
-                                            <Label fx:id="lblIngCaja" styleClass="acct-kpi-value-green" text="--" />
-                                        </VBox>
-
-                                        <VBox spacing="3" styleClass="acct-kpi-card-purple">
-                                            <Label styleClass="stat-card-label" text="SALDO ACTUAL" />
-                                            <Label fx:id="lblSaldoCaja" styleClass="acct-kpi-value-purple" text="--" />
-                                        </VBox>
-
-                                    </VBox>
-                                </content>
-                            </ScrollPane>
-
-                        </HBox>
+                        </VBox>
                     </content>
                 </Tab>
 
                 <!-- ══════ TAB: BANCOLOMBIA ══════ -->
                 <Tab text="Bancolombia">
                     <content>
-                        <HBox spacing="14" styleClass="accounts-tab-content">
+                        <VBox spacing="16.0" style="-fx-padding: 16;">
 
-                            <!-- Tabla movimientos -->
-                            <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT">
-                                    <VBox spacing="2">
-                                        <Label styleClass="section-title" text="Movimientos" />
-                                    </VBox>
-                                </HBox>
-                                <Separator styleClass="acct-sep" />
-                                <StyledTableView fx:id="tablaMovBanco" fixedCellSize="36" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="colBancoMovFecha" prefWidth="100" text="Fecha" />
-                                        <TableColumn fx:id="colBancoMovTipo" prefWidth="80" text="Tipo" />
-                                        <TableColumn fx:id="colBancoMovConcepto" prefWidth="236.0" text="Concepto" />
-                                        <TableColumn fx:id="colBancoMovMonto" prefWidth="84.0" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
-                                    </columns>
-                                </StyledTableView>
+                            <!-- Balance Total -->
+                            <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
+                                <Label alignment="CENTER" text="BALANCE TOTAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                <Label fx:id="lblBalanceBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
                             </VBox>
 
-                            <!-- Panel lateral Banco -->
-                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
-                                <content>
-                                    <VBox spacing="10">
-                                        <padding><Insets bottom="2" top="2" /></padding>
+                            <!-- KPIs -->
+                            <GridPane hgap="16.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.34" />
+                                </columnConstraints>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
+                                    <Label alignment="CENTER" text="SALDO ACTUAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblSaldoBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
+                                    <Label alignment="CENTER" text="INGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblIngBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="2">
+                                    <Label alignment="CENTER" text="EGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblEgrBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #dc2626;" />
+                                </VBox>
+                            </GridPane>
 
-                                        <VBox spacing="9" styleClass="acct-action-card">
-                                            <HBox alignment="CENTER_LEFT">
-                                                <Label styleClass="section-title" text="Filtros" />
-                                            </HBox>
-                                            <Label styleClass="stat-card-label" text="Periodo" />
-                                            <ComboBox fx:id="comboPeriodoBanco" maxWidth="Infinity" onAction="#onPeriodoBancoChanged" promptText="Seleccionar" styleClass="acct-combo" />
-                                            <VBox fx:id="rangoBanco" managed="false" spacing="6" visible="false">
-                                                <Label styleClass="stat-card-label" text="Desde" />
-                                                <DatePicker fx:id="datesDesdeBanco" maxWidth="Infinity" styleClass="acct-datepicker" />
-                                                <Label styleClass="stat-card-label" text="Hasta" />
-                                                <DatePicker fx:id="datesHastaBanco" maxWidth="Infinity" styleClass="acct-datepicker" />
+                            <!-- Tabla + panel lateral Banco -->
+                            <HBox spacing="14" styleClass="accounts-tab-content" VBox.vgrow="ALWAYS">
+                                <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="section-title" text="Movimientos Bancolombia" />
+                                        </VBox>
+                                    </HBox>
+                                    <Separator styleClass="acct-sep" />
+                                    <StyledTableView fx:id="tablaMovBanco" fixedCellSize="36" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="colBancoMovFecha" prefWidth="100" text="Fecha" />
+                                            <TableColumn fx:id="colBancoMovTipo" prefWidth="80" text="Tipo" />
+                                            <TableColumn fx:id="colBancoMovConcepto" prefWidth="236.0" text="Concepto" />
+                                            <TableColumn fx:id="colBancoMovMonto" prefWidth="84.0" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
+                                        </columns>
+                                    </StyledTableView>
+                                </VBox>
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
+                                    <content>
+                                        <VBox spacing="10">
+                                            <padding><Insets bottom="2" top="2" /></padding>
+                                            <VBox spacing="9" styleClass="acct-action-card">
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <Label styleClass="section-title" text="Filtros" />
+                                                </HBox>
+                                                <Label styleClass="stat-card-label" text="Periodo" />
+                                                <ComboBox fx:id="comboPeriodoBanco" maxWidth="Infinity" onAction="#onPeriodoBancoChanged" promptText="Seleccionar" styleClass="acct-combo" />
+                                                <VBox fx:id="rangoBanco" managed="false" spacing="6" visible="false">
+                                                    <Label styleClass="stat-card-label" text="Desde" />
+                                                    <DatePicker fx:id="datesDesdeBanco" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                    <Label styleClass="stat-card-label" text="Hasta" />
+                                                    <DatePicker fx:id="datesHastaBanco" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                </VBox>
+                                                <HBox spacing="8">
+                                                    <Button maxWidth="Infinity" onAction="#resetFiltrosBanco" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
+                                                    <Button maxWidth="Infinity" onAction="#aplicarFiltrosBanco" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
+                                                </HBox>
                                             </VBox>
-                                            <HBox spacing="8">
-                                                <Button maxWidth="Infinity" onAction="#resetFiltrosBanco" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
-                                                <Button maxWidth="Infinity" onAction="#aplicarFiltrosBanco" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
-                                            </HBox>
                                         </VBox>
+                                    </content>
+                                </ScrollPane>
+                            </HBox>
 
-                                        <VBox spacing="3" styleClass="acct-kpi-card-red">
-                                            <Label styleClass="stat-card-label" text="EGRESOS" />
-                                            <Label fx:id="lblEgrBanco" styleClass="acct-kpi-value-red" text="--" />
-                                        </VBox>
-
-                                        <VBox spacing="3" styleClass="acct-kpi-card-green">
-                                            <Label styleClass="stat-card-label" text="INGRESOS" />
-                                            <Label fx:id="lblIngBanco" styleClass="acct-kpi-value-green" text="--" />
-                                        </VBox>
-
-                                        <VBox spacing="3" styleClass="acct-kpi-card-blue">
-                                            <Label styleClass="stat-card-label" text="SALDO ACTUAL" />
-                                            <Label fx:id="lblSaldoBanco" styleClass="acct-kpi-value-blue" text="--" />
-                                        </VBox>
-
-                                    </VBox>
-                                </content>
-                            </ScrollPane>
-
-                        </HBox>
+                        </VBox>
                     </content>
                 </Tab>
 
                 <!-- ══════ TAB: TRANSFERENCIAS ══════ -->
                 <Tab text="Transferencias">
                     <content>
-                        <HBox spacing="14" styleClass="accounts-tab-content">
+                        <VBox spacing="16.0" style="-fx-padding: 16;">
 
-                            <!-- Tabla unificada -->
-                            <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT">
-                                    <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                        <Label styleClass="section-title" text="Todas las transferencias" />
-                                    </VBox>
-                                </HBox>
-                                <Separator styleClass="acct-sep" />
-                                <StyledTableView fx:id="tablaTransferencias" fixedCellSize="36" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="colTransFecha" prefWidth="100" text="Fecha" />
-                                        <TableColumn fx:id="colTransConcepto" prefWidth="180" text="Concepto" />
-                                        <TableColumn fx:id="colTransValor" prefWidth="130" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
-                                        <TableColumn fx:id="colTransOrigen" prefWidth="120" text="Origen" />
-                                        <TableColumn fx:id="colTransDestino" prefWidth="120" text="Destino" />
-                                    </columns>
-                                </StyledTableView>
+                            <!-- Balance Total Transferencias -->
+                            <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
+                                <Label alignment="CENTER" text="TRANSFERENCIAS TOTALES" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                <Label fx:id="lblTotalTransferencias" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;" />
                             </VBox>
 
-                            <!-- Panel lateral Trans -->
-                            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
-                                <content>
-                                    <VBox spacing="10">
-                                        <padding><Insets bottom="2" top="2" /></padding>
+                            <!-- KPIs transferencias -->
+                            <GridPane hgap="16.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                </columnConstraints>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
+                                    <Label alignment="CENTER" text="DESDE CAJA" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblEnviadoCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #7c3aed;" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
+                                    <Label alignment="CENTER" text="DESDE BANCOLOMBIA" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblEnviadoBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
+                                </VBox>
+                            </GridPane>
 
-                                        <VBox spacing="9" styleClass="acct-action-card">
-                                            <HBox alignment="CENTER_LEFT">
-                                                <Label styleClass="section-title" text="Filtros" />
-                                            </HBox>
-                                            <Label styleClass="stat-card-label" text="Periodo" />
-                                            <ComboBox fx:id="comboPeriodoTrans" maxWidth="Infinity" onAction="#onPeriodoTransChanged" promptText="Seleccionar" styleClass="acct-combo" />
-                                            <VBox fx:id="rangoTrans" managed="false" spacing="6" visible="false">
-                                                <Label styleClass="stat-card-label" text="Desde" />
-                                                <DatePicker fx:id="datesDesdeTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
-                                                <Label styleClass="stat-card-label" text="Hasta" />
-                                                <DatePicker fx:id="datesHastaTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
+                            <!-- Tabla + panel lateral -->
+                            <HBox spacing="14" styleClass="accounts-tab-content" VBox.vgrow="ALWAYS">
+
+                                <!-- Tabla unificada -->
+                                <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="section-title" text="Todas las transferencias" />
+                                        </VBox>
+                                    </HBox>
+                                    <Separator styleClass="acct-sep" />
+                                    <StyledTableView fx:id="tablaTransferencias" fixedCellSize="36" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="colTransFecha" prefWidth="100" text="Fecha" />
+                                            <TableColumn fx:id="colTransConcepto" prefWidth="180" text="Concepto" />
+                                            <TableColumn fx:id="colTransValor" prefWidth="130" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
+                                            <TableColumn fx:id="colTransOrigen" prefWidth="120" text="Origen" />
+                                            <TableColumn fx:id="colTransDestino" prefWidth="120" text="Destino" />
+                                        </columns>
+                                    </StyledTableView>
+                                </VBox>
+
+                                <!-- Panel lateral Trans (filtros + botón) -->
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
+                                    <content>
+                                        <VBox spacing="10">
+                                            <padding><Insets bottom="2" top="2" /></padding>
+
+                                            <VBox spacing="9" styleClass="acct-action-card">
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <Label styleClass="section-title" text="Filtros" />
+                                                </HBox>
+                                                <Label styleClass="stat-card-label" text="Periodo" />
+                                                <ComboBox fx:id="comboPeriodoTrans" maxWidth="Infinity" onAction="#onPeriodoTransChanged" promptText="Seleccionar" styleClass="acct-combo" />
+                                                <VBox fx:id="rangoTrans" managed="false" spacing="6" visible="false">
+                                                    <Label styleClass="stat-card-label" text="Desde" />
+                                                    <DatePicker fx:id="datesDesdeTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                    <Label styleClass="stat-card-label" text="Hasta" />
+                                                    <DatePicker fx:id="datesHastaTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                </VBox>
+                                                <HBox spacing="8">
+                                                    <Button maxWidth="Infinity" onAction="#resetFiltrosTrans" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
+                                                    <Button maxWidth="Infinity" onAction="#aplicarFiltrosTrans" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
+                                                </HBox>
                                             </VBox>
-                                            <HBox spacing="8">
-                                                <Button maxWidth="Infinity" onAction="#resetFiltrosTrans" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
-                                                <Button maxWidth="Infinity" onAction="#aplicarFiltrosTrans" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
-                                            </HBox>
+
+                                            <Button fx:id="btnNuevaTransferencia" contentDisplay="LEFT" maxWidth="Infinity" onAction="#abrirModalTransferencia" styleClass="acct-btn-transfer" text="  Nueva Transferencia">
+                                                <graphic>
+                                                    <ImageView fitHeight="24" fitWidth="24" preserveRatio="true" smooth="true">
+                                                        <image><Image url="@../../images/transferencia.png" /></image>
+                                                    </ImageView>
+                                                </graphic>
+                                            </Button>
+
                                         </VBox>
+                                    </content>
+                                </ScrollPane>
 
-                                        <VBox spacing="3" styleClass="acct-kpi-card-purple">
-                                            <Label styleClass="stat-card-label" text="ENVIADO DESDE CAJA" />
-                                            <Label fx:id="lblEnviadoCaja" styleClass="acct-kpi-value-purple" text="--" />
-                                        </VBox>
+                            </HBox>
 
-                                        <VBox spacing="3" styleClass="acct-kpi-card-blue">
-                                            <Label styleClass="stat-card-label" text="ENVIADO DESDE BANCOLOMBIA" />
-                                            <Label fx:id="lblEnviadoBanco" styleClass="acct-kpi-value-blue" text="--" />
-                                        </VBox>
-
-                                        <Button fx:id="btnNuevaTransferencia" contentDisplay="LEFT" maxWidth="Infinity" onAction="#abrirModalTransferencia" styleClass="acct-btn-transfer" text="  Nueva Transferencia">
-                                            <graphic>
-                                                <ImageView fitHeight="24" fitWidth="24" preserveRatio="true" smooth="true">
-                                                    <image><Image url="@../../images/transferencia.png" /></image>
-                                                </ImageView>
-                                            </graphic>
-                                        </Button>
-
-                                    </VBox>
-                                </content>
-                            </ScrollPane>
-
-                        </HBox>
+                        </VBox>
                     </content>
                 </Tab>
 

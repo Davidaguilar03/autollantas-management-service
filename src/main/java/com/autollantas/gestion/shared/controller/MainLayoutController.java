@@ -68,6 +68,14 @@ public class MainLayoutController {
     private TitledPane activePane = null;
     private Button activeSubBtn = null;
 
+    private Parent cachedSaleFormNode = null;
+    private Parent cachedPurchaseFormNode = null;
+
+    private static final String SALE_FORM_FXML = "/com/autollantas/gestion/sales/views/SaleForm.fxml";
+    private static final String PURCHASE_FORM_FXML = "/com/autollantas/gestion/purchases/views/PurchaseForm.fxml";
+    private static final String SALE_INVOICES_FXML = "/com/autollantas/gestion/sales/views/SaleInvoices.fxml";
+    private static final String PURCHASE_INVOICES_FXML = "/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml";
+
     private static final double RESPONSIVE_THRESHOLD = 1220.0;
 
     @FXML
@@ -150,10 +158,32 @@ public class MainLayoutController {
                 return null;
             }
 
+            if (!contentArea.getChildren().isEmpty()) {
+                Parent currentNode = (Parent) contentArea.getChildren().get(0);
+                if (currentNode.getUserData() != null) {
+                    String currentFxml = (String) currentNode.getUserData();
+                    if (SALE_FORM_FXML.equals(currentFxml)) {
+                        cachedSaleFormNode = currentNode;
+                    } else if (PURCHASE_FORM_FXML.equals(currentFxml)) {
+                        cachedPurchaseFormNode = currentNode;
+                    }
+                }
+            }
+
+            if (SALE_FORM_FXML.equals(fxmlPath) && cachedSaleFormNode != null) {
+                contentArea.getChildren().setAll(cachedSaleFormNode);
+                return null;
+            }
+            if (PURCHASE_FORM_FXML.equals(fxmlPath) && cachedPurchaseFormNode != null) {
+                contentArea.getChildren().setAll(cachedPurchaseFormNode);
+                return null;
+            }
+
             FXMLLoader loader = new FXMLLoader(url);
             loader.setControllerFactory(springContext::getBean);
 
             Parent vista = loader.load();
+            vista.setUserData(fxmlPath);
             contentArea.getChildren().setAll(vista);
 
             return loader.getController();
@@ -163,6 +193,11 @@ public class MainLayoutController {
             return null;
         }
     }
+
+    public void clearSaleFormCache() { cachedSaleFormNode = null; }
+    public void clearPurchaseFormCache() { cachedPurchaseFormNode = null; }
+    public boolean hasCachedSaleForm() { return cachedSaleFormNode != null; }
+    public boolean hasCachedPurchaseForm() { return cachedPurchaseFormNode != null; }
 
     private void loadLogo() {
         try {

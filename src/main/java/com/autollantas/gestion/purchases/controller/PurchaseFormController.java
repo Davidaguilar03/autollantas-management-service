@@ -66,14 +66,12 @@ public class PurchaseFormController {
     @FXML private TableColumn<PurchaseDetailRow, Product> colDescripcion;
     @FXML private TableColumn<PurchaseDetailRow, Integer> colCantidad;
     @FXML private TableColumn<PurchaseDetailRow, Double> colPrecio;
-    @FXML private TableColumn<PurchaseDetailRow, Double> colDescuento;
     @FXML private TableColumn<PurchaseDetailRow, Double> colImpuesto;
     @FXML private TableColumn<PurchaseDetailRow, String> colSubtotal;
     @FXML private TableColumn<PurchaseDetailRow, Void> colAccion;
 
     @FXML private Label lblSubtotal;
     @FXML private Label lblIvaFavorTotal;
-    @FXML private Label lblDescuentos;
     @FXML private Label lblTotalGeneral;
 
     private ObservableList<PurchaseDetailRow> detailRows;
@@ -179,7 +177,7 @@ public class PurchaseFormController {
         }
 
         comboFormaPago.getItems().setAll("Contado", "Crédito");
-        comboMedioPago.getItems().addAll("Efectivo", "Transferencia", "Nequi", "Tarjeta");
+        comboMedioPago.getItems().addAll("Efectivo", "Transferencia", "Tarjeta");
         comboCuenta.setItems(allAccounts);
 
         comboCuenta.setConverter(new StringConverter<Account>() {
@@ -188,6 +186,11 @@ public class PurchaseFormController {
         });
         comboCuenta.valueProperty().addListener((obs, old, nw) -> Platform.runLater(() ->
                 comboCuenta.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;")));
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> {
+            if (nw != null && nw.getName() != null && nw.getName().toLowerCase().contains("caja")) {
+                comboMedioPago.setValue("Efectivo");
+            }
+        });
 
         Runnable updateDates = () -> {
             String type = comboFormaPago.getValue();
@@ -231,14 +234,11 @@ public class PurchaseFormController {
         colPrecio.setCellValueFactory(cell -> cell.getValue().priceProperty().asObject());
         colPrecio.setCellFactory(col -> new PriceCell());
 
-        colDescuento.setCellValueFactory(cell -> cell.getValue().discountProperty().asObject());
-        colDescuento.setCellFactory(col -> new PercentageCell());
-
         colImpuesto.setCellValueFactory(cell ->
                 Bindings.createObjectBinding(() -> {
                     PurchaseDetailRow row = cell.getValue();
-                    return row.getPrice() * getIvaRate(row.getProduct()) * row.getQuantity();
-                }, cell.getValue().productProperty(), cell.getValue().priceProperty(), cell.getValue().quantityProperty())
+                    return row.getPrice() * getIvaRate(row.getProduct());
+                }, cell.getValue().productProperty(), cell.getValue().priceProperty())
         );
         colImpuesto.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
@@ -315,22 +315,18 @@ public class PurchaseFormController {
 
     private void recalculateTotals() {
         double subtotal = 0;
-        double discountTotal = 0;
 
         for (PurchaseDetailRow row : detailRows) {
             if (row.getProduct() != null) {
-                double lineBase = row.getPrice() * row.getQuantity();
-                subtotal += lineBase;
-                discountTotal += lineBase * (row.getDiscount() / 100.0);
+                subtotal += row.getPrice() * row.getQuantity();
             }
         }
 
         double ivaTotal = subtotal * 0.19;
-        double total = subtotal - discountTotal + ivaTotal;
+        double total = subtotal + ivaTotal;
 
         lblSubtotal.setText(currencyFormat.format(subtotal));
         lblIvaFavorTotal.setText(currencyFormat.format(ivaTotal));
-        lblDescuentos.setText(currencyFormat.format(discountTotal));
         lblTotalGeneral.setText(currencyFormat.format(total));
     }
 
@@ -414,6 +410,7 @@ public class PurchaseFormController {
 
             String numFactura = purchase.getInvoiceNumber();
             boolean fueEdicion = editMode;
+            MainLayoutController.getInstance().clearPurchaseFormCache();
             navigateBack();
             ToastNotification.success(
                 MainLayoutController.getInstance().getContentArea(),
@@ -438,10 +435,18 @@ public class PurchaseFormController {
         );
     }
 
-    @FXML void btnCancelarClick(ActionEvent event) { navigateBack(); }
+    @FXML void btnCancelarClick(ActionEvent event) {
+        MainLayoutController.getInstance().clearPurchaseFormCache();
+        navigateBack();
+    }
 
     private void navigateBack() {
-        MainLayoutController.getInstance().loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
+        Object ctrl = MainLayoutController.getInstance()
+            .loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
+        MainLayoutController.getInstance().clearPurchaseFormCache();
+        if (ctrl instanceof PurchaseInvoicesController pic) {
+            pic.actualizarBotonNuevaCompra();
+        }
     }
 
     private class QuantityCell extends TableCell<PurchaseDetailRow, Integer> {
@@ -676,10 +681,9 @@ class PurchaseDetailRow {
     public javafx.beans.binding.DoubleBinding totalBinding() {
         return Bindings.createDoubleBinding(() -> {
             double lineBase = getPrice() * getQuantity();
-            double discAmount = lineBase * (getDiscount() / 100.0);
             double iva = lineBase * 0.19;
-            return lineBase - discAmount + iva;
-        }, price, quantity, discount);
+            return lineBase + iva;
+        }, price, quantity);
     }
 
     public double getLineTotal() { return totalBinding().get(); }

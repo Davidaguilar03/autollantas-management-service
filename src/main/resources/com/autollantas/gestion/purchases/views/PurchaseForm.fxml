@@ -121,9 +121,7 @@
 
                                 <TableColumn fx:id="colPrecio" minWidth="120.0" prefWidth="130.0" style="-fx-alignment: CENTER;" text="P. Compra s/IVA" />
 
-                                <TableColumn fx:id="colDescuento" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="Desc %" />
-
-                                <TableColumn fx:id="colImpuesto" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="IVA Producto" />
+                                <TableColumn fx:id="colImpuesto" minWidth="80.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="IVA/Unidad" />
 
                                 <TableColumn fx:id="colSubtotal" minWidth="120.0" prefWidth="140.0" style="-fx-alignment: CENTER;" text="Total Línea" />
 
@@ -170,17 +168,10 @@
                                 </HBox>
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">
                                     <children>
-                                        <Label text="IVA Producto:" textFill="#7f8c8d" />
+                                        <Label text="IVA Total:" textFill="#7f8c8d" />
                                         <Label fx:id="lblIvaFavorTotal" style="-fx-font-weight: bold;" text="\$ 0" textFill="#2c3e50" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_RIGHT" spacing="30.0">
-                                    <children>
-                                        <Label text="Descuento" textFill="#7f8c8d" />
-                                        <Label fx:id="lblDescuentos" style="-fx-font-weight: bold;" text="- \$ 0" textFill="#2c3e50" />
-                                    </children>
-                                </HBox>
-
                                 <Separator />
 
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">

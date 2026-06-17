@@ -72,14 +72,12 @@ public class SaleFormController {
     @FXML private TableColumn<SaleDetailRow, String> colUtilidadMonto;
     @FXML private TableColumn<SaleDetailRow, Double> colIvaGenerado;
     @FXML private TableColumn<SaleDetailRow, Double> colDiferenciaIva;
-    @FXML private TableColumn<SaleDetailRow, Double> colDescuento;
     @FXML private TableColumn<SaleDetailRow, String> colSubtotal;
     @FXML private TableColumn<SaleDetailRow, Void> colAccion;
 
     @FXML private Label lblSubtotal;
     @FXML private Label lblDiferenciaIvaTotal;
     @FXML private Label lblUtilidadTotal;
-    @FXML private Label lblDescuentos;
     @FXML private Label lblTotalGeneral;
 
     private ObservableList<SaleDetailRow> detailRows;
@@ -169,9 +167,6 @@ public class SaleFormController {
 
         colPrecio.setCellValueFactory(cell -> cell.getValue().priceProperty().asObject());
         colPrecio.setCellFactory(col -> new PriceCell());
-
-        colDescuento.setCellValueFactory(cell -> cell.getValue().discountProperty().asObject());
-        colDescuento.setCellFactory(col -> new PercentageCell());
 
         colUtilidadMonto.setCellValueFactory(cell ->
                 Bindings.createStringBinding(() -> {
@@ -606,13 +601,18 @@ public class SaleFormController {
         dpFechaVencimiento.setValue(LocalDate.now());
 
         comboFormaPago.getItems().setAll("Contado", "Crédito");
-        comboMedioPago.getItems().addAll("Efectivo", "Transferencia", "Nequi", "Tarjeta");
+        comboMedioPago.getItems().addAll("Efectivo", "Transferencia", "Tarjeta");
         comboTipoDoc.getItems().addAll("CC", "NIT", "RUT");
         comboCuenta.setItems(allAccounts);
 
         comboCuenta.setConverter(new StringConverter<Account>() {
             @Override public String toString(Account a) { return a == null ? "" : a.getName(); }
             @Override public Account fromString(String string) { return comboCuenta.getValue(); }
+        });
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> {
+            if (nw != null && nw.getName() != null && nw.getName().toLowerCase().contains("caja")) {
+                comboMedioPago.setValue("Efectivo");
+            }
         });
 
         Runnable updateDates = () -> {
@@ -651,15 +651,13 @@ public class SaleFormController {
     }
 
     private void recalculateTotals() {
-        double subtotal = 0, descuentos = 0, total = 0, utilidadTotal = 0, diferenciaIvaTotal = 0;
+        double subtotal = 0, total = 0, utilidadTotal = 0, diferenciaIvaTotal = 0;
 
         for (SaleDetailRow row : detailRows) {
             if (row.getProduct() != null) {
                 Product p = row.getProduct();
                 double precioTotal = row.getPrice() * row.getQuantity();
-                double descMonto = precioTotal * (row.getDiscount() / 100.0);
                 subtotal += precioTotal;
-                descuentos += descMonto;
                 total += row.getLineTotal();
 
                 double minPrice = p.getMinSalePrice() != null ? p.getMinSalePrice() : 0.0;
@@ -674,7 +672,6 @@ public class SaleFormController {
         lblSubtotal.setText(currencyFormat.format(subtotal));
         lblDiferenciaIvaTotal.setText(currencyFormat.format(diferenciaIvaTotal));
         lblUtilidadTotal.setText(currencyFormat.format(utilidadTotal));
-        lblDescuentos.setText(currencyFormat.format(descuentos));
         lblTotalGeneral.setText(currencyFormat.format(total));
     }
 
@@ -776,6 +773,7 @@ public class SaleFormController {
 
             String numFactura = sale.getInvoiceNumber();
             boolean fueEdicion = editMode;
+            MainLayoutController.getInstance().clearSaleFormCache();
             navigateBack();
             ToastNotification.success(
                 MainLayoutController.getInstance().getContentArea(),
@@ -815,10 +813,18 @@ public class SaleFormController {
         );
     }
 
-    @FXML void btnCancelarClick(ActionEvent event) { navigateBack(); }
+    @FXML void btnCancelarClick(ActionEvent event) {
+        MainLayoutController.getInstance().clearSaleFormCache();
+        navigateBack();
+    }
 
     private void navigateBack() {
-        MainLayoutController.getInstance().loadView("/com/autollantas/gestion/sales/views/SaleInvoices.fxml");
+        Object ctrl = MainLayoutController.getInstance()
+            .loadView("/com/autollantas/gestion/sales/views/SaleInvoices.fxml");
+        MainLayoutController.getInstance().clearSaleFormCache();
+        if (ctrl instanceof SaleInvoicesController sic) {
+            sic.actualizarBotonNuevaFactura();
+        }
     }
 
 }
@@ -834,10 +840,8 @@ class SaleDetailRow {
 
     public javafx.beans.binding.DoubleBinding totalBinding() {
         return Bindings.createDoubleBinding(() -> {
-            double totalPrice = getPrice() * getQuantity();
-            double discountAmount = totalPrice * (getDiscount() / 100.0);
-            return totalPrice - discountAmount;
-        }, price, quantity, discount);
+            return getPrice() * getQuantity();
+        }, price, quantity);
     }
 
     public double getLineTotal() { return totalBinding().get(); }

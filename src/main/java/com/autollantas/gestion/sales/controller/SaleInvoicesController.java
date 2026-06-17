@@ -20,6 +20,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -71,8 +76,10 @@ public class SaleInvoicesController {
     @FXML private TableColumn<Sale, Double> colUtilidad;
     @FXML private TableColumn<Sale, String> colEstado;
 
+    @FXML private Button btnNuevaFactura;
     @FXML private Button btnEditar;
     @FXML private Button btnEliminar;
+    @FXML private Button btnPapelera;
     @FXML private Button btnVerDetalles;
     @FXML private Label lblInfoRegistros;
 
@@ -122,6 +129,35 @@ public class SaleInvoicesController {
         });
 
         loadDataFromDB();
+        actualizarBotonNuevaFactura();
+    }
+
+    public void actualizarBotonNuevaFactura() {
+        if (btnNuevaFactura == null) return;
+        boolean hayCache = MainLayoutController.getInstance().hasCachedSaleForm();
+        if (hayCache) {
+            btnNuevaFactura.setText("Continuar Factura");
+            btnNuevaFactura.getStyleClass().removeAll("mini-card-green", "mini-card-btn");
+            btnNuevaFactura.getStyleClass().addAll("mini-card-btn", "mini-card-blue");
+            if (btnNuevaFactura.getGraphic() instanceof StackPane sp) {
+                sp.getStyleClass().removeAll("mini-card-chip-green");
+                sp.getStyleClass().add("mini-card-chip-blue");
+                sp.getChildren().stream()
+                    .filter(n -> n instanceof Label).map(n -> (Label) n)
+                    .findFirst().ifPresent(lbl -> lbl.setText("↩"));
+            }
+        } else {
+            btnNuevaFactura.setText("Nueva Factura");
+            btnNuevaFactura.getStyleClass().removeAll("mini-card-blue", "mini-card-btn");
+            btnNuevaFactura.getStyleClass().addAll("mini-card-btn", "mini-card-green");
+            if (btnNuevaFactura.getGraphic() instanceof StackPane sp) {
+                sp.getStyleClass().removeAll("mini-card-chip-blue");
+                sp.getStyleClass().add("mini-card-chip-green");
+                sp.getChildren().stream()
+                    .filter(n -> n instanceof Label).map(n -> (Label) n)
+                    .findFirst().ifPresent(lbl -> lbl.setText("＋"));
+            }
+        }
     }
 
     private void loadDataFromDB() {
@@ -201,6 +237,156 @@ public class SaleInvoicesController {
             },
             null
         );
+    }
+
+    @FXML void btnPapeleraClick(ActionEvent event) {
+        List<Sale> anuladas = salesService.findAllSales().stream()
+            .filter(s -> "ANULADA".equalsIgnoreCase(s.getStatus()))
+            .toList();
+
+        Stage modal = new Stage();
+        modal.initModality(Modality.APPLICATION_MODAL);
+        modal.initStyle(StageStyle.TRANSPARENT);
+
+        Stage owner = (Stage) tablaFacturas.getScene().getWindow();
+        modal.initOwner(owner);
+
+        VBox root = new VBox(0);
+        root.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
+        root.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox(16);
+        card.setStyle(
+            "-fx-background-color: #f0f2f5;" +
+            "-fx-background-radius: 14;" +
+            "-fx-padding: 24;"
+        );
+        card.setPrefWidth(owner.getWidth() * 0.85);
+        card.setPrefHeight(owner.getHeight() * 0.80);
+        card.setMaxWidth(owner.getWidth() * 0.85);
+        card.setMaxHeight(owner.getHeight() * 0.80);
+
+        HBox header = new HBox(12);
+        header.setAlignment(Pos.CENTER_LEFT);
+        Label icono = new Label("🗑");
+        icono.setStyle("-fx-font-size: 22px;");
+        Label titulo = new Label("Papelera — Facturas Anuladas (" + anuladas.size() + ")");
+        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Button btnCerrar = new Button("✕");
+        btnCerrar.setStyle(
+            "-fx-background-color: transparent;" +
+            "-fx-font-size: 16px; -fx-cursor: hand;" +
+            "-fx-text-fill: #94a3b8;");
+        btnCerrar.setOnAction(e -> modal.close());
+        header.getChildren().addAll(icono, titulo, spacer, btnCerrar);
+
+        if (anuladas.isEmpty()) {
+            Label vacio = new Label("No hay facturas anuladas en la papelera");
+            vacio.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-padding: 40;");
+            vacio.setAlignment(Pos.CENTER);
+            vacio.setMaxWidth(Double.MAX_VALUE);
+            card.getChildren().addAll(header, vacio);
+        } else {
+            TableView<Sale> tabla = new TableView<>();
+            tabla.setStyle("-fx-background-radius: 10;");
+            VBox.setVgrow(tabla, Priority.ALWAYS);
+
+            TableColumn<Sale, String> colNum = new TableColumn<>("Nro. Factura");
+            colNum.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getInvoiceNumber()));
+            colNum.setPrefWidth(150);
+
+            TableColumn<Sale, String> colCli = new TableColumn<>("Cliente");
+            colCli.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getCustomer() != null ? c.getValue().getCustomer().getName() : ""));
+            colCli.setPrefWidth(220);
+
+            TableColumn<Sale, String> colFech = new TableColumn<>("Fecha");
+            colFech.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getSaleDate() != null ? c.getValue().getSaleDate().toString() : ""));
+            colFech.setPrefWidth(110);
+
+            TableColumn<Sale, String> colTot = new TableColumn<>("Total");
+            colTot.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getTotal() != null
+                    ? "$ " + String.format("%,.0f", c.getValue().getTotal()) : "$ 0"));
+            colTot.setPrefWidth(130);
+            colTot.setStyle("-fx-alignment: CENTER-RIGHT;");
+
+            TableColumn<Sale, String> colEst = new TableColumn<>("Estado");
+            colEst.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatus()));
+            colEst.setPrefWidth(100);
+
+            tabla.getColumns().addAll(colNum, colCli, colFech, colTot, colEst);
+            tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            tabla.setItems(FXCollections.observableArrayList(anuladas));
+
+            HBox toolbar = new HBox(10);
+            toolbar.setAlignment(Pos.CENTER_LEFT);
+
+            Button btnVerDet = new Button("⊙  Ver Detalles");
+            btnVerDet.setStyle(
+                "-fx-background-color: white; -fx-border-color: #4db6ac;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;" +
+                "-fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16 8 16;");
+            btnVerDet.setDisable(true);
+
+            Button btnRecu = new Button("↩  Recuperar Factura");
+            btnRecu.setStyle(
+                "-fx-background-color: white; -fx-border-color: #27ae60;" +
+                "-fx-border-radius: 8; -fx-background-radius: 8;" +
+                "-fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16 8 16;");
+            btnRecu.setDisable(true);
+
+            toolbar.getChildren().addAll(btnVerDet, btnRecu);
+
+            tabla.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
+                boolean hay = sel != null;
+                btnVerDet.setDisable(!hay);
+                btnRecu.setDisable(!hay);
+            });
+
+            btnVerDet.setOnAction(e -> {
+                Sale sel = tabla.getSelectionModel().getSelectedItem();
+                if (sel != null) {
+                    modal.close();
+                    openDetailsModal(sel);
+                }
+            });
+
+            btnRecu.setOnAction(e -> {
+                Sale sel = tabla.getSelectionModel().getSelectedItem();
+                if (sel == null) return;
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                confirm.setTitle("Recuperar Factura");
+                confirm.setHeaderText("¿Recuperar la factura " + sel.getInvoiceNumber() + "?");
+                confirm.setContentText("La factura volverá a estado PENDIENTE.");
+                confirm.showAndWait().ifPresent(resp -> {
+                    if (resp == ButtonType.OK) {
+                        salesService.restoreSale(sel);
+                        tabla.getItems().remove(sel);
+                        loadDataFromDB();
+                        ToastNotification.success(tablaFacturas, "Factura recuperada correctamente");
+                    }
+                });
+            });
+
+            card.getChildren().addAll(header, toolbar, tabla);
+        }
+
+        root.getChildren().add(card);
+        Scene scene = new Scene(root, owner.getWidth(), owner.getHeight());
+        scene.setFill(null);
+        scene.setOnKeyPressed(ke -> {
+            if (ke.getCode() == javafx.scene.input.KeyCode.ESCAPE) modal.close();
+        });
+        modal.setScene(scene);
+        modal.setX(owner.getX());
+        modal.setY(owner.getY());
+        modal.setWidth(owner.getWidth());
+        modal.setHeight(owner.getHeight());
+        modal.show();
     }
 
     @FXML
@@ -432,6 +618,7 @@ public class SaleInvoicesController {
         if (filteredData == null) return;
 
         filteredData.setPredicate(sale -> {
+            if ("ANULADA".equalsIgnoreCase(sale.getStatus())) return false;
             String filtroEstado = comboEstado.getValue();
             String saleStatus = sale.getStatus();
 

@@ -126,7 +126,6 @@
                                 <TableColumn fx:id="colUtilidadMonto" minWidth="110.0" prefWidth="125.0" style="-fx-alignment: CENTER;" text="Utilidad" />
                                 <TableColumn fx:id="colIvaGenerado" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="IVA Gen." />
                                 <TableColumn fx:id="colDiferenciaIva" minWidth="85.0" prefWidth="90.0" style="-fx-alignment: CENTER;" text="IVA p/Pagar" />
-                                <TableColumn fx:id="colDescuento" minWidth="55.0" prefWidth="60.0" style="-fx-alignment: CENTER;" text="Desc %" />
                                 <TableColumn fx:id="colSubtotal" minWidth="95.0" prefWidth="105.0" style="-fx-alignment: CENTER;" text="Total" />
                                 <TableColumn fx:id="colAccion" maxWidth="50.0" minWidth="40.0" prefWidth="40.0" style="-fx-alignment: CENTER;" text="" />
                             </columns>
@@ -181,13 +180,6 @@
                                         <Label fx:id="lblUtilidadTotal" style="-fx-font-weight: bold;" text="\$ 0" textFill="#2c3e50" />
                                     </children>
                                 </HBox>
-                                <HBox alignment="CENTER_RIGHT" spacing="30.0">
-                                    <children>
-                                        <Label text="Descuento" textFill="#7f8c8d" />
-                                        <Label fx:id="lblDescuentos" style="-fx-font-weight: bold;" text="- \$ 0" textFill="#2c3e50" />
-                                    </children>
-                                </HBox>
-
                                 <Separator />
 
                                 <HBox alignment="CENTER_RIGHT" spacing="30.0">

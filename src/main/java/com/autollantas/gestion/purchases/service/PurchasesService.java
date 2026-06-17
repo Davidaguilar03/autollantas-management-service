@@ -197,6 +197,12 @@ public class PurchasesService {
     }
 
     @Transactional
+    public Purchase restorePurchase(Purchase purchase) {
+        purchase.setStatus("PENDIENTE");
+        return purchaseRepository.save(purchase);
+    }
+
+    @Transactional
     public void registerPayment(Purchase purchase, Account account, LocalDate paymentDate,
                                 String paymentMethod, double amount) {
         Payment newPayment = new Payment();
