@@ -116,6 +116,8 @@ public class SaleFormController {
         });
 
         comboCuenta.valueProperty().addListener((obs, old, nw) -> { if (nw != null) limpiarError(comboCuenta); });
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> Platform.runLater(() ->
+                comboCuenta.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;")));
 
         if (!editMode) {
             addLine();
@@ -295,6 +297,10 @@ public class SaleFormController {
 
         detailRows.setAll(rows);
         recalculateTotals();
+
+        boolean esCredito = "Crédito".equals(comboFormaPago.getValue());
+        comboCuenta.setDisable(esCredito);
+        comboMedioPago.setDisable(esCredito);
     }
 
     private class QuantityCell extends TableCell<SaleDetailRow, Integer> {
@@ -620,6 +626,15 @@ public class SaleFormController {
                 dpFechaVencimiento.setValue(creacion.plusMonths(1));
                 dpFechaVencimiento.setDisable(false);
             }
+            boolean esCredito = "Crédito".equals(pago);
+            comboCuenta.setDisable(esCredito);
+            comboMedioPago.setDisable(esCredito);
+            if (esCredito) {
+                comboCuenta.setValue(null);
+                comboMedioPago.setValue(null);
+            }
+            comboCuenta.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;");
+            comboMedioPago.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;");
         };
 
         comboFormaPago.setOnAction(e -> updateDates.run());
@@ -688,7 +703,8 @@ public class SaleFormController {
             limpiarError(tablaDetalles);
         }
 
-        if (comboCuenta.getValue() == null) {
+        boolean esCredito = "Crédito".equals(comboFormaPago.getValue());
+        if (!esCredito && comboCuenta.getValue() == null) {
             marcarError(comboCuenta);
             valido = false;
         } else {
