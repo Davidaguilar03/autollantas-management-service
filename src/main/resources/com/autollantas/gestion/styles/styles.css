@@ -326,29 +326,29 @@
 }
 
 .sidebar-btn-logout {
-    -fx-background-color: rgba(210, 30, 30, 0.28);
+    -fx-background-color: rgba(200, 25, 25, 0.20);
     -fx-text-fill: #ffffff;
     -fx-font-weight: bold;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-alignment: CENTER;
     -fx-padding: 11 26 11 26;
     -fx-cursor: hand;
-    -fx-background-radius: 20px;
-    -fx-border-radius: 20px;
-    -fx-border-color: rgba(255, 255, 255, 0.50);
+    -fx-background-radius: 14px;
+    -fx-border-radius: 14px;
+    -fx-border-color: rgba(255, 255, 255, 0.35);
     -fx-border-width: 1.5px;
-    -fx-effect: dropshadow(three-pass-box, rgba(180,0,0,0.25), 8, 0, 0, 2);
+    -fx-effect: dropshadow(three-pass-box, rgba(160,0,0,0.18), 8, 0, 0, 2);
 }
 .sidebar-btn-logout:hover {
-    -fx-background-color: rgba(210, 30, 30, 0.48);
-    -fx-border-color: rgba(255, 255, 255, 0.80);
+    -fx-background-color: rgba(210, 30, 30, 0.40);
+    -fx-border-color: rgba(255, 255, 255, 0.70);
     -fx-text-fill: #ffffff;
     -fx-translate-y: -1;
 }
 .sidebar-btn-logout:pressed {
-    -fx-background-color: rgba(170, 15, 15, 0.58);
-    -fx-border-color: rgba(255, 255, 255, 0.55);
+    -fx-background-color: rgba(160, 15, 15, 0.55);
+    -fx-border-color: rgba(255, 255, 255, 0.50);
     -fx-translate-y: 0;
 }
 
@@ -387,6 +387,7 @@
     -fx-shape: null;
 }
 
+/* ── Título base de todos los items ── */
 .sidebar-accordion .titled-pane > .title {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -409,24 +410,23 @@
     -fx-background-color: rgba(255, 255, 255, 0.4);
 }
 
+/* ── Ingresos — verde vivo ── */
 .sidebar-ingresos > .title {
     -fx-text-fill: #22B14C !important;
-    -fx-font-weight: bold !important;
 }
-
 .sidebar-ingresos:hover > .title {
     -fx-text-fill: #0a4517 !important;
 }
 
+/* ── Egresos — rojo vivo ── */
 .sidebar-egresos > .title {
     -fx-text-fill: #b30000 !important;
-    -fx-font-weight: bold !important;
 }
-
 .sidebar-egresos:hover > .title {
     -fx-text-fill: #7a0000 !important;
 }
 
+/* ── Submenú ── */
 .submenu-container {
     -fx-padding: 0;
     -fx-background-insets: 0;
@@ -453,31 +453,31 @@
     -fx-font-weight: bold;
 }
 
+/* Activo base — sin color de palito, lo pone Java por sección */
 .submenu-btn-active {
-    -fx-background-color: rgba(255, 255, 255, 0.82);
-    -fx-text-fill: #7a3e00;
+    -fx-background-color: rgba(255, 255, 255, 0.30);
+    -fx-text-fill: #2e1a00;
     -fx-font-weight: bold;
-    -fx-border-color: transparent transparent transparent #0d81ec;
     -fx-border-width: 0 0 0 6px;
 }
 
 .submenu-btn-active:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
-    -fx-text-fill: #7a3e00;
+    -fx-background-color: rgba(255, 255, 255, 0.42);
+    -fx-text-fill: #2e1a00;
 }
 
+/* ── Item activo (padre con submenu abierto) ── */
 .sidebar-item-active > .title {
-    -fx-background-color: rgba(255, 255, 255, 0.22);
-    -fx-border-color: transparent transparent transparent #0d81ec;
+    -fx-background-color: rgba(255, 255, 255, 0.18);
     -fx-border-width: 0 0 0 6px;
-    -fx-text-fill: #3e1f00;
+    -fx-text-fill: #2e1a00;
 }
 
+/* ── Item activo sin submenu (Panel Control / Cuentas) ── */
 .sidebar-item-active-solo > .title {
-    -fx-background-color: rgba(255, 255, 255, 0.82);
-    -fx-border-color: transparent transparent transparent #0d81ec;
+    -fx-background-color: rgba(255, 255, 255, 0.32);
     -fx-border-width: 0 0 0 6px;
-    -fx-text-fill: #7a3e00;
+    -fx-text-fill: #2e1a00;
     -fx-font-weight: bold;
 }
 

@@ -208,25 +208,22 @@ public class MainLayoutController {
 
     private void applySemanticColors() {
         tpIngresos.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
-        tpEgresos.setTextFill(javafx.scene.paint.Color.web("#ED1C24"));
+        tpEgresos.setTextFill(javafx.scene.paint.Color.web("#b30000"));
     }
 
-    private static final String ACTIVE_TITLE_STYLE =
-        "-fx-background-color: rgba(255,255,255,0.82);" +
-        "-fx-border-color: transparent transparent transparent #0d81ec;" +
-        "-fx-border-width: 0 0 0 4px;" +
-        "-fx-text-fill: #7a3e00;";
-
-    private static final String PARENT_TITLE_STYLE =
-        "-fx-background-color: rgba(255,255,255,0.22);" +
-        "-fx-border-color: transparent transparent transparent #0d81ec;" +
-        "-fx-border-width: 0 0 0 4px;";
+    private String accentColorFor(TitledPane pane) {
+        if (pane == tpIngresos)   return "#1db954";
+        if (pane == tpEgresos)    return "#e02020";
+        if (pane == tpInventario) return "#f07020";
+        if (pane == tpCuentas)    return "#2e8fe0";
+        return "#7c3aed";
+    }
 
     private void restoreSemanticColor(TitledPane pane) {
         if (pane == null) return;
-        if (pane == tpIngresos) pane.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
-        else if (pane == tpEgresos) pane.setTextFill(javafx.scene.paint.Color.web("#ED1C24"));
-        else pane.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+        if (pane == tpIngresos)        pane.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
+        else if (pane == tpEgresos)    pane.setTextFill(javafx.scene.paint.Color.web("#b30000"));
+        else                           pane.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
     }
 
     private void setTitleInlineStyle(TitledPane pane, String style) {
@@ -238,19 +235,36 @@ public class MainLayoutController {
     private void setActive(TitledPane pane, Button subBtn) {
         setTitleInlineStyle(activePane, "");
         restoreSemanticColor(activePane);
-        if (activeSubBtn != null) activeSubBtn.getStyleClass().remove("submenu-btn-active");
+        if (activeSubBtn != null) {
+            activeSubBtn.getStyleClass().remove("submenu-btn-active");
+            activeSubBtn.setStyle("");
+        }
 
         activePane = pane;
         activeSubBtn = subBtn;
 
         if (activePane != null) {
-            setTitleInlineStyle(activePane, subBtn == null ? ACTIVE_TITLE_STYLE : PARENT_TITLE_STYLE);
-            // Expande el acordeón para que el usuario siempre vea dónde está
+            String accent = accentColorFor(activePane);
+            String soloStyle =
+                "-fx-background-color: rgba(255,255,255,0.32);" +
+                "-fx-border-color: transparent transparent transparent " + accent + ";" +
+                "-fx-border-width: 0 0 0 6px;" +
+                "-fx-text-fill: #2e1a00;";
+            String parentStyle =
+                "-fx-background-color: rgba(255,255,255,0.18);" +
+                "-fx-border-color: transparent transparent transparent " + accent + ";" +
+                "-fx-border-width: 0 0 0 6px;";
+            setTitleInlineStyle(activePane, subBtn == null ? soloStyle : parentStyle);
             if (!activePane.isExpanded()) activePane.setExpanded(true);
         }
 
-        if (activeSubBtn != null && !activeSubBtn.getStyleClass().contains("submenu-btn-active"))
+        if (activeSubBtn != null && !activeSubBtn.getStyleClass().contains("submenu-btn-active")) {
             activeSubBtn.getStyleClass().add("submenu-btn-active");
+            String accent = accentColorFor(activePane);
+            activeSubBtn.setStyle(
+                "-fx-border-color: transparent transparent transparent " + accent + ";"
+            );
+        }
     }
 
     private void closeSidebarIfMobile() {

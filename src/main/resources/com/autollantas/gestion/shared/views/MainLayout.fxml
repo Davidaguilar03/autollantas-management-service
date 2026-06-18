@@ -51,7 +51,7 @@
             <Accordion styleClass="sidebar-accordion">
                <panes>
 
-                  <TitledPane fx:id="tpPanelControl" animated="true" expanded="false" graphicTextGap="15.0" onMouseClicked="#btnPanelControlClick" text="PANEL CONTROL">
+                  <TitledPane fx:id="tpPanelControl" animated="true" expanded="false" graphicTextGap="15.0" onMouseClicked="#btnPanelControlClick" styleClass="titled-pane,sidebar-panel-control" text="PANEL CONTROL">
                      <graphic>
                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -115,7 +115,7 @@
                      </content>
                   </TitledPane>
 
-                  <TitledPane fx:id="tpInventario" animated="true" expanded="false" graphicTextGap="15.0" text="INVENTARIO">
+                  <TitledPane fx:id="tpInventario" animated="true" expanded="false" graphicTextGap="15.0" styleClass="titled-pane,sidebar-inventario" text="INVENTARIO">
                      <graphic>
                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -138,7 +138,7 @@
                      </content>
                   </TitledPane>
 
-                  <TitledPane fx:id="tpCuentas" animated="true" expanded="false" graphicTextGap="15.0" onMouseClicked="#btnCuentasClick" text="CUENTAS">
+                  <TitledPane fx:id="tpCuentas" animated="true" expanded="false" graphicTextGap="15.0" onMouseClicked="#btnCuentasClick" styleClass="titled-pane,sidebar-cuentas" text="CUENTAS">
                      <graphic>
                         <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                            <image>
