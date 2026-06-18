@@ -8,7 +8,7 @@
 
 /* Tarjeta principal — todo naranja, sombra profunda */
 .login-card {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #EFBF40;
     -fx-background-radius: 16px;
     -fx-border-radius: 16px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.55), 48, 0.05, 0, 12);
@@ -295,7 +295,7 @@
 }
 
 .sidebar {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #EFBF40;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 0);
 }
 
@@ -1734,7 +1734,7 @@
     -fx-background-color: linear-gradient(to bottom, #ffffff, #f4f6fa);
     -fx-background-radius: 10 10 0 0;
     -fx-border-width: 0 0 2.5 0;
-    -fx-border-color: #f1b82c;          /* acento naranja de marca, mas presente */
+    -fx-border-color: #EFBF40;          /* acento dorado de marca, mas presente */
 }
 
 .data-table .column-header,
@@ -1766,7 +1766,7 @@
 
 /* flecha de ordenamiento ligada a la marca */
 .data-table .column-header .arrow {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #EFBF40;
 }
 
 /* ---- Filas ---- */
@@ -1879,7 +1879,7 @@
 }
 
 .toast-warning .toast-icon {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #EFBF40;
     -fx-background-radius: 50;
     -fx-text-fill: #3a2500;
     -fx-font-weight: bold;
@@ -1930,7 +1930,7 @@
     -fx-border-radius: 18px 18px 0 0;
 }
 .dialog-card-warning {
-    -fx-border-color: #f1b82c;
+    -fx-border-color: #EFBF40;
     -fx-border-width: 4px 0 0 0;
     -fx-border-radius: 18px 18px 0 0;
 }
@@ -2043,11 +2043,11 @@
 }
 
 .dialog-btn-warning {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #EFBF40;
     -fx-text-fill: #3a2500;
 }
 .dialog-btn-warning:hover {
-    -fx-background-color: #d9a320;
+    -fx-background-color: #d6aa30;
 }
 
 .dialog-btn-danger {
