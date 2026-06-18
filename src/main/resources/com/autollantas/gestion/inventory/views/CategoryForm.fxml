@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -14,7 +15,7 @@
 
 <StackPane styleClass="modal-overlay" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.CategoryFormController">
 
-    <VBox alignment="TOP_CENTER" maxHeight="350" maxWidth="450" spacing="20" styleClass="card-form">
+    <VBox alignment="TOP_CENTER" maxHeight="380" maxWidth="500" spacing="20" styleClass="card-form">
 
         <HBox alignment="CENTER_LEFT">
             <VBox prefHeight="31.0" prefWidth="200.0" spacing="4">
@@ -34,17 +35,13 @@
             <rowConstraints>
                 <RowConstraints />
                 <RowConstraints />
-                <RowConstraints />
             </rowConstraints>
 
             <Label styleClass="lbl-campo" text="Nombre" GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <TextField fx:id="txtNombre" promptText="Nombre de la categoría" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-            <Label styleClass="lbl-campo" text="Stock Min. Amarillo" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="txtStockAmarillo" promptText="Ej: 5" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-            <Label styleClass="lbl-campo" text="Stock Min. Rojo" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <TextField fx:id="txtStockRojo" promptText="Ej: 2" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label styleClass="lbl-campo" text="Color de la categoría" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <ColorPicker fx:id="colorPicker" maxWidth="Infinity" prefHeight="40.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
         </GridPane>
 
         <Region VBox.vgrow="ALWAYS" />

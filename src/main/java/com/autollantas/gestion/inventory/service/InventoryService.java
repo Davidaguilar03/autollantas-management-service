@@ -113,32 +113,29 @@ public class InventoryService {
     public void recalculateMinSalePrice(Product product) {
         if (product.getPurchaseCost() == null || product.getPurchaseCost() == 0) return;
 
-        double precioCompra = product.getPurchaseCost();
-        double tasaIva = 0.0;
-        double otrosTasa = 0.0;
+        double purchaseCost = product.getPurchaseCost();
 
+        // IVA siempre 19%
+        double ivaFavor = purchaseCost * 0.19;
+        product.setTaxAmount(ivaFavor);
+
+        // minSalePrice = purchaseCost + suma de todos los impuestos asignados a la categoría
+        double totalTaxRate = 0.0;
         if (product.getCategory() != null && product.getCategory().getTaxTypes() != null) {
             for (TaxType t : product.getCategory().getTaxTypes()) {
-                if (t.getRate() == null) continue;
-                if (Boolean.TRUE.equals(t.getIsVat())) {
-                    tasaIva = t.getRate();
-                } else if (!Boolean.TRUE.equals(t.getAppliesToTransaction())) {
-                    otrosTasa += t.getRate();
+                if (t.getRate() != null
+                        && !Boolean.TRUE.equals(t.getIsVat())) {
+                    totalTaxRate += t.getRate();
                 }
             }
         }
+        double minSalePrice = purchaseCost + (purchaseCost * totalTaxRate);
+        product.setMinSalePrice(minSalePrice);
 
-        double ivaFavor = precioCompra * tasaIva;
-        double otrosImpuestos = precioCompra * otrosTasa;
-        double precioMinimo = precioCompra + otrosImpuestos;
-
-        product.setTaxAmount(ivaFavor);
-        product.setMinSalePrice(precioMinimo);
-
-        double margen = (product.getCategory() != null
+        double margin = (product.getCategory() != null
                 && product.getCategory().getTargetMargin() != null)
                 ? product.getCategory().getTargetMargin() : 0.0;
-        product.setSuggestedPrice(precioMinimo * (1 + margen));
+        product.setSuggestedPrice(minSalePrice * (1 + margin));
 
         productRepository.save(product);
     }
@@ -176,16 +173,34 @@ public class InventoryService {
     }
 
     @Transactional
-    public ProductCategory createCategory(String name, Integer yellowStockMin, Integer redStockMin) {
+    public ProductCategory createCategory(String name, String color) {
         name = name.trim().toUpperCase();
         ProductCategory cat = new ProductCategory();
         cat.setName(name);
-        cat.setYellowStockMin(yellowStockMin);
-        cat.setRedStockMin(redStockMin);
+        cat.setColor(color);
         cat.setTaxTypes(new ArrayList<>());
         cat = productCategoryRepository.save(cat);
         assignVatToCategory(cat);
         return cat;
+    }
+
+    @Transactional
+    public void addTaxToCategory(ProductCategory cat, TaxType tax) {
+        ProductCategory fresh = productCategoryRepository.findById(cat.getId()).orElse(cat);
+        boolean alreadyHas = fresh.getTaxTypes().stream().anyMatch(t -> t.getId().equals(tax.getId()));
+        if (!alreadyHas) {
+            fresh.getTaxTypes().add(tax);
+            productCategoryRepository.save(fresh);
+            findProductsByCategory(fresh).forEach(this::recalculateMinSalePrice);
+        }
+    }
+
+    @Transactional
+    public void removeTaxFromCategory(ProductCategory cat, TaxType tax) {
+        ProductCategory fresh = productCategoryRepository.findById(cat.getId()).orElse(cat);
+        fresh.getTaxTypes().removeIf(t -> t.getId().equals(tax.getId()));
+        productCategoryRepository.save(fresh);
+        findProductsByCategory(fresh).forEach(this::recalculateMinSalePrice);
     }
 
     @Transactional

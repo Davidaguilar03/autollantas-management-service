@@ -41,6 +41,7 @@ public class AccountsController {
     @Autowired private ApplicationContext springContext;
 
     @FXML private Label lblTotalGlobal;
+    @FXML private Label lblBalanceBanco;
 
     // ── Caja ──────────────────────────────────────────────────────────────
     @FXML private Label              lblSaldoCaja;
@@ -82,6 +83,7 @@ public class AccountsController {
     @FXML private Label              lblInfoTrans;
     @FXML private Label              lblEnviadoCaja;
     @FXML private Label              lblEnviadoBanco;
+    @FXML private Label              lblTotalTransferencias;
     @FXML private ComboBox<String>   comboPeriodoTrans;
     @FXML private VBox               rangoTrans;
     @FXML private DatePicker         datesDesdeTrans;
@@ -248,14 +250,16 @@ public class AccountsController {
         double enviadoBanco = lista.stream()
                 .filter(t -> bankAccount != null && bankAccount.getName().equals(t.sourceProperty().get()))
                 .mapToDouble(t -> t.amountProperty().get()).sum();
-        if (lblEnviadoCaja  != null) lblEnviadoCaja.setText(currencyFormat.format(enviadoCaja));
-        if (lblEnviadoBanco != null) lblEnviadoBanco.setText(currencyFormat.format(enviadoBanco));
+        if (lblEnviadoCaja         != null) lblEnviadoCaja.setText(currencyFormat.format(enviadoCaja));
+        if (lblEnviadoBanco        != null) lblEnviadoBanco.setText(currencyFormat.format(enviadoBanco));
+        if (lblTotalTransferencias != null) lblTotalTransferencias.setText(currencyFormat.format(enviadoCaja + enviadoBanco));
     }
 
     private void updateGlobalBalance() {
         double cashBal = cashAccount != null ? cashAccount.getCurrentBalance() : 0.0;
         double bankBal = bankAccount != null ? bankAccount.getCurrentBalance() : 0.0;
-        if (lblTotalGlobal != null) lblTotalGlobal.setText(currencyFormat.format(cashBal + bankBal));
+        if (lblTotalGlobal  != null) lblTotalGlobal.setText(currencyFormat.format(cashBal + bankBal));
+        if (lblBalanceBanco != null) lblBalanceBanco.setText(currencyFormat.format(cashBal + bankBal));
     }
 
     private double sumMov(ObservableList<MovementDTO> list, String tipo) {

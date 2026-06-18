@@ -214,6 +214,12 @@ public class SalesService {
     }
 
     @Transactional
+    public Sale restoreSale(Sale sale) {
+        sale.setStatus("PENDIENTE");
+        return saleRepository.save(sale);
+    }
+
+    @Transactional
     public void registerCollection(Sale sale, Account destinationAccount, LocalDate paymentDate, String paymentMethod, double amount) {
         Collection collection = new Collection();
         collection.setSale(sale);

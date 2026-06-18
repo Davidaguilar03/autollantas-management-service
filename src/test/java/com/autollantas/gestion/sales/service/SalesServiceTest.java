@@ -12,6 +12,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.repository.AccountRepository;
 import com.autollantas.gestion.treasury.repository.CollectionRepository;
 import com.autollantas.gestion.treasury.repository.MovementRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -579,6 +582,49 @@ class SalesServiceTest {
             when(saleDetailRepository.findBySale(sale)).thenReturn(Collections.emptyList());
 
             assertThat(salesService.calculateDiferenciaIva(sale)).isEqualTo(0.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Restauración de Facturas Anuladas")
+    class RestauracionDeFacturas {
+
+        @Test
+        @DisplayName("restoreSale cambia estado a PENDIENTE")
+        void restoreSale_cambia_estado_a_pendiente() {
+            Sale sale = new Sale();
+            sale.setStatus("ANULADA");
+            when(saleRepository.save(sale)).thenReturn(sale);
+
+            Sale result = salesService.restoreSale(sale);
+
+            assertEquals("PENDIENTE", result.getStatus());
+            verify(saleRepository).save(sale);
+        }
+
+        @Test
+        @DisplayName("restoreSale retorna la factura guardada")
+        void restoreSale_retorna_factura_guardada() {
+            Sale sale = new Sale();
+            sale.setStatus("ANULADA");
+            sale.setInvoiceNumber("VTA-001");
+            when(saleRepository.save(sale)).thenReturn(sale);
+
+            Sale result = salesService.restoreSale(sale);
+
+            assertNotNull(result);
+            assertEquals("VTA-001", result.getInvoiceNumber());
+        }
+
+        @Test
+        @DisplayName("restoreSale llama save exactamente una vez")
+        void restoreSale_llama_save_una_vez() {
+            Sale sale = new Sale();
+            when(saleRepository.save(any())).thenReturn(sale);
+
+            salesService.restoreSale(sale);
+
+            verify(saleRepository, times(1)).save(sale);
         }
     }
 }

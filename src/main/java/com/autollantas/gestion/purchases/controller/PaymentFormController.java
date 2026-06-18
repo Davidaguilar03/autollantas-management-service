@@ -37,8 +37,8 @@ public class PaymentFormController {
     @FXML private TextField txtValor;
     @FXML private Button btnGuardar;
 
-    private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
-    private static final String STYLE_NORMAL = "-fx-border-color: transparent; -fx-border-width: 0;";
+    private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-border-radius: 4; -fx-background-radius: 4;";
+    private static final String STYLE_NORMAL = "-fx-border-color: #cccccc; -fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;";
 
     private Purchase currentPurchase;
     private boolean saved = false;
@@ -56,6 +56,11 @@ public class PaymentFormController {
         setupCurrencyInput();
 
         comboCuenta.valueProperty().addListener((obs, old, nw) -> { if (nw != null) comboCuenta.setStyle(STYLE_NORMAL); });
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> {
+            if (nw != null && nw.getName() != null && nw.getName().toLowerCase().contains("caja")) {
+                comboMetodoPago.setValue("Efectivo");
+            }
+        });
         comboMetodoPago.valueProperty().addListener((obs, old, nw) -> { if (nw != null) comboMetodoPago.setStyle(STYLE_NORMAL); });
         txtValor.textProperty().addListener((obs, old, nw) -> { if (getNumericValue() > 0) txtValor.setStyle(STYLE_NORMAL); });
     }
@@ -66,7 +71,7 @@ public class PaymentFormController {
             @Override public String toString(Account a) { return a != null ? a.getName() : ""; }
             @Override public Account fromString(String s) { return null; }
         });
-        comboMetodoPago.getItems().addAll("Efectivo", "Transferencia", "Cheque", "Tarjeta", "Nequi/Daviplata");
+        comboMetodoPago.getItems().addAll("Efectivo", "Transferencia", "Tarjeta");
     }
 
     private void setupCurrencyInput() {

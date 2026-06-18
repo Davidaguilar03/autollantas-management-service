@@ -12,6 +12,7 @@ import com.autollantas.gestion.treasury.model.Account;
 import com.autollantas.gestion.treasury.repository.AccountRepository;
 import com.autollantas.gestion.treasury.repository.MovementRepository;
 import com.autollantas.gestion.treasury.repository.PaymentRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -519,6 +522,49 @@ class PurchasesServiceTest {
             when(purchaseDetailRepository.findByPurchase(purchase)).thenReturn(List.of(d));
 
             assertThat(purchasesService.calculateIvaFavor(purchase)).isEqualTo(0.0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Restauración de Compras Anuladas")
+    class RestauracionDeCompras {
+
+        @Test
+        @DisplayName("restorePurchase cambia estado a PENDIENTE")
+        void restorePurchase_cambia_estado_a_pendiente() {
+            Purchase purchase = new Purchase();
+            purchase.setStatus("ANULADA");
+            when(purchaseRepository.save(purchase)).thenReturn(purchase);
+
+            Purchase result = purchasesService.restorePurchase(purchase);
+
+            assertEquals("PENDIENTE", result.getStatus());
+            verify(purchaseRepository).save(purchase);
+        }
+
+        @Test
+        @DisplayName("restorePurchase retorna la compra guardada")
+        void restorePurchase_retorna_compra_guardada() {
+            Purchase purchase = new Purchase();
+            purchase.setStatus("ANULADA");
+            purchase.setInvoiceNumber("COM-001");
+            when(purchaseRepository.save(purchase)).thenReturn(purchase);
+
+            Purchase result = purchasesService.restorePurchase(purchase);
+
+            assertNotNull(result);
+            assertEquals("COM-001", result.getInvoiceNumber());
+        }
+
+        @Test
+        @DisplayName("restorePurchase llama save exactamente una vez")
+        void restorePurchase_llama_save_una_vez() {
+            Purchase purchase = new Purchase();
+            when(purchaseRepository.save(any())).thenReturn(purchase);
+
+            purchasesService.restorePurchase(purchase);
+
+            verify(purchaseRepository, times(1)).save(purchase);
         }
     }
 }

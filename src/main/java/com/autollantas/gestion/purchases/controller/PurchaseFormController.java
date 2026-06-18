@@ -66,14 +66,12 @@ public class PurchaseFormController {
     @FXML private TableColumn<PurchaseDetailRow, Product> colDescripcion;
     @FXML private TableColumn<PurchaseDetailRow, Integer> colCantidad;
     @FXML private TableColumn<PurchaseDetailRow, Double> colPrecio;
-    @FXML private TableColumn<PurchaseDetailRow, Double> colDescuento;
     @FXML private TableColumn<PurchaseDetailRow, Double> colImpuesto;
     @FXML private TableColumn<PurchaseDetailRow, String> colSubtotal;
     @FXML private TableColumn<PurchaseDetailRow, Void> colAccion;
 
     @FXML private Label lblSubtotal;
     @FXML private Label lblIvaFavorTotal;
-    @FXML private Label lblDescuentos;
     @FXML private Label lblTotalGeneral;
 
     private ObservableList<PurchaseDetailRow> detailRows;
@@ -179,12 +177,19 @@ public class PurchaseFormController {
         }
 
         comboFormaPago.getItems().setAll("Contado", "Crédito");
-        comboMedioPago.getItems().addAll("Efectivo", "Transferencia", "Nequi", "Tarjeta");
+        comboMedioPago.getItems().addAll("Efectivo", "Transferencia", "Tarjeta");
         comboCuenta.setItems(allAccounts);
 
         comboCuenta.setConverter(new StringConverter<Account>() {
             @Override public String toString(Account a) { return a == null ? "" : a.getName(); }
             @Override public Account fromString(String string) { return comboCuenta.getValue(); }
+        });
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> Platform.runLater(() ->
+                comboCuenta.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;")));
+        comboCuenta.valueProperty().addListener((obs, old, nw) -> {
+            if (nw != null && nw.getName() != null && nw.getName().toLowerCase().contains("caja")) {
+                comboMedioPago.setValue("Efectivo");
+            }
         });
 
         Runnable updateDates = () -> {
@@ -198,6 +203,15 @@ public class PurchaseFormController {
                 dpFechaVencimiento.setValue(creation.plusMonths(1));
                 dpFechaVencimiento.setDisable(false);
             }
+            boolean esCredito = "Crédito".equals(type);
+            comboCuenta.setDisable(esCredito);
+            comboMedioPago.setDisable(esCredito);
+            if (esCredito) {
+                comboCuenta.setValue(null);
+                comboMedioPago.setValue(null);
+            }
+            comboCuenta.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;");
+            comboMedioPago.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-background-radius: 4;");
         };
 
         comboFormaPago.setOnAction(e -> updateDates.run());
@@ -220,14 +234,11 @@ public class PurchaseFormController {
         colPrecio.setCellValueFactory(cell -> cell.getValue().priceProperty().asObject());
         colPrecio.setCellFactory(col -> new PriceCell());
 
-        colDescuento.setCellValueFactory(cell -> cell.getValue().discountProperty().asObject());
-        colDescuento.setCellFactory(col -> new PercentageCell());
-
         colImpuesto.setCellValueFactory(cell ->
                 Bindings.createObjectBinding(() -> {
                     PurchaseDetailRow row = cell.getValue();
-                    return row.getPrice() * getIvaRate(row.getProduct()) * row.getQuantity();
-                }, cell.getValue().productProperty(), cell.getValue().priceProperty(), cell.getValue().quantityProperty())
+                    return row.getPrice() * getIvaRate(row.getProduct());
+                }, cell.getValue().productProperty(), cell.getValue().priceProperty())
         );
         colImpuesto.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Double item, boolean empty) {
@@ -295,39 +306,32 @@ public class PurchaseFormController {
         detailRows.setAll(rows);
         recalculateTotals();
 
+        boolean esCredito = "Crédito".equals(comboFormaPago.getValue());
+        comboCuenta.setDisable(esCredito);
+        comboMedioPago.setDisable(esCredito);
+
         if (btnGuardar != null) btnGuardar.setText("Actualizar Compra");
     }
 
     private void recalculateTotals() {
         double subtotal = 0;
-        double discounts = 0;
-        double total = 0;
-        double ivaTotal = 0;
 
         for (PurchaseDetailRow row : detailRows) {
             if (row.getProduct() != null) {
-                double lineTotal = row.getPrice() * row.getQuantity();
-                double discAmount = lineTotal * (row.getDiscount() / 100.0);
-                subtotal += lineTotal;
-                discounts += discAmount;
-                total += row.getLineTotal();
-                ivaTotal += row.getPrice() * getIvaRate(row.getProduct()) * row.getQuantity();
+                subtotal += row.getPrice() * row.getQuantity();
             }
         }
 
+        double ivaTotal = subtotal * 0.19;
+        double total = subtotal + ivaTotal;
+
         lblSubtotal.setText(currencyFormat.format(subtotal));
         lblIvaFavorTotal.setText(currencyFormat.format(ivaTotal));
-        lblDescuentos.setText(currencyFormat.format(discounts));
         lblTotalGeneral.setText(currencyFormat.format(total));
     }
 
     private double getIvaRate(Product p) {
-        if (p == null || p.getCategory() == null) return 0.0;
-        return p.getCategory().getTaxTypes().stream()
-                .filter(t -> Boolean.TRUE.equals(t.getIsVat()))
-                .mapToDouble(t -> t.getRate() != null ? t.getRate() : 0.0)
-                .findFirst()
-                .orElse(0.0);
+        return 0.19;
     }
 
     @FXML void btnAgregarLineaClick(ActionEvent event) { addLine(); }
@@ -344,7 +348,8 @@ public class PurchaseFormController {
             tablaDetalles.setStyle(STYLE_ERROR);
             valid = false;
         }
-        if (comboCuenta.getValue() == null) {
+        boolean esCredito = "Crédito".equals(comboFormaPago.getValue());
+        if (!esCredito && comboCuenta.getValue() == null) {
             comboCuenta.setStyle(STYLE_ERROR);
             valid = false;
         }
@@ -405,6 +410,7 @@ public class PurchaseFormController {
 
             String numFactura = purchase.getInvoiceNumber();
             boolean fueEdicion = editMode;
+            MainLayoutController.getInstance().clearPurchaseFormCache();
             navigateBack();
             ToastNotification.success(
                 MainLayoutController.getInstance().getContentArea(),
@@ -429,10 +435,18 @@ public class PurchaseFormController {
         );
     }
 
-    @FXML void btnCancelarClick(ActionEvent event) { navigateBack(); }
+    @FXML void btnCancelarClick(ActionEvent event) {
+        MainLayoutController.getInstance().clearPurchaseFormCache();
+        navigateBack();
+    }
 
     private void navigateBack() {
-        MainLayoutController.getInstance().loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
+        Object ctrl = MainLayoutController.getInstance()
+            .loadView("/com/autollantas/gestion/purchases/views/PurchaseInvoices.fxml");
+        MainLayoutController.getInstance().clearPurchaseFormCache();
+        if (ctrl instanceof PurchaseInvoicesController pic) {
+            pic.actualizarBotonNuevaCompra();
+        }
     }
 
     private class QuantityCell extends TableCell<PurchaseDetailRow, Integer> {
@@ -666,10 +680,10 @@ class PurchaseDetailRow {
 
     public javafx.beans.binding.DoubleBinding totalBinding() {
         return Bindings.createDoubleBinding(() -> {
-            double lineTotal = getPrice() * getQuantity();
-            double discAmount = lineTotal * (getDiscount() / 100.0);
-            return lineTotal - discAmount;
-        }, price, quantity, discount);
+            double lineBase = getPrice() * getQuantity();
+            double iva = lineBase * 0.19;
+            return lineBase + iva;
+        }, price, quantity);
     }
 
     public double getLineTotal() { return totalBinding().get(); }

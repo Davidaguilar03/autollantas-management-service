@@ -74,7 +74,6 @@
                            <children>
                               <HBox alignment="CENTER_LEFT">
                                  <Button fx:id="btnVentas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnVentasClick" styleClass="submenu-btn" text="Facturas de Venta" HBox.hgrow="ALWAYS" />
-                                 <Button mnemonicParsing="false" onAction="#btnVentasPlusClick" styleClass="submenu-plus-btn" text="+" />
                               </HBox>
 
                               <HBox alignment="CENTER_LEFT">
@@ -83,7 +82,6 @@
 
                               <HBox alignment="CENTER_LEFT">
                                  <Button fx:id="btnIngresoOcasional" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnIngresoOcasionalClick" styleClass="submenu-btn" text="Ingreso Ocasional" HBox.hgrow="ALWAYS" />
-                                 <Button mnemonicParsing="false" onAction="#btnIngresoOcasionalPlusClick" styleClass="submenu-plus-btn" text="+" />
                               </HBox>
                            </children>
                         </VBox>
@@ -103,7 +101,6 @@
                            <children>
                               <HBox alignment="CENTER_LEFT">
                                  <Button fx:id="btnCompras" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnComprasClick" styleClass="submenu-btn" text="Facturas Compra" HBox.hgrow="ALWAYS" />
-                                 <Button mnemonicParsing="false" onAction="#btnComprasPlusClick" styleClass="submenu-plus-btn" text="+" />
                               </HBox>
 
                               <HBox alignment="CENTER_LEFT">
@@ -112,7 +109,6 @@
 
                               <HBox alignment="CENTER_LEFT">
                                  <Button fx:id="btnCostosOperativos" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnCostosOperativosClick" styleClass="submenu-btn" text="Gastos Operativos" HBox.hgrow="ALWAYS" />
-                                 <Button mnemonicParsing="false" onAction="#btnCostosOperativosPlusClick" styleClass="submenu-plus-btn" text="+" />
                               </HBox>
                            </children>
                         </VBox>
@@ -132,10 +128,11 @@
                            <children>
                               <HBox alignment="CENTER_LEFT">
                                  <Button fx:id="btnProductos" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnProductosClick" styleClass="submenu-btn" text="Productos" HBox.hgrow="ALWAYS" />
-                                 <Button mnemonicParsing="false" onAction="#btnProductosPlusClick" styleClass="submenu-plus-btn" text="+" />
                               </HBox>
 
                               <Button fx:id="btnAlertas" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnAlertasClick" styleClass="submenu-btn" text="Alertas de Stock" />
+
+                              <Button fx:id="btnImpuestos" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#btnImpuestosClick" styleClass="submenu-btn" text="Impuestos y Márgenes" />
                            </children>
                         </VBox>
                      </content>

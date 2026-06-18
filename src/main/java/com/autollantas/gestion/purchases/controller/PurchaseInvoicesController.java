@@ -24,6 +24,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -77,9 +82,11 @@ public class PurchaseInvoicesController {
     @FXML private TableColumn<Purchase, Double> colIvaFavor;
     @FXML private TableColumn<Purchase, String> colEstado;
 
+    @FXML private Button btnNuevaCompra;
     @FXML private Button btnVerDetalles;
     @FXML private Button btnEditar;
     @FXML private Button btnEliminar;
+    @FXML private Button btnPapelera;
     @FXML private Label lblInfoRegistros;
 
     private final ObservableList<Purchase> masterData = FXCollections.observableArrayList();
@@ -109,6 +116,35 @@ public class PurchaseInvoicesController {
         configureListeners();
         setupTableInteractions();
         loadDataFromDB();
+        actualizarBotonNuevaCompra();
+    }
+
+    public void actualizarBotonNuevaCompra() {
+        if (btnNuevaCompra == null) return;
+        boolean hayCache = MainLayoutController.getInstance().hasCachedPurchaseForm();
+        if (hayCache) {
+            btnNuevaCompra.setText("Continuar Compra");
+            btnNuevaCompra.getStyleClass().removeAll("mini-card-green", "mini-card-btn");
+            btnNuevaCompra.getStyleClass().addAll("mini-card-btn", "mini-card-blue");
+            if (btnNuevaCompra.getGraphic() instanceof StackPane sp) {
+                sp.getStyleClass().removeAll("mini-card-chip-green");
+                sp.getStyleClass().add("mini-card-chip-blue");
+                sp.getChildren().stream()
+                    .filter(n -> n instanceof Label).map(n -> (Label) n)
+                    .findFirst().ifPresent(lbl -> lbl.setText("↩"));
+            }
+        } else {
+            btnNuevaCompra.setText("Nueva Compra");
+            btnNuevaCompra.getStyleClass().removeAll("mini-card-blue", "mini-card-btn");
+            btnNuevaCompra.getStyleClass().addAll("mini-card-btn", "mini-card-green");
+            if (btnNuevaCompra.getGraphic() instanceof StackPane sp) {
+                sp.getStyleClass().removeAll("mini-card-chip-blue");
+                sp.getStyleClass().add("mini-card-chip-green");
+                sp.getChildren().stream()
+                    .filter(n -> n instanceof Label).map(n -> (Label) n)
+                    .findFirst().ifPresent(lbl -> lbl.setText("＋"));
+            }
+        }
     }
 
     private void loadDataFromDB() {
@@ -117,7 +153,7 @@ public class PurchaseInvoicesController {
             try {
                 List<Purchase> list = purchasesService.findAllPurchases();
                 masterData.setAll(list);
-                updateRecordsLabel();
+                applyFilters();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -215,6 +251,166 @@ public class PurchaseInvoicesController {
                 }
             },
             null);
+    }
+
+    @FXML void btnPapeleraClick(ActionEvent event) {
+        List<Purchase> anuladas = purchasesService.findAllPurchases().stream()
+            .filter(p -> "ANULADA".equalsIgnoreCase(p.getStatus()))
+            .toList();
+
+        Stage modal = new Stage();
+        modal.initModality(Modality.APPLICATION_MODAL);
+        modal.initStyle(StageStyle.TRANSPARENT);
+
+        Stage owner = (Stage) tablaFacturasCompra.getScene().getWindow();
+        modal.initOwner(owner);
+
+        StackPane overlay = new StackPane();
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
+
+        VBox card = new VBox(0);
+        card.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 8;" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 20, 0, 0, 10);");
+        card.setPrefWidth(1000);
+        card.setPrefHeight(750);
+        card.setMaxWidth(1000);
+        card.setMaxHeight(750);
+        card.setPadding(new Insets(20, 15, 15, 20));
+
+        HBox header = new HBox();
+        header.setAlignment(Pos.CENTER_LEFT);
+        Label titulo = new Label("Papelera — Compras Anuladas");
+        titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        Region spacerH = new Region();
+        HBox.setHgrow(spacerH, Priority.ALWAYS);
+        Label contadorLbl = new Label(anuladas.size() + " registros");
+        contadorLbl.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;");
+        header.getChildren().addAll(titulo, spacerH, contadorLbl);
+
+        Separator sep1 = new Separator();
+        sep1.setPadding(new Insets(8, 0, 8, 0));
+
+        Button btnVerDet = new Button("Ver Detalles");
+        btnVerDet.setStyle(
+            "-fx-background-color: #4db6ac; -fx-text-fill: white;" +
+            "-fx-font-weight: bold; -fx-font-size: 14px;" +
+            "-fx-padding: 10 30 10 30; -fx-background-radius: 4; -fx-cursor: hand;");
+        btnVerDet.setDisable(true);
+
+        Button btnRecu = new Button("Recuperar Compra");
+        btnRecu.setStyle(
+            "-fx-background-color: #27ae60; -fx-text-fill: white;" +
+            "-fx-font-weight: bold; -fx-font-size: 14px;" +
+            "-fx-padding: 10 30 10 30; -fx-background-radius: 4; -fx-cursor: hand;");
+        btnRecu.setDisable(true);
+
+        Button btnCerrar = new Button("Cerrar");
+        btnCerrar.setStyle(
+            "-fx-background-color: #34495e; -fx-text-fill: white;" +
+            "-fx-font-weight: bold; -fx-font-size: 14px;" +
+            "-fx-padding: 10 30 10 30; -fx-background-radius: 4; -fx-cursor: hand;");
+        btnCerrar.setOnAction(e -> modal.close());
+
+        HBox botonesBox = new HBox(16);
+        botonesBox.setAlignment(Pos.CENTER);
+        botonesBox.setPadding(new Insets(10, 0, 0, 0));
+        botonesBox.setPrefHeight(50);
+
+        Separator sep2 = new Separator();
+        sep2.setPadding(new Insets(8, 0, 8, 0));
+
+        if (anuladas.isEmpty()) {
+            Label vacio = new Label("No hay compras anuladas en la papelera");
+            vacio.setStyle("-fx-font-size: 14px; -fx-text-fill: #95a5a6; -fx-padding: 40;");
+            vacio.setAlignment(Pos.CENTER);
+            vacio.setMaxWidth(Double.MAX_VALUE);
+            botonesBox.getChildren().add(btnCerrar);
+            card.getChildren().addAll(header, sep1, vacio, sep2, botonesBox);
+        } else {
+            TableView<Purchase> tabla = new TableView<>();
+            tabla.setStyle("-fx-border-color: #ecf0f1;");
+            VBox.setVgrow(tabla, Priority.ALWAYS);
+
+            TableColumn<Purchase, String> colNum = new TableColumn<>("Nro. Factura");
+            colNum.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getInvoiceNumber()));
+            colNum.setPrefWidth(150);
+
+            TableColumn<Purchase, String> colProv = new TableColumn<>("Proveedor");
+            colProv.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getSupplier() != null ? c.getValue().getSupplier().getName() : ""));
+            colProv.setPrefWidth(220);
+
+            TableColumn<Purchase, String> colFech = new TableColumn<>("Fecha");
+            colFech.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getPurchaseDate() != null ? c.getValue().getPurchaseDate().toString() : ""));
+            colFech.setPrefWidth(110);
+
+            TableColumn<Purchase, String> colTot = new TableColumn<>("Total");
+            colTot.setCellValueFactory(c -> new SimpleStringProperty(
+                c.getValue().getTotal() != null
+                    ? "$ " + String.format("%,.0f", c.getValue().getTotal()) : "$ 0"));
+            colTot.setPrefWidth(130);
+            colTot.setStyle("-fx-alignment: CENTER-RIGHT;");
+
+            TableColumn<Purchase, String> colEst = new TableColumn<>("Estado");
+            colEst.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getStatus()));
+            colEst.setPrefWidth(100);
+
+            tabla.getColumns().addAll(colNum, colProv, colFech, colTot, colEst);
+            tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            tabla.setItems(FXCollections.observableArrayList(anuladas));
+
+            tabla.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
+                boolean hay = sel != null;
+                btnVerDet.setDisable(!hay);
+                btnRecu.setDisable(!hay);
+            });
+
+            btnVerDet.setOnAction(e -> {
+                Purchase sel = tabla.getSelectionModel().getSelectedItem();
+                if (sel != null) {
+                    modal.close();
+                    openDetailsModal(sel);
+                }
+            });
+
+            btnRecu.setOnAction(e -> {
+                Purchase sel = tabla.getSelectionModel().getSelectedItem();
+                if (sel == null) return;
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                confirm.setTitle("Recuperar Compra");
+                confirm.setHeaderText("¿Recuperar la compra " + sel.getInvoiceNumber() + "?");
+                confirm.setContentText("La compra volverá a estado PENDIENTE.");
+                confirm.showAndWait().ifPresent(resp -> {
+                    if (resp == ButtonType.OK) {
+                        purchasesService.restorePurchase(sel);
+                        tabla.getItems().remove(sel);
+                        loadDataFromDB();
+                        ToastNotification.success(tablaFacturasCompra, "Compra recuperada correctamente");
+                    }
+                });
+            });
+
+            botonesBox.getChildren().addAll(btnVerDet, btnRecu, btnCerrar);
+            card.getChildren().addAll(header, sep1, tabla, sep2, botonesBox);
+        }
+
+        StackPane.setAlignment(card, Pos.CENTER);
+        overlay.getChildren().add(card);
+
+        Scene scene = new Scene(overlay, owner.getWidth(), owner.getHeight());
+        scene.setFill(null);
+        scene.setOnKeyPressed(ke -> {
+            if (ke.getCode() == KeyCode.ESCAPE) modal.close();
+        });
+        modal.setScene(scene);
+        modal.setX(owner.getX());
+        modal.setY(owner.getY());
+        modal.setWidth(owner.getWidth());
+        modal.setHeight(owner.getHeight());
+        modal.show();
     }
 
     private void styleTextColumn(TableColumn<Purchase, String> col, Pos alignment) {
@@ -400,6 +596,7 @@ public class PurchaseInvoicesController {
 
     private void applyFilters() {
         filteredData.setPredicate(p -> {
+            if ("ANULADA".equalsIgnoreCase(p.getStatus())) return false;
             String statusFilter = comboEstado.getValue();
             String actualStatus = p.getStatus();
 

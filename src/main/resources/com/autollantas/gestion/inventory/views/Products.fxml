@@ -161,8 +161,8 @@
                         <TableColumn fx:id="colCodigo" prefWidth="135.33331298828125" style="-fx-alignment: CENTER;" text="Codigo" />
                         <TableColumn fx:id="colDescripcion" prefWidth="359.66668701171875" style="-fx-alignment: CENTER;" text="Descripcion" />
 
-                        <TableColumn fx:id="colPurchaseCost" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Precio Compra" />
-                        <TableColumn fx:id="colTaxAmount" prefWidth="120.0" style="-fx-alignment: CENTER;" text="IVA Descontable" />
+                        <TableColumn fx:id="colPurchaseCost" prefWidth="130.0" style="-fx-alignment: CENTER;" text="P. Compra s/IVA" />
+                        <TableColumn fx:id="colTaxAmount" prefWidth="120.0" style="-fx-alignment: CENTER;" text="IVA Producto" />
                         <TableColumn fx:id="colMinSalePrice" prefWidth="140.0" style="-fx-alignment: CENTER;" text="Precio Mín. Venta" />
                         <TableColumn fx:id="colSuggestedPrice" prefWidth="130.0" style="-fx-alignment: CENTER;" text="Precio Sugerido" />
 
@@ -210,17 +210,7 @@
 
                         <Region HBox.hgrow="ALWAYS" />
 
-                        <Button fx:id="btnImpuestos" contentDisplay="LEFT" graphicTextGap="12.0"
-                                mnemonicParsing="false" onAction="#btnImpuestosClick"
-                                prefHeight="48.0" styleClass="mini-card-btn,mini-card-cyan" text="Impuestos">
-                            <graphic>
-                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
-                                           styleClass="mini-card-chip-cyan">
-                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="\%" />
-                                </StackPane>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnCategorias" contentDisplay="LEFT" graphicTextGap="12.0"
+<Button fx:id="btnCategorias" contentDisplay="LEFT" graphicTextGap="12.0"
                                 mnemonicParsing="false" onAction="#btnCategoriasClick"
                                 prefHeight="48.0" styleClass="mini-card-btn,mini-card-purple" text="Categorías">
                             <graphic>
@@ -230,17 +220,6 @@
                                 </StackPane>
                             </graphic>
                         </Button>
-                        <Button fx:id="btnUtilidades" contentDisplay="LEFT" graphicTextGap="12.0"
-                                mnemonicParsing="false" onAction="#btnUtilidadesClick"
-                                prefHeight="48.0" styleClass="mini-card-btn,mini-card-blue" text="Utilidades">
-                            <graphic>
-                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
-                                           styleClass="mini-card-chip-blue">
-                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="↑" />
-                                </StackPane>
-                            </graphic>
-                        </Button>
-
                         <Label fx:id="lblInfoRegistros" style="-fx-font-weight: bold;" text="Cargando..." textFill="#666666">
                             <padding>
                                 <Insets right="10.0" />

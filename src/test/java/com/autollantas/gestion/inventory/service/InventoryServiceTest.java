@@ -295,7 +295,7 @@ class InventoryServiceTest {
             when(productCategoryRepository.save(any())).thenReturn(savedCat);
             when(productCategoryRepository.findById(1)).thenReturn(Optional.of(savedCat));
 
-            inventoryService.createCategory("llantas", 5, 2);
+            inventoryService.createCategory("llantas", "");
 
             verify(productCategoryRepository, atLeastOnce()).save(argThat((ProductCategory c) -> "LLANTAS".equals(c.getName())));
         }

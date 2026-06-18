@@ -72,21 +72,21 @@
                         <Font size="13.0" />
                     </font>
                 </Label>
-                <DatePicker fx:id="dpFechaPago" maxWidth="1.7976931348623157E308" prefHeight="35.0" style="-fx-font-size: 13;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <DatePicker fx:id="dpFechaPago" maxWidth="1.7976931348623157E308" prefHeight="35.0" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <Label text="Cuenta Origen" textFill="#57606f" GridPane.rowIndex="1">
                     <font>
                         <Font size="13.0" />
                     </font>
                 </Label>
-                <ComboBox fx:id="comboCuenta" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Seleccione cuenta..." style="-fx-font-size: 13;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <ComboBox fx:id="comboCuenta" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Seleccione cuenta..." styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                 <Label text="Método Pago" textFill="#57606f" GridPane.rowIndex="2">
                     <font>
                         <Font size="13.0" />
                     </font>
                 </Label>
-                <ComboBox fx:id="comboMetodoPago" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Seleccione metodo de pago..." style="-fx-font-size: 13;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <ComboBox fx:id="comboMetodoPago" maxWidth="1.7976931348623157E308" prefHeight="35.0" promptText="Seleccione metodo de pago..." styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                 <Label text="Valor a Pagar" textFill="#57606f" GridPane.rowIndex="3">
                     <font>
@@ -94,10 +94,7 @@
                     </font>
                 </Label>
 
-                <TextField fx:id="txtValor" alignment="CENTER_LEFT" prefHeight="40.0" promptText="\$ 0.00" style="-fx-background-color: #fff5f5; -fx-text-fill: #c0392b; -fx-font-weight: bold; -fx-font-size: 16px; -fx-background-radius: 6; -fx-border-color: #fadbd8; -fx-border-radius: 6;" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                    <padding>
-                        <Insets left="10.0" right="10.0" />
-                    </padding></TextField>
+                <TextField fx:id="txtValor" alignment="CENTER_LEFT" prefHeight="40.0" promptText="\$ 0.00" styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
             </children>
             <rowConstraints>

@@ -7,6 +7,7 @@ import com.autollantas.gestion.shared.util.ToastNotification;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,8 +20,7 @@ public class CategoryFormController {
 
     @FXML private Label lblTitulo;
     @FXML private TextField txtNombre;
-    @FXML private TextField txtStockAmarillo;
-    @FXML private TextField txtStockRojo;
+    @FXML private ColorPicker colorPicker;
 
     private ProductCategory currentCategory;
     private boolean guardado = false;
@@ -36,8 +36,9 @@ public class CategoryFormController {
         this.currentCategory = cat;
         lblTitulo.setText("Editar Categoría");
         txtNombre.setText(cat.getName() != null ? cat.getName() : "");
-        txtStockAmarillo.setText(cat.getYellowStockMin() != null ? String.valueOf(cat.getYellowStockMin()) : "");
-        txtStockRojo.setText(cat.getRedStockMin() != null ? String.valueOf(cat.getRedStockMin()) : "");
+        if (cat.getColor() != null) {
+            colorPicker.setValue(Color.web(cat.getColor()));
+        }
     }
 
     @FXML
@@ -48,7 +49,7 @@ public class CategoryFormController {
             CustomDialog.confirm(txtNombre,
                 "Guardar cambios",
                 "Vas a modificar la categoría \"" + currentCategory.getName() + "\". "
-                    + "Los umbrales de stock y el nombre serán reemplazados. ¿Confirmas?",
+                    + "El nombre y color serán reemplazados. ¿Confirmas?",
                 this::doSave,
                 null);
         } else {
@@ -59,15 +60,15 @@ public class CategoryFormController {
     private void doSave() {
         try {
             String nombre = txtNombre.getText().trim();
-            int amarillo = Integer.parseInt(txtStockAmarillo.getText().trim());
-            int rojo = Integer.parseInt(txtStockRojo.getText().trim());
+            String colorHex = colorPicker.getValue() != null
+                    ? "#" + colorPicker.getValue().toString().substring(2, 8)
+                    : "#4db6ac";
 
             if (currentCategory == null) {
-                inventoryService.createCategory(nombre, amarillo, rojo);
+                inventoryService.createCategory(nombre, colorHex);
             } else {
                 currentCategory.setName(nombre);
-                currentCategory.setYellowStockMin(amarillo);
-                currentCategory.setRedStockMin(rojo);
+                currentCategory.setColor(colorHex);
                 inventoryService.saveCategory(currentCategory);
             }
             guardado = true;
@@ -86,34 +87,13 @@ public class CategoryFormController {
         String errorStyle = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
         String normalStyle = "-fx-border-color: #cccccc; -fx-border-radius: 4;";
         txtNombre.setStyle(normalStyle);
-        txtStockAmarillo.setStyle(normalStyle);
-        txtStockRojo.setStyle(normalStyle);
-
-        boolean valido = true;
 
         if (txtNombre.getText() == null || txtNombre.getText().trim().isEmpty()) {
             txtNombre.setStyle(errorStyle);
-            valido = false;
+            ToastNotification.warning(txtNombre, "El nombre de la categoría es requerido.");
+            return false;
         }
-
-        try {
-            int a = Integer.parseInt(txtStockAmarillo.getText().trim());
-            if (a < 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            txtStockAmarillo.setStyle(errorStyle);
-            valido = false;
-        }
-
-        try {
-            int r = Integer.parseInt(txtStockRojo.getText().trim());
-            if (r < 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            txtStockRojo.setStyle(errorStyle);
-            valido = false;
-        }
-
-        if (!valido) ToastNotification.warning(txtNombre, "Completa los campos resaltados: nombre requerido, stocks deben ser números ≥ 0");
-        return valido;
+        return true;
     }
 
     private void cerrarVentana() {

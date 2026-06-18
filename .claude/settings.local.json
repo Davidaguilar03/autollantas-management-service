@@ -42,7 +42,8 @@
       "PowerShell(\\(Get-Command java\\).Source; java -version 2>&1)",
       "PowerShell(& \"C:\\\\Program Files\\\\Java\\\\jdk-21\\\\bin\\\\jar.exe\" cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Resultado: $LASTEXITCODE\")",
       "Skill(run)",
-      "Skill(run:*)"
+      "Skill(run:*)",
+      "Bash(Remove-Item *)"
     ]
   }
 }
