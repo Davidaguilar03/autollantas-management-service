@@ -251,46 +251,72 @@ public class SaleInvoicesController {
         Stage owner = (Stage) tablaFacturas.getScene().getWindow();
         modal.initOwner(owner);
 
-        VBox root = new VBox(0);
-        root.setStyle("-fx-background-color: rgba(0,0,0,0.45);");
-        root.setAlignment(Pos.CENTER);
+        StackPane overlay = new StackPane();
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
 
-        VBox card = new VBox(16);
+        VBox card = new VBox(0);
         card.setStyle(
-            "-fx-background-color: #f0f2f5;" +
-            "-fx-background-radius: 14;" +
-            "-fx-padding: 24;"
-        );
-        card.setPrefWidth(owner.getWidth() * 0.85);
-        card.setPrefHeight(owner.getHeight() * 0.80);
-        card.setMaxWidth(owner.getWidth() * 0.85);
-        card.setMaxHeight(owner.getHeight() * 0.80);
+            "-fx-background-color: white;" +
+            "-fx-background-radius: 8;" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 20, 0, 0, 10);");
+        card.setPrefWidth(1000);
+        card.setPrefHeight(750);
+        card.setMaxWidth(1000);
+        card.setMaxHeight(750);
+        card.setPadding(new Insets(20, 15, 15, 20));
 
-        HBox header = new HBox(12);
+        HBox header = new HBox();
         header.setAlignment(Pos.CENTER_LEFT);
-        Label icono = new Label("🗑");
-        icono.setStyle("-fx-font-size: 22px;");
-        Label titulo = new Label("Papelera — Facturas Anuladas (" + anuladas.size() + ")");
-        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button btnCerrar = new Button("✕");
+        Label titulo = new Label("Papelera — Facturas Anuladas");
+        titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        Region spacerH = new Region();
+        HBox.setHgrow(spacerH, Priority.ALWAYS);
+        Label contadorLbl = new Label(anuladas.size() + " registros");
+        contadorLbl.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;");
+        header.getChildren().addAll(titulo, spacerH, contadorLbl);
+
+        Separator sep1 = new Separator();
+        sep1.setPadding(new Insets(8, 0, 8, 0));
+
+        Button btnVerDet = new Button("Ver Detalles");
+        btnVerDet.setStyle(
+            "-fx-background-color: #4db6ac; -fx-text-fill: white;" +
+            "-fx-font-weight: bold; -fx-font-size: 14px;" +
+            "-fx-padding: 10 30 10 30; -fx-background-radius: 4; -fx-cursor: hand;");
+        btnVerDet.setDisable(true);
+
+        Button btnRecu = new Button("Recuperar Factura");
+        btnRecu.setStyle(
+            "-fx-background-color: #27ae60; -fx-text-fill: white;" +
+            "-fx-font-weight: bold; -fx-font-size: 14px;" +
+            "-fx-padding: 10 30 10 30; -fx-background-radius: 4; -fx-cursor: hand;");
+        btnRecu.setDisable(true);
+
+        Button btnCerrar = new Button("Cerrar");
         btnCerrar.setStyle(
-            "-fx-background-color: transparent;" +
-            "-fx-font-size: 16px; -fx-cursor: hand;" +
-            "-fx-text-fill: #94a3b8;");
+            "-fx-background-color: #34495e; -fx-text-fill: white;" +
+            "-fx-font-weight: bold; -fx-font-size: 14px;" +
+            "-fx-padding: 10 30 10 30; -fx-background-radius: 4; -fx-cursor: hand;");
         btnCerrar.setOnAction(e -> modal.close());
-        header.getChildren().addAll(icono, titulo, spacer, btnCerrar);
+
+        HBox botonesBox = new HBox(16);
+        botonesBox.setAlignment(Pos.CENTER);
+        botonesBox.setPadding(new Insets(10, 0, 0, 0));
+        botonesBox.setPrefHeight(50);
+
+        Separator sep2 = new Separator();
+        sep2.setPadding(new Insets(8, 0, 8, 0));
 
         if (anuladas.isEmpty()) {
             Label vacio = new Label("No hay facturas anuladas en la papelera");
-            vacio.setStyle("-fx-font-size: 14px; -fx-text-fill: #94a3b8; -fx-padding: 40;");
+            vacio.setStyle("-fx-font-size: 14px; -fx-text-fill: #95a5a6; -fx-padding: 40;");
             vacio.setAlignment(Pos.CENTER);
             vacio.setMaxWidth(Double.MAX_VALUE);
-            card.getChildren().addAll(header, vacio);
+            botonesBox.getChildren().add(btnCerrar);
+            card.getChildren().addAll(header, sep1, vacio, sep2, botonesBox);
         } else {
             TableView<Sale> tabla = new TableView<>();
-            tabla.setStyle("-fx-background-radius: 10;");
+            tabla.setStyle("-fx-border-color: #ecf0f1;");
             VBox.setVgrow(tabla, Priority.ALWAYS);
 
             TableColumn<Sale, String> colNum = new TableColumn<>("Nro. Factura");
@@ -321,25 +347,6 @@ public class SaleInvoicesController {
             tabla.getColumns().addAll(colNum, colCli, colFech, colTot, colEst);
             tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
             tabla.setItems(FXCollections.observableArrayList(anuladas));
-
-            HBox toolbar = new HBox(10);
-            toolbar.setAlignment(Pos.CENTER_LEFT);
-
-            Button btnVerDet = new Button("⊙  Ver Detalles");
-            btnVerDet.setStyle(
-                "-fx-background-color: white; -fx-border-color: #4db6ac;" +
-                "-fx-border-radius: 8; -fx-background-radius: 8;" +
-                "-fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16 8 16;");
-            btnVerDet.setDisable(true);
-
-            Button btnRecu = new Button("↩  Recuperar Factura");
-            btnRecu.setStyle(
-                "-fx-background-color: white; -fx-border-color: #27ae60;" +
-                "-fx-border-radius: 8; -fx-background-radius: 8;" +
-                "-fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 16 8 16;");
-            btnRecu.setDisable(true);
-
-            toolbar.getChildren().addAll(btnVerDet, btnRecu);
 
             tabla.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
                 boolean hay = sel != null;
@@ -372,11 +379,14 @@ public class SaleInvoicesController {
                 });
             });
 
-            card.getChildren().addAll(header, toolbar, tabla);
+            botonesBox.getChildren().addAll(btnVerDet, btnRecu, btnCerrar);
+            card.getChildren().addAll(header, sep1, tabla, sep2, botonesBox);
         }
 
-        root.getChildren().add(card);
-        Scene scene = new Scene(root, owner.getWidth(), owner.getHeight());
+        StackPane.setAlignment(card, Pos.CENTER);
+        overlay.getChildren().add(card);
+
+        Scene scene = new Scene(overlay, owner.getWidth(), owner.getHeight());
         scene.setFill(null);
         scene.setOnKeyPressed(ke -> {
             if (ke.getCode() == javafx.scene.input.KeyCode.ESCAPE) modal.close();

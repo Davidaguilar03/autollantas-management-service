@@ -123,7 +123,10 @@ public class InventoryService {
         double totalTaxRate = 0.0;
         if (product.getCategory() != null && product.getCategory().getTaxTypes() != null) {
             for (TaxType t : product.getCategory().getTaxTypes()) {
-                if (t.getRate() != null) totalTaxRate += t.getRate();
+                if (t.getRate() != null
+                        && !Boolean.TRUE.equals(t.getIsVat())) {
+                    totalTaxRate += t.getRate();
+                }
             }
         }
         double minSalePrice = purchaseCost + (purchaseCost * totalTaxRate);
