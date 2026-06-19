@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class StockAlertsController {
+public class StockAlertsController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired
     private InventoryService inventoryService;
@@ -330,6 +330,10 @@ public class StockAlertsController {
         cargarDatosDB();
         ToastNotification.success(tablaAlertas, "Datos de stock actualizados");
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutRefrescar() { cargarDatosDB(); }
+    @Override public void shortcutBuscar()    { if (txtBuscarProducto != null) txtBuscarProducto.requestFocus(); }
 
     public enum AlertSeverity { CRITICAL, WARNING, OK }
 

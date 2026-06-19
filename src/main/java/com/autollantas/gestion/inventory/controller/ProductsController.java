@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("ALL")
 @Component
-public class ProductsController {
+public class ProductsController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired
     private InventoryService inventoryService;
@@ -400,6 +400,14 @@ public class ProductsController {
             ToastNotification.error(tablaProductos, "No se pudo abrir el módulo de " + nombre);
         }
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()   { abrirModalProduct(null, "Nuevo Producto"); }
+    @Override public void shortcutEditar()  { btnEditarClick(null); }
+    @Override public void shortcutEliminar(){ btnEliminarClick(null); }
+    @Override public void shortcutBuscar()  { if (txtCodigo != null) txtCodigo.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar() { cargarDatosDB(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { aplicarFiltros(); }
 

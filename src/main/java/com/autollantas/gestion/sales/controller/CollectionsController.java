@@ -38,7 +38,7 @@ import java.util.Locale;
 
 @SuppressWarnings("ALL")
 @Component
-public class CollectionsController {
+public class CollectionsController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private SalesService salesService;
     @Autowired private ApplicationContext springContext;
@@ -360,6 +360,13 @@ public class CollectionsController {
             }
         });
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()      { btnRegistrarPagoClick(null); }
+    @Override public void shortcutVerDetalle() { btnVerDetalleClick(null); }
+    @Override public void shortcutBuscar()     { if (txtNumero != null) txtNumero.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar()  { loadDataFromDB(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 

@@ -33,7 +33,7 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 @Component
-public class TaxManagementController {
+public class TaxManagementController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired
     private InventoryService inventoryService;
@@ -135,6 +135,12 @@ public class TaxManagementController {
     public void onDeselectAll(ActionEvent event) {
         tableCategoryAssignment.getItems().forEach(r -> r.setAssigned(false));
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()    { onNewTax(null); }
+    @Override public void shortcutEditar()   { onEditTax(null); }
+    @Override public void shortcutEliminar() { onDeleteTax(null); }
+    @Override public void shortcutRefrescar(){ loadTaxTypes(); }
 
     @FXML
     public void onNewTax(ActionEvent event) {

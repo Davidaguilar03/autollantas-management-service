@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Component
-public class AccountsController {
+public class AccountsController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private TreasuryService treasuryService;
     @Autowired private ApplicationContext springContext;
@@ -353,6 +353,10 @@ public class AccountsController {
     }
 
     // ── Modal transferencia ────────────────────────────────────────────────
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()     { abrirModalTransferencia(null); }
+    @Override public void shortcutRefrescar() { loadDatabaseData(); }
 
     @FXML void abrirModalTransferencia(ActionEvent e) {
         try {

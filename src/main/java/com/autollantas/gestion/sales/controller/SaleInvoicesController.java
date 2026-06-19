@@ -45,7 +45,7 @@ import java.util.Locale;
 @SuppressWarnings("ALL")
 @Component
 @Scope("prototype")
-public class SaleInvoicesController {
+public class SaleInvoicesController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private SalesService salesService;
     @Autowired private ApplicationContext springContext;
@@ -707,6 +707,15 @@ public class SaleInvoicesController {
             btnVerDetalles.setDisable(!haySeleccion);
         });
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()   { openForm(); }
+    @Override public void shortcutEditar()  { btnEditarClick(null); }
+    @Override public void shortcutEliminar(){ btnAnularClick(null); }
+    @Override public void shortcutVerDetalle() { btnVerDetallesClick(null); }
+    @Override public void shortcutBuscar()  { if (txtNumero != null) txtNumero.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar() { loadDataFromDB(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 

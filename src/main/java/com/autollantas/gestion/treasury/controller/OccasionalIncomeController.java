@@ -33,7 +33,7 @@ import java.util.Locale;
 
 @SuppressWarnings("ALL")
 @Component
-public class OccasionalIncomeController {
+public class OccasionalIncomeController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private TreasuryService treasuryService;
     @Autowired private ApplicationContext springContext;
@@ -298,6 +298,14 @@ public class OccasionalIncomeController {
         if (to != null && date.isAfter(to)) return true;
         return false;
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()    { openForm(new OccasionalIncome()); }
+    @Override public void shortcutEditar()   { btnEditarClick(null); }
+    @Override public void shortcutEliminar() { btnEliminarClick(null); }
+    @Override public void shortcutBuscar()   { if (txtConcepto != null) txtConcepto.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar(){ loadDatabaseData(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 
