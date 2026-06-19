@@ -47,11 +47,11 @@ public class PaymentsController {
 
     @FXML private TextField txtNumero;
     @FXML private TextField txtProveedor;
-    @FXML private TextField txtTotal;
+    @FXML private TextField txtTotalMin;
+    @FXML private TextField txtTotalMax;
 
     @FXML private ComboBox<String> comboEstado;
     @FXML private ComboBox<String> comboFormaPago;
-    @FXML private ComboBox<String> comboMedioPago;
 
     @FXML private DatePicker dpFechaDesde;
     @FXML private DatePicker dpFechaHasta;
@@ -408,10 +408,10 @@ public class PaymentsController {
         javafx.beans.value.ChangeListener<Object> listener = (obs, oldVal, newVal) -> applyFilters();
         txtNumero.textProperty().addListener(listener);
         txtProveedor.textProperty().addListener(listener);
-        txtTotal.textProperty().addListener(listener);
+        txtTotalMin.textProperty().addListener(listener);
+        txtTotalMax.textProperty().addListener(listener);
         comboEstado.valueProperty().addListener(listener);
         comboFormaPago.valueProperty().addListener(listener);
-        comboMedioPago.valueProperty().addListener(listener);
         dpFechaDesde.valueProperty().addListener(listener);
         dpFechaHasta.valueProperty().addListener(listener);
         dpVencimientoDesde.valueProperty().addListener(listener);
@@ -423,11 +423,16 @@ public class PaymentsController {
             if (!matchText(p.getInvoiceNumber(), txtNumero.getText())) return false;
             String supplierName = (p.getSupplier() != null) ? p.getSupplier().getName() : "";
             if (!matchText(supplierName, txtProveedor.getText())) return false;
-            String totalInput = txtTotal.getText().replaceAll("[^0-9]", "");
-            if (!totalInput.isEmpty() && !String.valueOf(p.getTotal().longValue()).startsWith(totalInput)) return false;
+            String minStr = txtTotalMin.getText().replaceAll("[^0-9]", "");
+            String maxStr = txtTotalMax.getText().replaceAll("[^0-9]", "");
+            if (!minStr.isEmpty() || !maxStr.isEmpty()) {
+                if (p.getTotal() == null) return false;
+                long total = p.getTotal().longValue();
+                if (!minStr.isEmpty() && total < Long.parseLong(minStr)) return false;
+                if (!maxStr.isEmpty() && total > Long.parseLong(maxStr)) return false;
+            }
             if (!matchCombo(comboEstado, p.getStatus())) return false;
             if (!matchCombo(comboFormaPago, p.getPaymentType())) return false;
-            if (!matchCombo(comboMedioPago, p.getPaymentMethod())) return false;
             if (outOfRange(p.getPurchaseDate(), dpFechaDesde.getValue(), dpFechaHasta.getValue())) return false;
             if (outOfRange(p.getDueDate(), dpVencimientoDesde.getValue(), dpVencimientoHasta.getValue())) return false;
             return true;
@@ -454,10 +459,9 @@ public class PaymentsController {
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 
     @FXML void btnLimpiarFiltrosClick(ActionEvent event) {
-        txtNumero.clear(); txtProveedor.clear(); txtTotal.clear();
+        txtNumero.clear(); txtProveedor.clear(); txtTotalMin.clear(); txtTotalMax.clear();
         comboEstado.getSelectionModel().selectFirst();
         comboFormaPago.getSelectionModel().selectFirst();
-        comboMedioPago.getSelectionModel().selectFirst();
         dpFechaDesde.setValue(null); dpFechaHasta.setValue(null);
         dpVencimientoDesde.setValue(null); dpVencimientoHasta.setValue(null);
         applyFilters();
@@ -477,8 +481,6 @@ public class PaymentsController {
         comboEstado.getSelectionModel().selectFirst();
         comboFormaPago.setItems(FXCollections.observableArrayList("Todas", "Crédito", "Contado"));
         comboFormaPago.getSelectionModel().selectFirst();
-        comboMedioPago.setItems(FXCollections.observableArrayList("Todos", "Efectivo", "Transferencia", "Cheque", "Tarjeta"));
-        comboMedioPago.getSelectionModel().selectFirst();
     }
 
 }

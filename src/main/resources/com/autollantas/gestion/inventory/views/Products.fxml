@@ -52,106 +52,108 @@
                             </VBox.margin>
                         </HBox>
 
-                        <GridPane hgap="15.0" vgap="10.0">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="120.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="120.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="120.0" />
-                                <ColumnConstraints hgrow="ALWAYS" maxWidth="353.33331298828125" minWidth="150.0" prefWidth="301.33331298828125" />
-                                <ColumnConstraints hgrow="NEVER" maxWidth="379.33331298828125" minWidth="100.0" prefWidth="328.66668701171875" />
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints vgrow="SOMETIMES" />
-                                <RowConstraints vgrow="SOMETIMES" />
-                            </rowConstraints>
+                        <HBox alignment="CENTER" spacing="15.0">
                             <children>
-
-                                <VBox spacing="5.0">
+                                <GridPane hgap="15.0" vgap="10.0" HBox.hgrow="ALWAYS">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="150.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="150.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="160.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="160.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="160.0" />
+                                        <ColumnConstraints hgrow="ALWAYS" minWidth="100.0" prefWidth="160.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="55.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="55.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
                                     <children>
-                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Categoría:" />
-                                        <ComboBox fx:id="comboCategoria" maxWidth="Infinity" promptText="Todas" styleClass="combo-box" />
+
+                                        <!-- Fila 1: Categoría (col 0) | Código (col 1) | Descripción (cols 2-3) | Marca (cols 4-5) -->
+                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Categoría:" />
+                                                <ComboBox fx:id="comboCategoria" maxWidth="Infinity" promptText="Todas" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Código:" />
+                                                <TextField fx:id="txtCodigo" promptText="Ej: LF01..." styleClass="text-field-search" maxWidth="Infinity" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Descripción:" />
+                                                <TextField fx:id="txtDescripcion" promptText="Ej: 225/45R18" styleClass="text-field-search" maxWidth="Infinity" />
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4.0" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="0">
+                                            <children>
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Marca / Tipo:" />
+                                                <TextField fx:id="txtMarca" promptText="Ej: Laufenn" styleClass="text-field-search" maxWidth="Infinity" />
+                                            </children>
+                                        </VBox>
+
+                                        <!-- Fila 2: Precio Mín/Máx (cols 0-2) | Stock Mín/Máx (cols 3-5) -->
+                                        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #2980b9;" text="Precio Sugerido ($):" />
+                                                <HBox spacing="6.0">
+                                                    <children>
+                                                        <TextField fx:id="txtPrecioMin" promptText="Mín" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="txtPrecioMax" promptText="Máx" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4.0" GridPane.columnIndex="3" GridPane.columnSpan="3" GridPane.rowIndex="1">
+                                            <children>
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #e67e22;" text="Existencias:" />
+                                                <HBox spacing="6.0">
+                                                    <children>
+                                                        <TextField fx:id="txtStockMin" promptText="Mín" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="txtStockMax" promptText="Máx" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
                                     </children>
-                                </VBox>
+                                </GridPane>
 
-                                <VBox spacing="5.0" GridPane.columnIndex="1">
-                                    <children>
-                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Código:" />
-                                        <TextField fx:id="txtCodigo" promptText="Ej: LF01..." styleClass="text-field-search" />
-                                    </children>
-                                </VBox>
+                                <Separator orientation="VERTICAL" prefHeight="110.0" prefWidth="0.0" />
 
-                                <VBox spacing="5.0" GridPane.columnIndex="2">
+                                <VBox alignment="CENTER" minWidth="140.0" prefWidth="140.0" spacing="10.0" HBox.hgrow="NEVER">
                                     <children>
-                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Descripción:" />
-                                        <TextField fx:id="txtDescripcion" promptText="Ej: 225/45R18" styleClass="text-field-search" />
-                                    </children>
-                                </VBox>
-
-                                <VBox prefHeight="62.0" prefWidth="307.0" spacing="5.0" GridPane.columnIndex="3">
-                                    <children>
-                                        <Label style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Marca:" />
-                                        <TextField fx:id="txtMarca" prefHeight="36.0" prefWidth="199.0" promptText="Ej: Laufenn" styleClass="text-field-search" />
-                                    </children>
-                                </VBox>
-
-                                <HBox alignment="BOTTOM_LEFT" minWidth="160.0" prefHeight="124.0" spacing="10.0" GridPane.columnIndex="4" GridPane.rowSpan="2">
-                                    <children>
-                                        <Button contentDisplay="LEFT" graphicTextGap="8.0" mnemonicParsing="false"
-                                                onAction="#btnBuscarClick" prefHeight="48.0"
+                                        <Button contentDisplay="LEFT" graphicTextGap="10.0" maxWidth="Infinity"
+                                                mnemonicParsing="false" onAction="#btnBuscarClick" prefHeight="48.0"
                                                 styleClass="mini-card-btn,mini-card-blue" text="Filtrar">
                                             <graphic>
-                                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                <StackPane alignment="CENTER" minWidth="36.0" minHeight="36.0" maxWidth="36.0" maxHeight="36.0"
                                                            styleClass="mini-card-chip-blue">
-                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="⊟" />
+                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="⊟" StackPane.alignment="CENTER" />
                                                 </StackPane>
                                             </graphic>
                                         </Button>
-                                        <Button contentDisplay="LEFT" graphicTextGap="8.0" mnemonicParsing="false"
-                                                onAction="#btnLimpiarFiltrosClick" prefHeight="48.0"
+                                        <Button contentDisplay="LEFT" graphicTextGap="10.0" maxWidth="Infinity"
+                                                mnemonicParsing="false" onAction="#btnLimpiarFiltrosClick" prefHeight="48.0"
                                                 styleClass="mini-card-btn,mini-card-gray" text="Limpiar">
                                             <graphic>
-                                                <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
+                                                <StackPane alignment="CENTER" minWidth="36.0" minHeight="36.0" maxWidth="36.0" maxHeight="36.0"
                                                            styleClass="mini-card-chip-gray">
-                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="↺" />
+                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" text="↺" StackPane.alignment="CENTER" />
                                                 </StackPane>
                                             </graphic>
                                         </Button>
                                     </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="15.0" GridPane.columnSpan="4" GridPane.rowIndex="1">
-                                    <children>
-                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #2980b9;" text="Precio Total (Rango):" />
-                                                <HBox prefHeight="36.0" prefWidth="88.0" spacing="5.0">
-                                                    <TextField fx:id="txtPrecioMin" promptText="Min $" styleClass="text-field-search" />
-                                                    <Label style="-fx-text-fill: #ccc; -fx-padding: 5 0 0 0;" text="-" />
-                                                    <TextField fx:id="txtPrecioMax" promptText="Max $" styleClass="text-field-search" />
-                                                </HBox>
-                                            </children>
-                                        </VBox>
-
-                                        <Separator orientation="VERTICAL" />
-
-                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #e67e22;" text="Existencias (Rango):" />
-                                                <HBox spacing="5.0">
-                                                    <TextField fx:id="txtStockMin" prefWidth="80" promptText="Min" styleClass="text-field-search" />
-                                                    <Label style="-fx-text-fill: #ccc; -fx-padding: 5 0 0 0;" text="-" />
-                                                    <TextField fx:id="txtStockMax" prefWidth="80" promptText="Max" styleClass="text-field-search" />
-                                                </HBox>
-                                            </children>
-                                        </VBox>
-                                    </children>
-                                </HBox>
-
+                                </VBox>
                             </children>
-                            <VBox.margin>
-                                <Insets top="10.0" />
-                            </VBox.margin>
-                        </GridPane>
+                        </HBox>
                     </children>
                 </VBox>
 

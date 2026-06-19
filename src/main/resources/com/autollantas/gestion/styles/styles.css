@@ -2071,13 +2071,13 @@
     -fx-border-radius: 12;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 10, 0, 0, 2);
     -fx-cursor: hand;
-    -fx-padding: 10 18 10 18;
-    -fx-font-size: 11px;
+    -fx-padding: 10 18 10 14;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-text-fill: #4a5568;
     -fx-border-width: 1.5;
     -fx-border-style: solid;
-    -fx-alignment: CENTER;
+    -fx-alignment: CENTER-LEFT;
 }
 .mini-card-btn:hover {
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.18), 16, 0, 0, 4);

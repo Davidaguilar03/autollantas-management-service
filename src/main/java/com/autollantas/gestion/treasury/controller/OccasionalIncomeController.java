@@ -39,7 +39,8 @@ public class OccasionalIncomeController {
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtConcepto;
-    @FXML private TextField txtMonto;
+    @FXML private TextField txtMontoMin;
+    @FXML private TextField txtMontoMax;
     @FXML private TextField txtObservaciones;
     @FXML private ComboBox<Account> comboCuenta;
 
@@ -252,7 +253,8 @@ public class OccasionalIncomeController {
         javafx.beans.value.ChangeListener<Object> changeListener = (obs, oldVal, newVal) -> applyFilters();
 
         txtConcepto.textProperty().addListener(changeListener);
-        txtMonto.textProperty().addListener(changeListener);
+        txtMontoMin.textProperty().addListener(changeListener);
+        txtMontoMax.textProperty().addListener(changeListener);
         txtObservaciones.textProperty().addListener(changeListener);
         comboCuenta.valueProperty().addListener(changeListener);
         dpFechaDesde.valueProperty().addListener(changeListener);
@@ -264,9 +266,13 @@ public class OccasionalIncomeController {
             if (!matchText(income.getConcept(), txtConcepto.getText())) return false;
             if (!matchText(income.getNotes(), txtObservaciones.getText())) return false;
 
-            String amountFilter = txtMonto.getText().replaceAll("[^0-9]", "");
-            if (!amountFilter.isEmpty()) {
-                if (!String.valueOf(income.getAmount().longValue()).contains(amountFilter)) return false;
+            String minStr = txtMontoMin.getText().replaceAll("[^0-9]", "");
+            String maxStr = txtMontoMax.getText().replaceAll("[^0-9]", "");
+            if (!minStr.isEmpty() || !maxStr.isEmpty()) {
+                if (income.getAmount() == null) return false;
+                long amount = income.getAmount().longValue();
+                if (!minStr.isEmpty() && amount < Long.parseLong(minStr)) return false;
+                if (!maxStr.isEmpty() && amount > Long.parseLong(maxStr)) return false;
             }
 
             Account selectedAccount = comboCuenta.getValue();
@@ -296,7 +302,7 @@ public class OccasionalIncomeController {
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 
     @FXML void btnLimpiarFiltrosClick(ActionEvent event) {
-        txtConcepto.clear(); txtMonto.clear(); txtObservaciones.clear();
+        txtConcepto.clear(); txtMontoMin.clear(); txtMontoMax.clear(); txtObservaciones.clear();
         comboCuenta.getSelectionModel().clearSelection();
         dpFechaDesde.setValue(null); dpFechaHasta.setValue(null);
     }
