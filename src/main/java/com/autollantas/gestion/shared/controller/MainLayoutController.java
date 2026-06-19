@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import com.autollantas.gestion.inventory.controller.ProductsController;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.purchases.controller.PurchaseInvoicesController;
 import com.autollantas.gestion.sales.controller.SaleInvoicesController;
 import com.autollantas.gestion.treasury.controller.OccasionalIncomeController;
@@ -68,6 +69,10 @@ public class MainLayoutController {
     private TitledPane activePane = null;
     private Button activeSubBtn = null;
 
+    /** Controlador de la vista actualmente cargada en el área de contenido. */
+    @Getter
+    private Object activeViewController = null;
+
     private Parent cachedSaleFormNode = null;
     private Parent cachedPurchaseFormNode = null;
 
@@ -106,6 +111,7 @@ public class MainLayoutController {
                 Scene scene = contentArea.getScene();
                 scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustLayout(newVal.doubleValue()));
                 adjustLayout(scene.getWidth());
+                com.autollantas.gestion.shared.util.KeyboardShortcuts.install(scene);
             }
         });
     }
@@ -176,10 +182,12 @@ public class MainLayoutController {
 
             if (SALE_FORM_FXML.equals(fxmlPath) && cachedSaleFormNode != null) {
                 contentArea.getChildren().setAll(cachedSaleFormNode);
+                activeViewController = cachedSaleFormNode.getProperties().get("controller");
                 return null;
             }
             if (PURCHASE_FORM_FXML.equals(fxmlPath) && cachedPurchaseFormNode != null) {
                 contentArea.getChildren().setAll(cachedPurchaseFormNode);
+                activeViewController = cachedPurchaseFormNode.getProperties().get("controller");
                 return null;
             }
 
@@ -188,9 +196,11 @@ public class MainLayoutController {
 
             Parent vista = loader.load();
             vista.setUserData(fxmlPath);
+            vista.getProperties().put("controller", loader.getController());
             contentArea.getChildren().setAll(vista);
 
-            return loader.getController();
+            activeViewController = loader.getController();
+            return activeViewController;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -250,6 +260,50 @@ public class MainLayoutController {
     @FXML void btnPanelControlClick(MouseEvent event) {
         loadView("/com/autollantas/gestion/reporting/views/Dashboard.fxml");
         setActive(tpPanelControl, null);
+    }
+
+    // ------------------------------------------------------------------------
+    // Navegación accesible por atajos de teclado (sin necesidad de un evento).
+    // Reutilizan exactamente la misma lógica que los clics del sidebar.
+    // ------------------------------------------------------------------------
+    public void fireDashboard() {
+        loadView("/com/autollantas/gestion/reporting/views/Dashboard.fxml");
+        setActive(tpPanelControl, null);
+    }
+    public void fireVentas()            { btnVentasClick(null); }
+    public void fireRecaudos()          { btnRecaudosClick(null); }
+    public void fireIngresoOcasional()  { btnIngresoOcasionalClick(null); }
+    public void fireCompras()           { btnComprasClick(null); }
+    public void firePagos()             { btnPagosClick(null); }
+    public void fireCostosOperativos()  { btnCostosOperativosClick(null); }
+    public void fireProductos()         { btnProductosClick(null); }
+    public void fireAlertas()           { btnAlertasClick(null); }
+    public void fireImpuestos()         { btnImpuestosClick(null); }
+    public void fireCuentas() {
+        loadView("/com/autollantas/gestion/treasury/views/Accounts.fxml");
+        setActive(tpCuentas, null);
+    }
+
+    public void fireCerrarSesion() {
+        CustomDialog.confirm(
+            sidebarContainer,
+            "Cerrar sesión",
+            "¿Seguro que deseas salir? Asegúrate de haber guardado cualquier cambio pendiente antes de continuar.",
+            () -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/autollantas/gestion/auth/views/Login.fxml"));
+                    loader.setControllerFactory(springContext::getBean);
+                    Parent root = loader.load();
+                    Stage stage = (Stage) sidebarContainer.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.centerOnScreen();
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            },
+            null
+        );
     }
 
     @FXML void btnVentasClick(ActionEvent event) {

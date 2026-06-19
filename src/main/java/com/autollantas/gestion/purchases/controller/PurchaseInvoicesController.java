@@ -46,7 +46,7 @@ import java.util.Locale;
 
 @SuppressWarnings("CallToPrintStackTrace")
 @Component
-public class PurchaseInvoicesController {
+public class PurchaseInvoicesController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private PurchasesService purchasesService;
     @Autowired private ApplicationContext springContext;
@@ -663,6 +663,15 @@ public class PurchaseInvoicesController {
         dpCreacionDesde.setConverter(c); dpCreacionHasta.setConverter(c);
         dpVencimientoDesde.setConverter(c); dpVencimientoHasta.setConverter(c);
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()   { openForm(); }
+    @Override public void shortcutEditar()  { btnEditarClick(null); }
+    @Override public void shortcutEliminar(){ btnEliminarClick(null); }
+    @Override public void shortcutVerDetalle() { btnVerDetallesClick(null); }
+    @Override public void shortcutBuscar()  { if (txtNumero != null) txtNumero.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar() { loadDataFromDB(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 

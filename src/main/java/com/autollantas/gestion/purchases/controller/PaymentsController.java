@@ -40,7 +40,7 @@ import java.util.Locale;
 
 @SuppressWarnings("ALL")
 @Component
-public class PaymentsController {
+public class PaymentsController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private PurchasesService purchasesService;
     @Autowired private ApplicationContext springContext;
@@ -455,6 +455,13 @@ public class PaymentsController {
         if (to != null && date.isAfter(to)) return true;
         return false;
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()      { btnRegistrarPagoClick(null); }
+    @Override public void shortcutVerDetalle() { btnVerDetalleClick(null); }
+    @Override public void shortcutBuscar()     { if (txtNumero != null) txtNumero.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar()  { loadDataFromDB(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 

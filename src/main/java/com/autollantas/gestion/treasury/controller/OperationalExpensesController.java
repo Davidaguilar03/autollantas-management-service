@@ -38,7 +38,7 @@ import java.util.Locale;
 
 @SuppressWarnings("ALL")
 @Component
-public class OperationalExpensesController {
+public class OperationalExpensesController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private TreasuryService treasuryService;
     @Autowired private ApplicationContext springContext;
@@ -327,6 +327,14 @@ public class OperationalExpensesController {
             },
             null);
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutNuevo()    { openForm(new OperationalExpense()); }
+    @Override public void shortcutEditar()   { btnEditarClick(null); }
+    @Override public void shortcutEliminar() { btnEliminarClick(null); }
+    @Override public void shortcutBuscar()   { if (txtConcepto != null) txtConcepto.requestFocus(); }
+    @Override public void shortcutLimpiarFiltros() { btnLimpiarFiltrosClick(null); }
+    @Override public void shortcutRefrescar(){ loadDatabaseData(); }
 
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 

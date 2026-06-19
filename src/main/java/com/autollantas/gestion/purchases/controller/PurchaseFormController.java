@@ -39,7 +39,7 @@ import java.util.Locale;
 
 @Component
 @Scope("prototype")
-public class PurchaseFormController {
+public class PurchaseFormController implements com.autollantas.gestion.shared.util.ShortcutAware {
 
     @Autowired private PurchasesService purchasesService;
     @Autowired private InventoryService inventoryService;
@@ -439,6 +439,10 @@ public class PurchaseFormController {
         MainLayoutController.getInstance().clearPurchaseFormCache();
         navigateBack();
     }
+
+    // --- Atajos de teclado -------------------------------------------------
+    @Override public void shortcutGuardar()  { btnGuardarClick(null); }
+    @Override public void shortcutCancelar() { btnCancelarClick(null); }
 
     private void navigateBack() {
         Object ctrl = MainLayoutController.getInstance()
