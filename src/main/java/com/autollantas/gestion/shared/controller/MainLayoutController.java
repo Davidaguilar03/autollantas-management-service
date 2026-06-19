@@ -89,8 +89,12 @@ public class MainLayoutController {
         startResponsiveListener();
 
         Platform.runLater(() -> {
+            tpPanelControl.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpIngresos.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpEgresos.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpInventario.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpCuentas.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
             setActive(tpPanelControl, null);
-            applySemanticColors();
             contentArea.setFocusTraversable(true);
             contentArea.requestFocus();
         });
@@ -206,35 +210,19 @@ public class MainLayoutController {
         } catch (Exception e) { System.err.println("⚠️ Error logo: " + e.getMessage()); }
     }
 
-    private void applySemanticColors() {
-        tpIngresos.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
-        tpEgresos.setTextFill(javafx.scene.paint.Color.web("#b30000"));
+    private javafx.scene.paint.Color colorFor(TitledPane pane) {
+        return javafx.scene.paint.Color.web("#2e1a00");
     }
 
-    private String accentColorFor(TitledPane pane) {
-        if (pane == tpIngresos)   return "#1db954";
-        if (pane == tpEgresos)    return "#e02020";
-        if (pane == tpInventario) return "#f07020";
-        if (pane == tpCuentas)    return "#2e8fe0";
-        return "#7c3aed";
-    }
-
-    private void restoreSemanticColor(TitledPane pane) {
-        if (pane == null) return;
-        if (pane == tpIngresos)        pane.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
-        else if (pane == tpEgresos)    pane.setTextFill(javafx.scene.paint.Color.web("#b30000"));
-        else                           pane.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
-    }
-
-    private void setTitleInlineStyle(TitledPane pane, String style) {
-        if (pane == null) return;
-        javafx.scene.Node titleNode = pane.lookup(".title");
-        if (titleNode != null) titleNode.setStyle(style);
+    private javafx.scene.paint.Color activeColorFor(TitledPane pane) {
+        return javafx.scene.paint.Color.web("#2e1a00");
     }
 
     private void setActive(TitledPane pane, Button subBtn) {
-        setTitleInlineStyle(activePane, "");
-        restoreSemanticColor(activePane);
+        if (activePane != null) {
+            activePane.getStyleClass().remove("sidebar-title-active");
+            activePane.setTextFill(colorFor(activePane));
+        }
         if (activeSubBtn != null) {
             activeSubBtn.getStyleClass().remove("submenu-btn-active");
             activeSubBtn.setStyle("");
@@ -244,27 +232,13 @@ public class MainLayoutController {
         activeSubBtn = subBtn;
 
         if (activePane != null) {
-            String accent = accentColorFor(activePane);
-            String soloStyle =
-                "-fx-background-color: rgba(255,255,255,0.32);" +
-                "-fx-border-color: transparent transparent transparent " + accent + ";" +
-                "-fx-border-width: 0 0 0 6px;" +
-                "-fx-text-fill: #2e1a00;";
-            String parentStyle =
-                "-fx-background-color: rgba(255,255,255,0.18);" +
-                "-fx-border-color: transparent transparent transparent " + accent + ";" +
-                "-fx-border-width: 0 0 0 6px;";
-            setTitleInlineStyle(activePane, subBtn == null ? soloStyle : parentStyle);
+            activePane.getStyleClass().add("sidebar-title-active");
+            activePane.setTextFill(activeColorFor(activePane));
             if (!activePane.isExpanded()) activePane.setExpanded(true);
         }
 
-        if (activeSubBtn != null && !activeSubBtn.getStyleClass().contains("submenu-btn-active")) {
+        if (activeSubBtn != null && !activeSubBtn.getStyleClass().contains("submenu-btn-active"))
             activeSubBtn.getStyleClass().add("submenu-btn-active");
-            String accent = accentColorFor(activePane);
-            activeSubBtn.setStyle(
-                "-fx-border-color: transparent transparent transparent " + accent + ";"
-            );
-        }
     }
 
     private void closeSidebarIfMobile() {

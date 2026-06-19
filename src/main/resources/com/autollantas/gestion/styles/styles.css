@@ -8,7 +8,7 @@
 
 /* Tarjeta principal — todo naranja, sombra profunda */
 .login-card {
-    -fx-background-color: #EFBF40;
+    -fx-background-color: #F0C040;
     -fx-background-radius: 16px;
     -fx-border-radius: 16px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.55), 48, 0.05, 0, 12);
@@ -295,7 +295,7 @@
 }
 
 .sidebar {
-    -fx-background-color: #EFBF40;
+    -fx-background-color: #F0C040;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 0);
 }
 
@@ -326,8 +326,8 @@
 }
 
 .sidebar-btn-logout {
-    -fx-background-color: rgba(200, 25, 25, 0.20);
-    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(160, 40, 40, 0.22);
+    -fx-text-fill: #2e1a00;
     -fx-font-weight: bold;
     -fx-font-size: 13px;
     -fx-font-family: "Segoe UI", sans-serif;
@@ -336,19 +336,18 @@
     -fx-cursor: hand;
     -fx-background-radius: 14px;
     -fx-border-radius: 14px;
-    -fx-border-color: rgba(255, 255, 255, 0.35);
+    -fx-border-color: rgba(160, 40, 40, 0.30);
     -fx-border-width: 1.5px;
-    -fx-effect: dropshadow(three-pass-box, rgba(160,0,0,0.18), 8, 0, 0, 2);
+    -fx-effect: null;
 }
 .sidebar-btn-logout:hover {
-    -fx-background-color: rgba(210, 30, 30, 0.40);
-    -fx-border-color: rgba(255, 255, 255, 0.70);
-    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(160, 40, 40, 0.35);
+    -fx-border-color: rgba(160, 40, 40, 0.50);
+    -fx-text-fill: #2e1a00;
     -fx-translate-y: -1;
 }
 .sidebar-btn-logout:pressed {
-    -fx-background-color: rgba(160, 15, 15, 0.55);
-    -fx-border-color: rgba(255, 255, 255, 0.50);
+    -fx-background-color: rgba(140, 30, 30, 0.45);
     -fx-translate-y: 0;
 }
 
@@ -410,20 +409,32 @@
     -fx-background-color: rgba(255, 255, 255, 0.4);
 }
 
-/* ── Ingresos — verde vivo ── */
-.sidebar-ingresos > .title {
-    -fx-text-fill: #22B14C !important;
+/* ── Superbotones: palito fijo + texto = color del palito ── */
+/* .titled-pane en el selector sube la especificidad sobre el base */
+.sidebar-accordion .titled-pane.sidebar-panel-control > .title {
+    -fx-border-color: transparent transparent transparent #9E6EE8;
+    -fx-border-width: 0 0 0 6px;
 }
-.sidebar-ingresos:hover > .title {
-    -fx-text-fill: #0a4517 !important;
+.sidebar-accordion .titled-pane.sidebar-ingresos > .title {
+    -fx-border-color: transparent transparent transparent #27AE60;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-egresos > .title {
+    -fx-border-color: transparent transparent transparent #E85C5C;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-inventario > .title {
+    -fx-border-color: transparent transparent transparent #CC58C2;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-cuentas > .title {
+    -fx-border-color: transparent transparent transparent #4088D4;
+    -fx-border-width: 0 0 0 6px;
 }
 
-/* ── Egresos — rojo vivo ── */
-.sidebar-egresos > .title {
-    -fx-text-fill: #b30000 !important;
-}
-.sidebar-egresos:hover > .title {
-    -fx-text-fill: #7a0000 !important;
+/* ── Active superbotón — solo fondo suave ── */
+.sidebar-accordion .titled-pane.sidebar-title-active > .title {
+    -fx-background-color: rgba(255,255,255,0.28);
 }
 
 /* ── Submenú ── */
@@ -433,52 +444,48 @@
     -fx-spacing: 0;
 }
 
+/* Palito fijo por sección en submenú, texto negro */
+.sidebar-ingresos .submenu-btn {
+    -fx-border-color: transparent transparent transparent #27AE60;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #1a1a1a;
+}
+.sidebar-egresos .submenu-btn {
+    -fx-border-color: transparent transparent transparent #E85C5C;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #1a1a1a;
+}
+.sidebar-inventario .submenu-btn {
+    -fx-border-color: transparent transparent transparent #CC58C2;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #1a1a1a;
+}
+
 .submenu-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #2e1a00;
     -fx-alignment: CENTER_LEFT;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-cursor: hand;
-    -fx-padding: 12 10 12 50;
+    -fx-padding: 12 10 12 44;
     -fx-background-radius: 0;
     -fx-border-radius: 0;
-    -fx-border-width: 0;
 }
 
 .submenu-btn:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.6);
-    -fx-text-fill: #3e2723;
-    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 255, 255, 0.45);
 }
 
-/* Activo base — sin color de palito, lo pone Java por sección */
+/* Active submenú — fondo suave, texto negro más oscuro */
 .submenu-btn-active {
     -fx-background-color: rgba(255, 255, 255, 0.30);
-    -fx-text-fill: #2e1a00;
+    -fx-text-fill: #000000;
     -fx-font-weight: bold;
-    -fx-border-width: 0 0 0 6px;
 }
-
 .submenu-btn-active:hover {
     -fx-background-color: rgba(255, 255, 255, 0.42);
-    -fx-text-fill: #2e1a00;
-}
-
-/* ── Item activo (padre con submenu abierto) ── */
-.sidebar-item-active > .title {
-    -fx-background-color: rgba(255, 255, 255, 0.18);
-    -fx-border-width: 0 0 0 6px;
-    -fx-text-fill: #2e1a00;
-}
-
-/* ── Item activo sin submenu (Panel Control / Cuentas) ── */
-.sidebar-item-active-solo > .title {
-    -fx-background-color: rgba(255, 255, 255, 0.32);
-    -fx-border-width: 0 0 0 6px;
-    -fx-text-fill: #2e1a00;
-    -fx-font-weight: bold;
+    -fx-text-fill: #000000;
 }
 
 .view-title {
@@ -1734,7 +1741,7 @@
     -fx-background-color: linear-gradient(to bottom, #ffffff, #f4f6fa);
     -fx-background-radius: 10 10 0 0;
     -fx-border-width: 0 0 2.5 0;
-    -fx-border-color: #EFBF40;          /* acento dorado de marca, mas presente */
+    -fx-border-color: #F0C040;          /* acento dorado de marca, mas presente */
 }
 
 .data-table .column-header,
@@ -1766,7 +1773,7 @@
 
 /* flecha de ordenamiento ligada a la marca */
 .data-table .column-header .arrow {
-    -fx-background-color: #EFBF40;
+    -fx-background-color: #F0C040;
 }
 
 /* ---- Filas ---- */
@@ -1879,7 +1886,7 @@
 }
 
 .toast-warning .toast-icon {
-    -fx-background-color: #EFBF40;
+    -fx-background-color: #F0C040;
     -fx-background-radius: 50;
     -fx-text-fill: #3a2500;
     -fx-font-weight: bold;
@@ -1930,7 +1937,7 @@
     -fx-border-radius: 18px 18px 0 0;
 }
 .dialog-card-warning {
-    -fx-border-color: #EFBF40;
+    -fx-border-color: #F0C040;
     -fx-border-width: 4px 0 0 0;
     -fx-border-radius: 18px 18px 0 0;
 }
@@ -2043,7 +2050,7 @@
 }
 
 .dialog-btn-warning {
-    -fx-background-color: #EFBF40;
+    -fx-background-color: #F0C040;
     -fx-text-fill: #3a2500;
 }
 .dialog-btn-warning:hover {
