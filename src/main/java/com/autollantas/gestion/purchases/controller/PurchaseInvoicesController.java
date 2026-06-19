@@ -1,8 +1,6 @@
 package com.autollantas.gestion.purchases.controller;
 
 import com.autollantas.gestion.purchases.model.Purchase;
-import com.autollantas.gestion.purchases.model.PurchaseDetail;
-import com.autollantas.gestion.inventory.model.Product;
 import com.autollantas.gestion.purchases.service.PurchasesService;
 import com.autollantas.gestion.shared.controller.MainLayoutController;
 import com.autollantas.gestion.shared.util.CustomDialog;
@@ -55,11 +53,11 @@ public class PurchaseInvoicesController {
 
     @FXML private TextField txtNumero;
     @FXML private TextField txtProveedor;
-    @FXML private TextField txtTotal;
+    @FXML private TextField txtTotalMin;
+    @FXML private TextField txtTotalMax;
 
     @FXML private ComboBox<String> comboEstado;
     @FXML private ComboBox<String> comboFormaPago;
-    @FXML private ComboBox<String> comboMedioPago;
 
     @FXML private DatePicker dpCreacionDesde;
     @FXML private DatePicker dpCreacionHasta;
@@ -558,10 +556,10 @@ public class PurchaseInvoicesController {
         InvalidationListener listener = obs -> applyFilters();
         txtNumero.textProperty().addListener(listener);
         txtProveedor.textProperty().addListener(listener);
-        txtTotal.textProperty().addListener(listener);
+        txtTotalMin.textProperty().addListener(listener);
+        txtTotalMax.textProperty().addListener(listener);
         comboEstado.valueProperty().addListener(listener);
         comboFormaPago.valueProperty().addListener(listener);
-        comboMedioPago.valueProperty().addListener(listener);
         dpCreacionDesde.valueProperty().addListener(listener);
         dpCreacionHasta.valueProperty().addListener(listener);
         dpVencimientoDesde.valueProperty().addListener(listener);
@@ -612,14 +610,16 @@ public class PurchaseInvoicesController {
             String supplierName = (p.getSupplier() != null) ? p.getSupplier().getName() : "";
             if (!matchText(txtProveedor.getText(), supplierName)) return false;
 
-            String totalFilter = txtTotal.getText().replaceAll("[^0-9]", "");
-            if (!totalFilter.isEmpty()) {
-                String totalStr = String.valueOf(p.getTotal().longValue());
-                if (!totalStr.startsWith(totalFilter)) return false;
+            String minStr = txtTotalMin.getText().replaceAll("[^0-9]", "");
+            String maxStr = txtTotalMax.getText().replaceAll("[^0-9]", "");
+            if (!minStr.isEmpty() || !maxStr.isEmpty()) {
+                if (p.getTotal() == null) return false;
+                long total = p.getTotal().longValue();
+                if (!minStr.isEmpty() && total < Long.parseLong(minStr)) return false;
+                if (!maxStr.isEmpty() && total > Long.parseLong(maxStr)) return false;
             }
 
             if (!matchCombo(comboFormaPago, p.getPaymentType())) return false;
-            if (!matchCombo(comboMedioPago, p.getPaymentMethod())) return false;
             if (outOfRange(p.getPurchaseDate(), dpCreacionDesde.getValue(), dpCreacionHasta.getValue())) return false;
             if (outOfRange(p.getDueDate(), dpVencimientoDesde.getValue(), dpVencimientoHasta.getValue())) return false;
 
@@ -653,9 +653,6 @@ public class PurchaseInvoicesController {
         comboFormaPago.getItems().addAll("Todas", "Contado", "Crédito");
         comboFormaPago.getSelectionModel().selectFirst();
 
-        comboMedioPago.getItems().clear();
-        comboMedioPago.getItems().addAll("Todos", "Efectivo", "Transferencia", "Tarjeta");
-        comboMedioPago.getSelectionModel().selectFirst();
     }
 
     private void setupDateFormatters() {
@@ -670,10 +667,9 @@ public class PurchaseInvoicesController {
     @FXML void btnBuscarClick(ActionEvent event) { applyFilters(); }
 
     @FXML void btnLimpiarFiltrosClick(ActionEvent event) {
-        txtNumero.clear(); txtProveedor.clear(); txtTotal.clear();
+        txtNumero.clear(); txtProveedor.clear(); txtTotalMin.clear(); txtTotalMax.clear();
         comboEstado.getSelectionModel().selectFirst();
         comboFormaPago.getSelectionModel().selectFirst();
-        comboMedioPago.getSelectionModel().selectFirst();
         dpCreacionDesde.setValue(null); dpCreacionHasta.setValue(null);
         dpVencimientoDesde.setValue(null); dpVencimientoHasta.setValue(null);
         applyFilters();

@@ -44,7 +44,8 @@ public class OperationalExpensesController {
     @Autowired private ApplicationContext springContext;
 
     @FXML private TextField txtConcepto;
-    @FXML private TextField txtMonto;
+    @FXML private TextField txtMontoMin;
+    @FXML private TextField txtMontoMax;
     @FXML private TextField txtObservaciones;
     @FXML private ComboBox<Account> comboCuenta;
     @FXML private DatePicker dpFechaDesde;
@@ -178,7 +179,8 @@ public class OperationalExpensesController {
         };
 
         txtConcepto.textProperty().addListener(changeListener);
-        txtMonto.textProperty().addListener(changeListener);
+        txtMontoMin.textProperty().addListener(changeListener);
+        txtMontoMax.textProperty().addListener(changeListener);
         txtObservaciones.textProperty().addListener(changeListener);
         comboCuenta.valueProperty().addListener(changeListener);
         dpFechaDesde.valueProperty().addListener(changeListener);
@@ -203,11 +205,13 @@ public class OperationalExpensesController {
                 }
             }
 
-            String amountInput = txtMonto.getText().replaceAll("[^0-9]", "");
-            if (!amountInput.isEmpty()) {
+            String minStr = txtMontoMin.getText().replaceAll("[^0-9]", "");
+            String maxStr = txtMontoMax.getText().replaceAll("[^0-9]", "");
+            if (!minStr.isEmpty() || !maxStr.isEmpty()) {
                 if (expense.getAmount() == null) return false;
-                String amountStr = String.valueOf(expense.getAmount().longValue());
-                if (!amountStr.startsWith(amountInput)) return false;
+                long amount = expense.getAmount().longValue();
+                if (!minStr.isEmpty() && amount < Long.parseLong(minStr)) return false;
+                if (!maxStr.isEmpty() && amount > Long.parseLong(maxStr)) return false;
             }
 
             if (dpFechaDesde.getValue() != null && (expense.getDate() == null || expense.getDate().isBefore(dpFechaDesde.getValue()))) return false;
@@ -328,7 +332,8 @@ public class OperationalExpensesController {
 
     @FXML void btnLimpiarFiltrosClick(ActionEvent event) {
         txtConcepto.clear();
-        txtMonto.clear();
+        txtMontoMin.clear();
+        txtMontoMax.clear();
         txtObservaciones.clear();
         comboCuenta.getSelectionModel().selectFirst();
         dpFechaDesde.setValue(null);
