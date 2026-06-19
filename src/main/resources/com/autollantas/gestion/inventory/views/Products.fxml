@@ -98,14 +98,14 @@
                                             </children>
                                         </VBox>
 
-                                        <!-- Fila 2: Precio Mín/Máx (cols 0-2) | Stock Mín/Máx (cols 3-5) -->
+                                        <!-- Fila 2: Precio Compra s/IVA (cols 0-2) | Precio Sugerido (cols 3-5) -->
                                         <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="1">
                                             <children>
-                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #2980b9;" text="Precio Sugerido ($):" />
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #2980b9;" text="P. Compra s/IVA ($):" />
                                                 <HBox spacing="6.0">
                                                     <children>
-                                                        <TextField fx:id="txtPrecioMin" promptText="Mín" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
-                                                        <TextField fx:id="txtPrecioMax" promptText="Máx" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="txtPrecioCompraMin" promptText="Mín" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="txtPrecioCompraMax" promptText="Máx" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
                                                     </children>
                                                 </HBox>
                                             </children>
@@ -113,11 +113,11 @@
 
                                         <VBox spacing="4.0" GridPane.columnIndex="3" GridPane.columnSpan="3" GridPane.rowIndex="1">
                                             <children>
-                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #e67e22;" text="Existencias:" />
+                                                <Label style="-fx-font-size: 11px; -fx-text-fill: #e67e22;" text="Precio Sugerido ($):" />
                                                 <HBox spacing="6.0">
                                                     <children>
-                                                        <TextField fx:id="txtStockMin" promptText="Mín" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
-                                                        <TextField fx:id="txtStockMax" promptText="Máx" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="txtPrecioMin" promptText="Mín" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
+                                                        <TextField fx:id="txtPrecioMax" promptText="Máx" styleClass="text-field-search" maxWidth="Infinity" HBox.hgrow="ALWAYS" />
                                                     </children>
                                                 </HBox>
                                             </children>

@@ -46,10 +46,10 @@ public class ProductsController {
     @FXML private TextField txtDescripcion;
     @FXML private TextField txtMarca;
 
+    @FXML private TextField txtPrecioCompraMin;
+    @FXML private TextField txtPrecioCompraMax;
     @FXML private TextField txtPrecioMin;
     @FXML private TextField txtPrecioMax;
-    @FXML private TextField txtStockMin;
-    @FXML private TextField txtStockMax;
 
     @FXML private TableView<Product> tablaProductos;
     @FXML private TableColumn<Product, String> colCategoria;
@@ -282,10 +282,10 @@ public class ProductsController {
         txtMarca.textProperty().addListener(changeListener);
         comboCategoria.valueProperty().addListener(changeListener);
 
+        txtPrecioCompraMin.textProperty().addListener(changeListener);
+        txtPrecioCompraMax.textProperty().addListener(changeListener);
         txtPrecioMin.textProperty().addListener(changeListener);
         txtPrecioMax.textProperty().addListener(changeListener);
-        txtStockMin.textProperty().addListener(changeListener);
-        txtStockMax.textProperty().addListener(changeListener);
     }
 
     private void aplicarFiltros() {
@@ -314,7 +314,7 @@ public class ProductsController {
                 return false;
             }
 
-            if (!filtrarPorRangoInteligente(prod.getQuantity() != null ? prod.getQuantity().doubleValue() : 0.0, txtStockMin.getText(), txtStockMax.getText())) {
+            if (!filtrarPorRangoInteligente(prod.getPurchaseCost(), txtPrecioCompraMin.getText(), txtPrecioCompraMax.getText())) {
                 return false;
             }
 
@@ -405,8 +405,8 @@ public class ProductsController {
 
     @FXML void btnLimpiarFiltrosClick(ActionEvent event) {
         txtCodigo.clear(); txtDescripcion.clear(); txtMarca.clear();
+        txtPrecioCompraMin.clear(); txtPrecioCompraMax.clear();
         txtPrecioMin.clear(); txtPrecioMax.clear();
-        txtStockMin.clear(); txtStockMax.clear();
         comboCategoria.getSelectionModel().select("Todas");
         aplicarFiltros();
     }
