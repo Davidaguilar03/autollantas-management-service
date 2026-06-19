@@ -43,7 +43,6 @@ public class StockAlertsController {
     @FXML private TableColumn<ProductAlertDTO, String> colCategoria;
     @FXML private TableColumn<ProductAlertDTO, Integer> colStockActual;
     @FXML private TableColumn<ProductAlertDTO, AlertSeverity> colEstadoVisual;
-    @FXML private TableColumn<ProductAlertDTO, String> colMensaje;
 
     @FXML private TableView<CategoryConfigModel> tablaConfiguracion;
     @FXML private TableColumn<CategoryConfigModel, String> colConfCategoria;
@@ -157,7 +156,6 @@ public class StockAlertsController {
         colProducto.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         colStockActual.setCellValueFactory(new PropertyValueFactory<>("stock"));
-        colMensaje.setCellValueFactory(new PropertyValueFactory<>("mensaje"));
 
         colEstadoVisual.setCellValueFactory(new PropertyValueFactory<>("severity"));
         colEstadoVisual.setCellFactory(col -> new TableCell<>() {

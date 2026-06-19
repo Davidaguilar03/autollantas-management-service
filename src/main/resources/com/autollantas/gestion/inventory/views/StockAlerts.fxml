@@ -98,7 +98,6 @@
                                                 <TableColumn fx:id="colCategoria" prefWidth="150.0" style="-fx-alignment: CENTER;" text="CATEGORÍA" />
                                                 <TableColumn fx:id="colStockActual" prefWidth="100.0" style="-fx-alignment: CENTER; -fx-font-weight: bold;" text="STOCK" />
                                                 <TableColumn fx:id="colEstadoVisual" prefWidth="140.0" style="-fx-alignment: CENTER;" text="ESTADO" />
-                                                <TableColumn fx:id="colMensaje" prefWidth="250.0" text="DETALLE" />
                                             </columns>
                                             <columnResizePolicy> <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /> </columnResizePolicy>
                                         </StyledTableView>
