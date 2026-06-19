@@ -2,18 +2,17 @@ package com.autollantas.gestion.auth.controller;
 
 import com.autollantas.gestion.config.model.SystemConfig;
 import com.autollantas.gestion.config.service.SystemConfigService;
+import com.autollantas.gestion.shared.util.CustomDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -48,11 +47,9 @@ public class LoginController {
     public void initialize() {
         txtPassHidden.textProperty().bindBidirectional(txtPassVisible.textProperty());
 
-        // Imagen de fondo siempre cubre toda la pantalla
         imgFondo.fitWidthProperty().bind(panelFondo.widthProperty());
         imgFondo.fitHeightProperty().bind(panelFondo.heightProperty());
 
-        // Tarjeta centrada responsive: entre 360px y 440px de ancho
         panelFondo.widthProperty().addListener((obs, oldW, newW) -> {
             double w = newW.doubleValue();
             double cardWidth = Math.max(360, Math.min(440, w * 0.36));
@@ -97,7 +94,7 @@ public class LoginController {
             String passwordIngresada = txtPassHidden.getText().trim();
 
             if (passwordIngresada.isEmpty()) {
-                mostrarAlerta(Alert.AlertType.WARNING, "Atención", "Por favor ingresa la contraseña.");
+                mostrarWarning("Atención", "Por favor ingresa la contraseña.");
                 return;
             }
 
@@ -108,16 +105,16 @@ public class LoginController {
                 if (passwordRealBD != null && passwordRealBD.equals(passwordIngresada)) {
                     cargarMainLayout();
                 } else {
-                    mostrarAlerta(Alert.AlertType.ERROR, "Acceso Denegado", "Contraseña incorrecta.");
+                    mostrarError("Acceso Denegado", "Contraseña incorrecta. Verifica e intenta de nuevo.");
                 }
             } else {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error de Sistema",
+                mostrarError("Error de Sistema",
                         "No se encontró la configuración de seguridad en la base de datos.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "Ocurrió un error inesperado.");
+            mostrarError("Error inesperado", "Ocurrió un error inesperado. Intenta de nuevo.");
         } finally {
             isProcesandoLogin = false;
             if (panelFondo.getScene() != null) panelFondo.getScene().setCursor(Cursor.DEFAULT);
@@ -138,8 +135,7 @@ public class LoginController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error Crítico",
-                    "No se pudo cargar el sistema: " + e.getMessage());
+            mostrarError("Error Crítico", "No se pudo cargar el sistema: " + e.getMessage());
         }
     }
 
@@ -157,17 +153,17 @@ public class LoginController {
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
-            mostrarAlerta(Alert.AlertType.ERROR, "Error",
-                    "No se pudo cargar la pantalla de recuperación.");
+            mostrarError("Error", "No se pudo cargar la pantalla de recuperación.");
         }
     }
 
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String contenido) {
+    private void mostrarError(String titulo, String mensaje) {
         if (panelFondo.getScene() != null) panelFondo.getScene().setCursor(Cursor.DEFAULT);
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setHeaderText(null);
-        alert.setContentText(contenido);
-        alert.showAndWait();
+        CustomDialog.custom(panelFondo, CustomDialog.Type.DANGER, titulo, mensaje, "Aceptar", null, null, null);
+    }
+
+    private void mostrarWarning(String titulo, String mensaje) {
+        if (panelFondo.getScene() != null) panelFondo.getScene().setCursor(Cursor.DEFAULT);
+        CustomDialog.warning(panelFondo, titulo, mensaje, null);
     }
 }

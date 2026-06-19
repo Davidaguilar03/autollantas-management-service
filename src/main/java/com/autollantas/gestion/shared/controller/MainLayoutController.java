@@ -89,8 +89,12 @@ public class MainLayoutController {
         startResponsiveListener();
 
         Platform.runLater(() -> {
+            tpPanelControl.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpIngresos.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpEgresos.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpInventario.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
+            tpCuentas.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
             setActive(tpPanelControl, null);
-            applySemanticColors();
             contentArea.setFocusTraversable(true);
             contentArea.requestFocus();
         });
@@ -206,46 +210,30 @@ public class MainLayoutController {
         } catch (Exception e) { System.err.println("⚠️ Error logo: " + e.getMessage()); }
     }
 
-    private void applySemanticColors() {
-        tpIngresos.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
-        tpEgresos.setTextFill(javafx.scene.paint.Color.web("#ED1C24"));
+    private javafx.scene.paint.Color colorFor(TitledPane pane) {
+        return javafx.scene.paint.Color.web("#2e1a00");
     }
 
-    private static final String ACTIVE_TITLE_STYLE =
-        "-fx-background-color: rgba(255,255,255,0.82);" +
-        "-fx-border-color: transparent transparent transparent #0d81ec;" +
-        "-fx-border-width: 0 0 0 4px;" +
-        "-fx-text-fill: #7a3e00;";
-
-    private static final String PARENT_TITLE_STYLE =
-        "-fx-background-color: rgba(255,255,255,0.22);" +
-        "-fx-border-color: transparent transparent transparent #0d81ec;" +
-        "-fx-border-width: 0 0 0 4px;";
-
-    private void restoreSemanticColor(TitledPane pane) {
-        if (pane == null) return;
-        if (pane == tpIngresos) pane.setTextFill(javafx.scene.paint.Color.web("#22B14C"));
-        else if (pane == tpEgresos) pane.setTextFill(javafx.scene.paint.Color.web("#ED1C24"));
-        else pane.setTextFill(javafx.scene.paint.Color.web("#2e1a00"));
-    }
-
-    private void setTitleInlineStyle(TitledPane pane, String style) {
-        if (pane == null) return;
-        javafx.scene.Node titleNode = pane.lookup(".title");
-        if (titleNode != null) titleNode.setStyle(style);
+    private javafx.scene.paint.Color activeColorFor(TitledPane pane) {
+        return javafx.scene.paint.Color.web("#2e1a00");
     }
 
     private void setActive(TitledPane pane, Button subBtn) {
-        setTitleInlineStyle(activePane, "");
-        restoreSemanticColor(activePane);
-        if (activeSubBtn != null) activeSubBtn.getStyleClass().remove("submenu-btn-active");
+        if (activePane != null) {
+            activePane.getStyleClass().remove("sidebar-title-active");
+            activePane.setTextFill(colorFor(activePane));
+        }
+        if (activeSubBtn != null) {
+            activeSubBtn.getStyleClass().remove("submenu-btn-active");
+            activeSubBtn.setStyle("");
+        }
 
         activePane = pane;
         activeSubBtn = subBtn;
 
         if (activePane != null) {
-            setTitleInlineStyle(activePane, subBtn == null ? ACTIVE_TITLE_STYLE : PARENT_TITLE_STYLE);
-            // Expande el acordeón para que el usuario siempre vea dónde está
+            activePane.getStyleClass().add("sidebar-title-active");
+            activePane.setTextFill(activeColorFor(activePane));
             if (!activePane.isExpanded()) activePane.setExpanded(true);
         }
 

@@ -8,7 +8,7 @@
 
 /* Tarjeta principal — todo naranja, sombra profunda */
 .login-card {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #F0C040;
     -fx-background-radius: 16px;
     -fx-border-radius: 16px;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.55), 48, 0.05, 0, 12);
@@ -295,7 +295,7 @@
 }
 
 .sidebar {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #F0C040;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 0);
 }
 
@@ -326,29 +326,28 @@
 }
 
 .sidebar-btn-logout {
-    -fx-background-color: rgba(210, 30, 30, 0.28);
-    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(160, 40, 40, 0.22);
+    -fx-text-fill: #2e1a00;
     -fx-font-weight: bold;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-alignment: CENTER;
     -fx-padding: 11 26 11 26;
     -fx-cursor: hand;
-    -fx-background-radius: 20px;
-    -fx-border-radius: 20px;
-    -fx-border-color: rgba(255, 255, 255, 0.50);
+    -fx-background-radius: 14px;
+    -fx-border-radius: 14px;
+    -fx-border-color: rgba(160, 40, 40, 0.30);
     -fx-border-width: 1.5px;
-    -fx-effect: dropshadow(three-pass-box, rgba(180,0,0,0.25), 8, 0, 0, 2);
+    -fx-effect: null;
 }
 .sidebar-btn-logout:hover {
-    -fx-background-color: rgba(210, 30, 30, 0.48);
-    -fx-border-color: rgba(255, 255, 255, 0.80);
-    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(160, 40, 40, 0.35);
+    -fx-border-color: rgba(160, 40, 40, 0.50);
+    -fx-text-fill: #2e1a00;
     -fx-translate-y: -1;
 }
 .sidebar-btn-logout:pressed {
-    -fx-background-color: rgba(170, 15, 15, 0.58);
-    -fx-border-color: rgba(255, 255, 255, 0.55);
+    -fx-background-color: rgba(140, 30, 30, 0.45);
     -fx-translate-y: 0;
 }
 
@@ -387,6 +386,7 @@
     -fx-shape: null;
 }
 
+/* ── Título base de todos los items ── */
 .sidebar-accordion .titled-pane > .title {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -409,76 +409,83 @@
     -fx-background-color: rgba(255, 255, 255, 0.4);
 }
 
-.sidebar-ingresos > .title {
-    -fx-text-fill: #22B14C !important;
-    -fx-font-weight: bold !important;
+/* ── Superbotones: palito fijo + texto = color del palito ── */
+/* .titled-pane en el selector sube la especificidad sobre el base */
+.sidebar-accordion .titled-pane.sidebar-panel-control > .title {
+    -fx-border-color: transparent transparent transparent #9E6EE8;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-ingresos > .title {
+    -fx-border-color: transparent transparent transparent #27AE60;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-egresos > .title {
+    -fx-border-color: transparent transparent transparent #E85C5C;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-inventario > .title {
+    -fx-border-color: transparent transparent transparent #CC58C2;
+    -fx-border-width: 0 0 0 6px;
+}
+.sidebar-accordion .titled-pane.sidebar-cuentas > .title {
+    -fx-border-color: transparent transparent transparent #4088D4;
+    -fx-border-width: 0 0 0 6px;
 }
 
-.sidebar-ingresos:hover > .title {
-    -fx-text-fill: #0a4517 !important;
+/* ── Active superbotón — solo fondo suave ── */
+.sidebar-accordion .titled-pane.sidebar-title-active > .title {
+    -fx-background-color: rgba(255,255,255,0.28);
 }
 
-.sidebar-egresos > .title {
-    -fx-text-fill: #b30000 !important;
-    -fx-font-weight: bold !important;
-}
-
-.sidebar-egresos:hover > .title {
-    -fx-text-fill: #7a0000 !important;
-}
-
+/* ── Submenú ── */
 .submenu-container {
     -fx-padding: 0;
     -fx-background-insets: 0;
     -fx-spacing: 0;
 }
 
+/* Palito fijo por sección en submenú, texto negro */
+.sidebar-ingresos .submenu-btn {
+    -fx-border-color: transparent transparent transparent #27AE60;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #1a1a1a;
+}
+.sidebar-egresos .submenu-btn {
+    -fx-border-color: transparent transparent transparent #E85C5C;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #1a1a1a;
+}
+.sidebar-inventario .submenu-btn {
+    -fx-border-color: transparent transparent transparent #CC58C2;
+    -fx-border-width: 0 0 0 6px;
+    -fx-text-fill: #1a1a1a;
+}
+
 .submenu-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #2e1a00;
     -fx-alignment: CENTER_LEFT;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-cursor: hand;
-    -fx-padding: 12 10 12 50;
+    -fx-padding: 12 10 12 44;
     -fx-background-radius: 0;
     -fx-border-radius: 0;
-    -fx-border-width: 0;
 }
 
 .submenu-btn:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.6);
-    -fx-text-fill: #3e2723;
-    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 255, 255, 0.45);
 }
 
+/* Active submenú — fondo suave, texto negro más oscuro */
 .submenu-btn-active {
-    -fx-background-color: rgba(255, 255, 255, 0.82);
-    -fx-text-fill: #7a3e00;
+    -fx-background-color: rgba(255, 255, 255, 0.30);
+    -fx-text-fill: #000000;
     -fx-font-weight: bold;
-    -fx-border-color: transparent transparent transparent #0d81ec;
-    -fx-border-width: 0 0 0 6px;
 }
-
 .submenu-btn-active:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
-    -fx-text-fill: #7a3e00;
-}
-
-.sidebar-item-active > .title {
-    -fx-background-color: rgba(255, 255, 255, 0.22);
-    -fx-border-color: transparent transparent transparent #0d81ec;
-    -fx-border-width: 0 0 0 6px;
-    -fx-text-fill: #3e1f00;
-}
-
-.sidebar-item-active-solo > .title {
-    -fx-background-color: rgba(255, 255, 255, 0.82);
-    -fx-border-color: transparent transparent transparent #0d81ec;
-    -fx-border-width: 0 0 0 6px;
-    -fx-text-fill: #7a3e00;
-    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 255, 255, 0.42);
+    -fx-text-fill: #000000;
 }
 
 .view-title {
@@ -1734,7 +1741,7 @@
     -fx-background-color: linear-gradient(to bottom, #ffffff, #f4f6fa);
     -fx-background-radius: 10 10 0 0;
     -fx-border-width: 0 0 2.5 0;
-    -fx-border-color: #f1b82c;          /* acento naranja de marca, mas presente */
+    -fx-border-color: #F0C040;          /* acento dorado de marca, mas presente */
 }
 
 .data-table .column-header,
@@ -1766,7 +1773,7 @@
 
 /* flecha de ordenamiento ligada a la marca */
 .data-table .column-header .arrow {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #F0C040;
 }
 
 /* ---- Filas ---- */
@@ -1879,7 +1886,7 @@
 }
 
 .toast-warning .toast-icon {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #F0C040;
     -fx-background-radius: 50;
     -fx-text-fill: #3a2500;
     -fx-font-weight: bold;
@@ -1930,7 +1937,7 @@
     -fx-border-radius: 18px 18px 0 0;
 }
 .dialog-card-warning {
-    -fx-border-color: #f1b82c;
+    -fx-border-color: #F0C040;
     -fx-border-width: 4px 0 0 0;
     -fx-border-radius: 18px 18px 0 0;
 }
@@ -2043,11 +2050,11 @@
 }
 
 .dialog-btn-warning {
-    -fx-background-color: #f1b82c;
+    -fx-background-color: #F0C040;
     -fx-text-fill: #3a2500;
 }
 .dialog-btn-warning:hover {
-    -fx-background-color: #d9a320;
+    -fx-background-color: #d6aa30;
 }
 
 .dialog-btn-danger {
