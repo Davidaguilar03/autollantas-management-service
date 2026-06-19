@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1200.0" styleClass="main-background" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.StockAlertsController">
+<AnchorPane fx:id="rootPane" prefHeight="800.0" prefWidth="1200.0" styleClass="main-background" stylesheets="@../../styles/styles.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.autollantas.gestion.inventory.controller.StockAlertsController">
     <children>
         <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>
@@ -54,7 +54,7 @@
                     </children>
                 </HBox>
 
-                <TabPane styleClass="modern-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                <TabPane fx:id="tabPane" styleClass="modern-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                     <tabs>
                         <Tab text="MONITOR DE ALERTAS">
                             <content>
@@ -98,7 +98,6 @@
                                                 <TableColumn fx:id="colCategoria" prefWidth="150.0" style="-fx-alignment: CENTER;" text="CATEGORÍA" />
                                                 <TableColumn fx:id="colStockActual" prefWidth="100.0" style="-fx-alignment: CENTER; -fx-font-weight: bold;" text="STOCK" />
                                                 <TableColumn fx:id="colEstadoVisual" prefWidth="140.0" style="-fx-alignment: CENTER;" text="ESTADO" />
-                                                <TableColumn fx:id="colMensaje" prefWidth="250.0" text="DETALLE" />
                                             </columns>
                                             <columnResizePolicy> <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /> </columnResizePolicy>
                                         </StyledTableView>
@@ -115,32 +114,48 @@
                             <content>
                                 <AnchorPane>
                                     <padding> <Insets top="15.0" /> </padding>
-                                    <VBox spacing="15.0" styleClass="card-panel" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                        <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                            <VBox>
-                                                <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Umbrales por Categoría" />
-                                                <Label styleClass="text-muted" text="Edita los valores para ajustar cuándo se disparan las alertas." />
+                                    <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+                                        <!-- Encabezado -->
+                                        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="card-panel">
+                                            <VBox spacing="4.0">
+                                                <Label style="-fx-font-weight: bold; -fx-font-size: 15px;" text="Umbrales de alerta por categoría" />
+                                                <Label styleClass="text-muted" text="Ajusta las cantidades mínimas de stock para cada categoría. Los cambios se aplican al guardar." />
                                             </VBox>
                                             <Region HBox.hgrow="ALWAYS" />
-                                            <Button onAction="#btnGuardarConfiguracionClick" styleClass="btn-primary" text="Guardar Cambios">
+                                            <Button onAction="#btnGuardarConfiguracionClick"
+                                                    style="-fx-background-color: #4F83CC; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 8; -fx-cursor: hand; -fx-padding: 10 22;"
+                                                    text="Aplicar cambios">
                                                 <graphic>
-                                                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                                                        <image>
-                                                            <Image url="@../../images/save.png" />
-                                                        </image>
+                                                    <ImageView fitHeight="22.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                                                        <image> <Image url="@../../images/save.png" /> </image>
                                                     </ImageView>
                                                 </graphic>
                                             </Button>
                                         </HBox>
 
-                                        <StyledTableView fx:id="tablaConfiguracion" editable="true" VBox.vgrow="ALWAYS">
+                                        <!-- Leyenda de colores -->
+                                        <HBox alignment="CENTER_LEFT" spacing="30.0" style="-fx-padding: 0 4px;">
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <Label style="-fx-background-color: #fef3e2; -fx-border-color: #e8a84c; -fx-border-radius: 6; -fx-background-radius: 6; -fx-border-width: 1.5; -fx-padding: 5 14; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #b7630a;" text="ADVERTENCIA" />
+                                                <Label styleClass="text-muted" text="Si el stock baja a este valor o menos, el producto aparece en amarillo." />
+                                            </HBox>
+                                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                <Label style="-fx-background-color: #fdf0ef; -fx-border-color: #e07070; -fx-border-radius: 6; -fx-background-radius: 6; -fx-border-width: 1.5; -fx-padding: 5 14; -fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #c0392b;" text="CRITICO" />
+                                                <Label styleClass="text-muted" text="Si el stock baja a este valor o menos, el producto aparece en rojo." />
+                                            </HBox>
+                                        </HBox>
+
+                                        <!-- Tabla -->
+                                        <StyledTableView fx:id="tablaConfiguracion" editable="false" VBox.vgrow="ALWAYS" style="-fx-fixed-cell-size: 46px;">
                                             <columns>
-                                                <TableColumn fx:id="colConfCategoria" prefWidth="200.0" text="CATEGORÍA" />
-                                                <TableColumn fx:id="colConfAmarillo" prefWidth="150.0" style="-fx-alignment: CENTER;" text="MÍNIMO (ADVERTENCIA)" />
-                                                <TableColumn fx:id="colConfRojo" prefWidth="150.0" style="-fx-alignment: CENTER;" text="CRÍTICO (PELIGRO)" />
+                                                <TableColumn fx:id="colConfCategoria" prefWidth="220.0" text="CATEGORÍA" />
+                                                <TableColumn fx:id="colConfAmarillo" prefWidth="280.0" style="-fx-alignment: CENTER;" text="ADVERTENCIA  —  stock mínimo" />
+                                                <TableColumn fx:id="colConfRojo" prefWidth="280.0" style="-fx-alignment: CENTER;" text="CRÍTICO  —  stock de peligro" />
                                             </columns>
                                             <columnResizePolicy> <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /> </columnResizePolicy>
                                         </StyledTableView>
+
                                     </VBox>
                                 </AnchorPane>
                             </content>

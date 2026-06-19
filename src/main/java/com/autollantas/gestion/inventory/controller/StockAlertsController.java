@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,12 +44,15 @@ public class StockAlertsController {
     @FXML private TableColumn<ProductAlertDTO, String> colCategoria;
     @FXML private TableColumn<ProductAlertDTO, Integer> colStockActual;
     @FXML private TableColumn<ProductAlertDTO, AlertSeverity> colEstadoVisual;
-    @FXML private TableColumn<ProductAlertDTO, String> colMensaje;
 
     @FXML private TableView<CategoryConfigModel> tablaConfiguracion;
     @FXML private TableColumn<CategoryConfigModel, String> colConfCategoria;
     @FXML private TableColumn<CategoryConfigModel, Integer> colConfAmarillo;
     @FXML private TableColumn<CategoryConfigModel, Integer> colConfRojo;
+    @FXML private TabPane tabPane;
+    @FXML private javafx.scene.layout.AnchorPane rootPane;
+
+    private boolean hayDirty = false;
 
     private final ObservableList<ProductAlertDTO> masterData = FXCollections.observableArrayList();
     private FilteredList<ProductAlertDTO> filteredData;
@@ -67,8 +71,34 @@ public class StockAlertsController {
         tablaAlertas.setItems(sortedData);
 
         setupListenersFiltros();
+        setupDirtyGuards();
 
         cargarDatosDB();
+    }
+
+    private void setupDirtyGuards() {
+        // Guard 1: cambio de tab (Configuración → Monitor), nodo sigue visible, dialog funciona normal
+        Tab tabConfig = tabPane.getTabs().get(1);
+        tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+            if (oldTab == tabConfig && hayDirty) {
+                mostrarDialogDirty(tablaConfiguracion);
+            }
+        });
+
+        // Guard 2: navegación a otro panel — sceneProperty pasa a null; usamos oldScene para owner
+        rootPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (oldScene != null && newScene == null && hayDirty) {
+                mostrarDialogDirty(oldScene.getRoot());
+            }
+        });
+    }
+
+    private void mostrarDialogDirty(javafx.scene.Node owner) {
+        CustomDialog.warning(owner,
+            "Cambios sin guardar",
+            "Tienes cambios en los umbrales que aún no se han aplicado. "
+                + "Si continúas, los cambios se perderán.",
+            null);
     }
 
     private void cargarDatosDB() {
@@ -157,7 +187,6 @@ public class StockAlertsController {
         colProducto.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
         colStockActual.setCellValueFactory(new PropertyValueFactory<>("stock"));
-        colMensaje.setCellValueFactory(new PropertyValueFactory<>("mensaje"));
 
         colEstadoVisual.setCellValueFactory(new PropertyValueFactory<>("severity"));
         colEstadoVisual.setCellFactory(col -> new TableCell<>() {
@@ -192,17 +221,26 @@ public class StockAlertsController {
 
     private void configurarTablaConfiguracion() {
         colConfCategoria.setCellValueFactory(new PropertyValueFactory<>("categoriaNombre"));
-
-        javafx.util.Callback<TableColumn<CategoryConfigModel, Integer>, TableCell<CategoryConfigModel, Integer>> cellFactory
-                = p -> new SmartIntegerCell();
+        colConfCategoria.setCellFactory(col -> new TableCell<>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                setText(item);
+                setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+            }
+        });
 
         colConfAmarillo.setCellValueFactory(new PropertyValueFactory<>("umbralAmarillo"));
-        colConfAmarillo.setCellFactory(cellFactory);
-        colConfAmarillo.setOnEditCommit(e -> e.getRowValue().setUmbralAmarillo(e.getNewValue()));
+        colConfAmarillo.setCellFactory(col -> new SpinnerCell(
+            "#fdebd0", "#d35400",
+            (m, v) -> { m.setUmbralAmarillo(v); hayDirty = true; }
+        ));
 
         colConfRojo.setCellValueFactory(new PropertyValueFactory<>("umbralRojo"));
-        colConfRojo.setCellFactory(cellFactory);
-        colConfRojo.setOnEditCommit(e -> e.getRowValue().setUmbralRojo(e.getNewValue()));
+        colConfRojo.setCellFactory(col -> new SpinnerCell(
+            "#fadbd8", "#c0392b",
+            (m, v) -> { m.setUmbralRojo(v); hayDirty = true; }
+        ));
 
         tablaConfiguracion.setItems(configList);
     }
@@ -265,6 +303,7 @@ public class StockAlertsController {
             "Vas a reclasificar todos los productos según los nuevos umbrales configurados por categoría. "
                 + "Los estados crítico, bajo y normal se recalcularán para toda la tabla. ¿Confirmas?",
             () -> {
+                hayDirty = false;
                 configMap.clear();
                 for (CategoryConfigModel c : configList) configMap.put(c.getCategoriaNombre(), c);
 
@@ -336,50 +375,92 @@ public class StockAlertsController {
         public void setUmbralRojo(Integer v) { umbralRojo.set(v); }
     }
 
-    static class SmartIntegerCell extends TableCell<CategoryConfigModel, Integer> {
-        private TextField textField;
+    static class SpinnerCell extends TableCell<CategoryConfigModel, Integer> {
+        private final HBox control;
+        private final Label valueLabel;
+        private final java.util.function.BiConsumer<CategoryConfigModel, Integer> onValueChanged;
+        private final String accentColor;
+        private int currentValue = 0;
 
-        @Override public void startEdit() {
-            if (!isEmpty()) {
-                super.startEdit();
-                createTextField();
-                setText(null);
-                setGraphic(textField);
-                textField.selectAll();
-            }
+        SpinnerCell(String bgColor, String accentColor,
+                    java.util.function.BiConsumer<CategoryConfigModel, Integer> onValueChanged) {
+            this.accentColor = accentColor;
+            this.onValueChanged = onValueChanged;
+
+            Button btnMinus = makeBtn("−");
+            Button btnPlus  = makeBtn("+");
+
+            valueLabel = new Label("0");
+            valueLabel.setPrefWidth(36);
+            valueLabel.setAlignment(Pos.CENTER);
+            valueLabel.setStyle(
+                "-fx-font-size: 13px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-text-fill: " + accentColor + ";"
+            );
+
+            btnMinus.setOnAction(e -> commit(currentValue - 1));
+            btnPlus .setOnAction(e -> commit(currentValue + 1));
+
+            control = new HBox(0, btnMinus, valueLabel, btnPlus);
+            control.setAlignment(Pos.CENTER);
+            control.setStyle(
+                "-fx-background-color: " + bgColor + ";" +
+                "-fx-border-color: " + accentColor + ";" +
+                "-fx-border-width: 1.5;" +
+                "-fx-border-radius: 6;" +
+                "-fx-background-radius: 6;"
+            );
+            control.setMaxWidth(100);
+            control.setPrefWidth(100);
+            control.setMaxHeight(26);
+            control.setPrefHeight(26);
+
+            setAlignment(Pos.CENTER);
+            setStyle("-fx-padding: 10 0;");
         }
-        @Override public void cancelEdit() {
-            super.cancelEdit();
-            setText(getItem().toString());
-            setGraphic(null);
+
+        private Button makeBtn(String text) {
+            Button btn = new Button(text);
+            btn.setPrefWidth(26);
+            btn.setPrefHeight(20);
+            btn.setMaxHeight(20);
+            String base =
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: " + accentColor + ";" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;" +
+                "-fx-padding: 0;" +
+                "-fx-background-radius: 0;";
+            String hover =
+                "-fx-background-color: " + accentColor + "22;" +
+                "-fx-text-fill: " + accentColor + ";" +
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;" +
+                "-fx-padding: 0;" +
+                "-fx-background-radius: 0;";
+            btn.setStyle(base);
+            btn.setOnMouseEntered(e -> btn.setStyle(hover));
+            btn.setOnMouseExited(e -> btn.setStyle(base));
+            return btn;
         }
-        @Override public void updateItem(Integer item, boolean empty) {
+
+        private void commit(int newVal) {
+            if (newVal < 0) newVal = 0;
+            currentValue = newVal;
+            valueLabel.setText(String.valueOf(currentValue));
+            CategoryConfigModel row = getTableRow() != null ? (CategoryConfigModel) getTableRow().getItem() : null;
+            if (row != null) onValueChanged.accept(row, currentValue);
+        }
+
+        @Override protected void updateItem(Integer item, boolean empty) {
             super.updateItem(item, empty);
-            if (empty) { setText(null); setGraphic(null); }
-            else {
-                if (isEditing()) {
-                    if (textField != null) textField.setText(getString());
-                    setText(null);
-                    setGraphic(textField);
-                } else {
-                    setText(getString());
-                    setGraphic(null);
-                }
-            }
+            if (empty || item == null) { setGraphic(null); return; }
+            currentValue = item;
+            valueLabel.setText(String.valueOf(currentValue));
+            setGraphic(control);
         }
-        private void createTextField() {
-            textField = new TextField(getString());
-            textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-
-            textField.textProperty().addListener((obs, oldVal, newVal) -> {
-                if (!newVal.matches("\\d*")) textField.setText(newVal.replaceAll("[^\\d]", ""));
-            });
-
-            textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-                if (!isNowFocused) commitEdit(Integer.valueOf(textField.getText().isEmpty() ? "0" : textField.getText()));
-            });
-            textField.setOnAction(e -> commitEdit(Integer.valueOf(textField.getText().isEmpty() ? "0" : textField.getText())));
-        }
-        private String getString() { return getItem() == null ? "" : getItem().toString(); }
     }
 }
