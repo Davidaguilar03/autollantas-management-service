@@ -43,7 +43,10 @@
       "PowerShell(& \"C:\\\\Program Files\\\\Java\\\\jdk-21\\\\bin\\\\jar.exe\" cf \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\Autollantas-scenebuilder.jar\" -C \"c:\\\\Users\\\\oscar\\\\Desktop\\\\autollantas-management-service\\\\target\\\\classes\" .; Write-Host \"Resultado: $LASTEXITCODE\")",
       "Skill(run)",
       "Skill(run:*)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "PowerShell(Get-Process -Name \"java\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Name \"java\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(powershell.exe -Command 'Get-Process -Name '\\\\''java'\\\\'' -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1 | ForEach-Object { Write-Output $_.Id }')"
     ]
   }
 }
