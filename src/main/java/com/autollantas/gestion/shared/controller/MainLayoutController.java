@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.autollantas.gestion.inventory.controller.ProductsController;
 import com.autollantas.gestion.shared.util.CustomDialog;
+import com.autollantas.gestion.shared.util.NavigationGuard;
 import com.autollantas.gestion.purchases.controller.PurchaseInvoicesController;
 import com.autollantas.gestion.sales.controller.SaleInvoicesController;
 import com.autollantas.gestion.treasury.controller.OccasionalIncomeController;
@@ -161,6 +162,18 @@ public class MainLayoutController {
     public Button getBtnAlertas()             { return btnAlertas; }
 
     public Object loadView(String fxmlPath) {
+        if (activeViewController instanceof NavigationGuard guard) {
+            boolean[] allowed = { false };
+            boolean immediate = guard.canLeave(() -> {
+                allowed[0] = true;
+                doLoadView(fxmlPath);
+            });
+            if (!immediate) return null;
+        }
+        return doLoadView(fxmlPath);
+    }
+
+    private Object doLoadView(String fxmlPath) {
         try {
             var url = getClass().getResource(fxmlPath);
             if (url == null) {
