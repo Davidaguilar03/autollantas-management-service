@@ -144,14 +144,10 @@ public class ProductsController implements com.autollantas.gestion.shared.util.S
         colCategoria.setCellFactory(col -> new TableCell<Product, String>() {
             private final Label chip = new Label();
             {
-                chip.setStyle(
-                    "-fx-background-radius: 8;" +
-                    "-fx-padding: 3 10 3 10;" +
-                    "-fx-font-size: 11px;" +
-                    "-fx-font-weight: bold;"
-                );
                 chip.setMaxWidth(Double.MAX_VALUE);
                 chip.setAlignment(javafx.geometry.Pos.CENTER);
+                setAlignment(javafx.geometry.Pos.CENTER);
+                setStyle("-fx-padding: 0 10 0 10;");
             }
             @Override
             protected void updateItem(String item, boolean empty) {
