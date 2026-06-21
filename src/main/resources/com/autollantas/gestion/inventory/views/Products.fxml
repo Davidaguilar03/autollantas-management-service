@@ -157,7 +157,7 @@
                     </children>
                 </VBox>
 
-                <StyledTableView fx:id="tablaProductos" prefHeight="362.0" prefWidth="1180.0" style="-fx-fixed-cell-size: 30px;" VBox.vgrow="ALWAYS">
+                <StyledTableView fx:id="tablaProductos" prefHeight="362.0" prefWidth="1180.0" VBox.vgrow="ALWAYS">
                     <columns>
                         <TableColumn fx:id="colCategoria" prefWidth="144.3333282470703" style="-fx-alignment: CENTER;" text="Categoria producto" />
                         <TableColumn fx:id="colCodigo" prefWidth="135.33331298828125" style="-fx-alignment: CENTER;" text="Codigo" />
