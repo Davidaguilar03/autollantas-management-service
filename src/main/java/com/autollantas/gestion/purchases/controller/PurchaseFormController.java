@@ -33,7 +33,9 @@ import org.springframework.stereotype.Component;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
 
@@ -78,6 +80,9 @@ public class PurchaseFormController implements com.autollantas.gestion.shared.ut
     private ObservableList<Supplier> allSuppliers;
     private ObservableList<Product> allProducts;
     private ObservableList<Account> allAccounts;
+
+    private static final Deque<Supplier> recentSuppliers = new ArrayDeque<>();
+    private static final int MAX_RECENTS = 3;
 
     private static final String STYLE_ERROR  = "-fx-border-color: #e74c3c; -fx-border-width: 1.5; -fx-background-radius: 4;";
     private static final String STYLE_NORMAL = "-fx-border-color: transparent; -fx-border-width: 0;";
@@ -140,13 +145,35 @@ public class PurchaseFormController implements com.autollantas.gestion.shared.ut
             @Override public Supplier fromString(String string) { return comboProveedor.getValue(); }
         });
 
+        comboProveedor.getEditor().focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (isFocused) {
+                Platform.runLater(() -> {
+                    String text = comboProveedor.getEditor().getText();
+                    if (text == null || text.isEmpty()) {
+                        if (!recentSuppliers.isEmpty()) {
+                            List<Supplier> recents = new ArrayList<>(recentSuppliers);
+                            filtered.setPredicate(s -> recents.contains(s));
+                        }
+                        if (!filtered.isEmpty() && !comboProveedor.isShowing()) {
+                            comboProveedor.show();
+                        }
+                    }
+                });
+            }
+        });
+
         comboProveedor.getEditor().textProperty().addListener((obs, oldText, newText) -> {
             Platform.runLater(() -> {
                 if (comboProveedor.getValue() != null &&
                         comboProveedor.getValue().getName().equals(newText)) return;
 
                 filtered.setPredicate(s -> {
-                    if (newText == null || newText.isEmpty()) return true;
+                    if (newText == null || newText.isEmpty()) {
+                        if (!recentSuppliers.isEmpty()) {
+                            return new ArrayList<>(recentSuppliers).contains(s);
+                        }
+                        return true;
+                    }
                     String lower = newText.toLowerCase();
                     return s.getName().toLowerCase().contains(lower) ||
                             s.getNitNumber().contains(lower);
@@ -165,6 +192,9 @@ public class PurchaseFormController implements com.autollantas.gestion.shared.ut
                 txtCorreo.setText(sel.getEmail());
                 txtCelular.setText(sel.getPhone());
                 comboProveedor.getEditor().setText(sel.getName());
+                recentSuppliers.remove(sel);
+                recentSuppliers.addFirst(sel);
+                if (recentSuppliers.size() > MAX_RECENTS) recentSuppliers.removeLast();
             }
         });
     }

@@ -35,7 +35,9 @@ import org.springframework.stereotype.Component;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
 
@@ -84,6 +86,9 @@ public class SaleFormController implements com.autollantas.gestion.shared.util.S
     private ObservableList<Customer> allCustomers;
     private ObservableList<Product> allProducts;
     private ObservableList<Account> allAccounts;
+
+    private static final Deque<Customer> recentCustomers = new ArrayDeque<>();
+    private static final int MAX_RECENTS = 3;
 
     private Sale saleForEditing;
     private boolean editMode = false;
@@ -569,11 +574,33 @@ public class SaleFormController implements com.autollantas.gestion.shared.util.S
             @Override public Customer fromString(String string) { return comboCliente.getValue(); }
         });
 
+        comboCliente.getEditor().focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (isFocused) {
+                Platform.runLater(() -> {
+                    String text = comboCliente.getEditor().getText();
+                    if (text == null || text.isEmpty()) {
+                        if (!recentCustomers.isEmpty()) {
+                            List<Customer> recents = new ArrayList<>(recentCustomers);
+                            clientesFiltrados.setPredicate(c -> recents.contains(c));
+                        }
+                        if (!clientesFiltrados.isEmpty() && !comboCliente.isShowing()) {
+                            comboCliente.show();
+                        }
+                    }
+                });
+            }
+        });
+
         comboCliente.getEditor().textProperty().addListener((obs, oldText, newText) -> {
             Platform.runLater(() -> {
                 if (comboCliente.getValue() != null && comboCliente.getValue().getName().equals(newText)) return;
                 clientesFiltrados.setPredicate(cliente -> {
-                    if (newText == null || newText.isEmpty()) return true;
+                    if (newText == null || newText.isEmpty()) {
+                        if (!recentCustomers.isEmpty()) {
+                            return new ArrayList<>(recentCustomers).contains(cliente);
+                        }
+                        return true;
+                    }
                     String lower = newText.toLowerCase();
                     return cliente.getName().toLowerCase().contains(lower) ||
                             cliente.getDocumentNumber().contains(lower);
@@ -592,6 +619,9 @@ public class SaleFormController implements com.autollantas.gestion.shared.util.S
                 txtCelular.setText(seleccionado.getPhone());
                 comboTipoDoc.setValue(seleccionado.getDocumentType());
                 comboCliente.getEditor().setText(seleccionado.getName());
+                recentCustomers.remove(seleccionado);
+                recentCustomers.addFirst(seleccionado);
+                if (recentCustomers.size() > MAX_RECENTS) recentCustomers.removeLast();
             }
         });
     }
