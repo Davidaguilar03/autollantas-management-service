@@ -80,6 +80,99 @@ public class CustomDialog {
         show(anyNode, type, title, message, confirmLabel, cancelLabel, onConfirm, onCancel);
     }
 
+    /**
+     * Diálogo de tres botones: Guardar (primario) / Descartar (secundario) / Cancelar.
+     * onSave se llama al pulsar "Guardar", onDiscard al pulsar "Descartar",
+     * onCancel al pulsar "Cancelar" (o cerrar). Ninguno es null-safe — pasar lambdas.
+     */
+    public static void threeWay(Node anyNode, String title, String message,
+                                String saveLabel, String discardLabel, String cancelLabel,
+                                Runnable onSave, Runnable onDiscard, Runnable onCancel) {
+        Scene ownerScene = anyNode.getScene();
+        if (ownerScene == null) return;
+        buildAndShowThreeWay(ownerScene.getWindow(), title, message,
+                saveLabel, discardLabel, cancelLabel, onSave, onDiscard, onCancel);
+    }
+
+    private static void buildAndShowThreeWay(Window owner, String title, String message,
+                                             String saveLabel, String discardLabel, String cancelLabel,
+                                             Runnable onSave, Runnable onDiscard, Runnable onCancel) {
+        Stage dialog = new Stage(StageStyle.TRANSPARENT);
+        dialog.initOwner(owner);
+        dialog.setX(owner.getX());
+        dialog.setY(owner.getY());
+        dialog.setWidth(owner.getWidth());
+        dialog.setHeight(owner.getHeight());
+
+        owner.xProperty().addListener((obs, o, n) -> dialog.setX(n.doubleValue()));
+        owner.yProperty().addListener((obs, o, n) -> dialog.setY(n.doubleValue()));
+        owner.widthProperty().addListener((obs, o, n)  -> dialog.setWidth(n.doubleValue()));
+        owner.heightProperty().addListener((obs, o, n) -> dialog.setHeight(n.doubleValue()));
+
+        Label icon = new Label("!");
+        icon.getStyleClass().addAll("dialog-icon", "dialog-icon-warning");
+
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("dialog-title");
+        titleLabel.setWrapText(true);
+        titleLabel.setMaxWidth(300);
+
+        Label msgLabel = new Label(message);
+        msgLabel.getStyleClass().add("dialog-message");
+        msgLabel.setWrapText(true);
+        msgLabel.setMaxWidth(300);
+
+        VBox header = new VBox(12, icon, titleLabel);
+        header.setAlignment(Pos.CENTER);
+
+        Button btnCancel = new Button(cancelLabel);
+        btnCancel.getStyleClass().add("dialog-btn-cancel");
+        btnCancel.setCancelButton(true);
+        btnCancel.setOnAction(e -> dismiss(dialog, onCancel));
+
+        Button btnDiscard = new Button(discardLabel);
+        btnDiscard.getStyleClass().addAll("dialog-btn-confirm", "dialog-btn-danger");
+        btnDiscard.setOnAction(e -> dismiss(dialog, onDiscard));
+
+        Button btnSave = new Button(saveLabel);
+        btnSave.getStyleClass().addAll("dialog-btn-confirm", "dialog-btn-primary");
+        btnSave.setDefaultButton(true);
+        btnSave.setOnAction(e -> dismiss(dialog, onSave));
+
+        HBox buttons = new HBox(12, btnCancel, btnDiscard, btnSave);
+        buttons.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox(20, header, msgLabel, buttons);
+        card.getStyleClass().addAll("dialog-card", "dialog-card-warning");
+        card.setAlignment(Pos.CENTER);
+        card.setMinWidth(360);
+        card.setMaxWidth(500);
+        VBox.setMargin(card, new Insets(0));
+
+        Rectangle dimmer = new Rectangle();
+        dimmer.setFill(Color.rgb(10, 18, 35, 0.62));
+
+        VBox wrapper = new VBox(card);
+        wrapper.setAlignment(Pos.CENTER);
+        wrapper.setFillWidth(false);
+
+        StackPane root = new StackPane(dimmer, wrapper);
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: transparent;");
+        root.getStylesheets().add(
+                CustomDialog.class.getResource(
+                        "/com/autollantas/gestion/styles/styles.css").toExternalForm());
+
+        Scene scene = new Scene(root, Color.TRANSPARENT);
+        dimmer.widthProperty().bind(scene.widthProperty());
+        dimmer.heightProperty().bind(scene.heightProperty());
+
+        dialog.setScene(scene);
+        dialog.show();
+        Platform.runLater(btnSave::requestFocus);
+        animateIn(root, card);
+    }
+
     // -------------------------------------------------------------------------
     // Lógica interna
     // -------------------------------------------------------------------------
