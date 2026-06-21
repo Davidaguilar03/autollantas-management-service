@@ -1,6 +1,7 @@
 package com.autollantas.gestion.inventory.controller;
 
 import com.autollantas.gestion.inventory.model.Product;
+import com.autollantas.gestion.inventory.model.ProductCategory;
 import com.autollantas.gestion.inventory.service.InventoryService;
 import com.autollantas.gestion.shared.util.CustomDialog;
 import com.autollantas.gestion.shared.util.ToastNotification;
@@ -59,6 +60,7 @@ public class StockAlertsController implements com.autollantas.gestion.shared.uti
 
     private final ObservableList<CategoryConfigModel> configList = FXCollections.observableArrayList();
     private final Map<String, CategoryConfigModel> configMap = new HashMap<>();
+    private final Map<String, ProductCategory> categoryEntityMap = new HashMap<>();
 
     @FXML
     public void initialize() {
@@ -107,6 +109,7 @@ public class StockAlertsController implements com.autollantas.gestion.shared.uti
 
         new Thread(() -> {
             List<Product> productosDB = inventoryService.findAllProducts();
+            List<ProductCategory> categoriasDB = inventoryService.findAllCategories();
             List<ProductAlertDTO> dtos = new ArrayList<>();
             Set<String> categoriasEncontradas = new HashSet<>();
 
@@ -117,7 +120,7 @@ public class StockAlertsController implements com.autollantas.gestion.shared.uti
             }
 
             Platform.runLater(() -> {
-                inicializarConfigMap(categoriasEncontradas);
+                inicializarConfigMap(categoriasDB, categoriasEncontradas);
 
                 dtos.forEach(this::analizarProducto);
 
@@ -133,28 +136,35 @@ public class StockAlertsController implements com.autollantas.gestion.shared.uti
         }).start();
     }
 
-    private void inicializarConfigMap(Set<String> categorias) {
-        if (configList.isEmpty()) {
-            configList.add(new CategoryConfigModel("General (Default)", 10, 5));
+    private void inicializarConfigMap(List<ProductCategory> categoriasDB, Set<String> categoriasEncontradas) {
+        categoryEntityMap.clear();
+        for (ProductCategory cat : categoriasDB) {
+            categoryEntityMap.put(cat.getName(), cat);
         }
 
+        configList.clear();
         configMap.clear();
-        for (CategoryConfigModel c : configList) {
-            configMap.put(c.getCategoriaNombre(), c);
+
+        for (ProductCategory cat : categoriasDB) {
+            int amarillo = cat.getYellowStockMin() != null ? cat.getYellowStockMin() : 5;
+            int rojo     = cat.getRedStockMin()    != null ? cat.getRedStockMin()    : 2;
+            CategoryConfigModel conf = new CategoryConfigModel(cat.getName(), amarillo, rojo);
+            configList.add(conf);
+            configMap.put(cat.getName(), conf);
         }
 
-        for (String cat : categorias) {
-            if (!configMap.containsKey(cat)) {
-                CategoryConfigModel nuevaConf = new CategoryConfigModel(cat, 5, 2);
-                configList.add(nuevaConf);
-                configMap.put(cat, nuevaConf);
+        for (String catName : categoriasEncontradas) {
+            if (!configMap.containsKey(catName)) {
+                CategoryConfigModel conf = new CategoryConfigModel(catName, 5, 2);
+                configList.add(conf);
+                configMap.put(catName, conf);
             }
         }
     }
 
     private void analizarProducto(ProductAlertDTO prod) {
         CategoryConfigModel conf = configMap.get(prod.getCategoria());
-        if (conf == null) conf = configList.stream().filter(c -> c.getCategoriaNombre().startsWith("General")).findFirst().orElse(configList.getFirst());
+        if (conf == null) conf = configList.stream().filter(c -> c.getCategoriaNombre().startsWith("General")).findFirst().orElse(configList.isEmpty() ? new CategoryConfigModel("Default", 5, 2) : configList.getFirst());
 
         int stock = prod.getStock();
         int rojo = conf.getUmbralRojo();
@@ -307,21 +317,33 @@ public class StockAlertsController implements com.autollantas.gestion.shared.uti
                 configMap.clear();
                 for (CategoryConfigModel c : configList) configMap.put(c.getCategoriaNombre(), c);
 
-                masterData.forEach(this::analizarProducto);
-                tablaAlertas.refresh();
-                actualizarKPIs();
-                aplicarFiltros();
+                new Thread(() -> {
+                    for (CategoryConfigModel conf : configList) {
+                        ProductCategory entity = categoryEntityMap.get(conf.getCategoriaNombre());
+                        if (entity != null) {
+                            entity.setYellowStockMin(conf.getUmbralAmarillo());
+                            entity.setRedStockMin(conf.getUmbralRojo());
+                            inventoryService.saveCategory(entity);
+                        }
+                    }
+                    Platform.runLater(() -> {
+                        masterData.forEach(this::analizarProducto);
+                        tablaAlertas.refresh();
+                        actualizarKPIs();
+                        aplicarFiltros();
 
-                long criticos = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.CRITICAL).count();
-                long advertencias = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.WARNING).count();
+                        long criticos = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.CRITICAL).count();
+                        long advertencias = masterData.stream().filter(p -> p.getSeverity() == AlertSeverity.WARNING).count();
 
-                if (criticos > 0 || advertencias > 0) {
-                    ToastNotification.warning(tablaAlertas,
-                        "Umbrales aplicados: " + criticos + " crítico(s), " + advertencias + " bajo(s)");
-                } else {
-                    ToastNotification.success(tablaAlertas,
-                        "Umbrales aplicados · todos los productos en estado normal");
-                }
+                        if (criticos > 0 || advertencias > 0) {
+                            ToastNotification.warning(tablaAlertas,
+                                "Umbrales aplicados: " + criticos + " crítico(s), " + advertencias + " bajo(s)");
+                        } else {
+                            ToastNotification.success(tablaAlertas,
+                                "Umbrales aplicados · todos los productos en estado normal");
+                        }
+                    });
+                }).start();
             },
             null);
     }
