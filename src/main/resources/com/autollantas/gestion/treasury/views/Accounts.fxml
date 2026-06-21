@@ -34,8 +34,8 @@
         <TabPane fx:id="tabPaneCuentas" styleClass="accounts-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
             <tabs>
 
-                <!-- ══════ TAB: CAJA EFECTIVO ══════ -->
-                <Tab text="Caja Efectivo">
+                <!-- ══════ TAB: CAJA GENERAL ══════ -->
+                <Tab text="Caja General">
                     <content>
                         <VBox spacing="16.0" style="-fx-padding: 16;">
 
