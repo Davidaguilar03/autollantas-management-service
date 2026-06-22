@@ -41,7 +41,6 @@ public class AccountsController implements com.autollantas.gestion.shared.util.S
     @Autowired private ApplicationContext springContext;
 
     @FXML private Label lblTotalGlobal;
-    @FXML private Label lblBalanceBanco;
 
     // ── Caja ──────────────────────────────────────────────────────────────
     @FXML private Label              lblSaldoCaja;
@@ -258,8 +257,7 @@ public class AccountsController implements com.autollantas.gestion.shared.util.S
     private void updateGlobalBalance() {
         double cashBal = cashAccount != null ? cashAccount.getCurrentBalance() : 0.0;
         double bankBal = bankAccount != null ? bankAccount.getCurrentBalance() : 0.0;
-        if (lblTotalGlobal  != null) lblTotalGlobal.setText(currencyFormat.format(cashBal + bankBal));
-        if (lblBalanceBanco != null) lblBalanceBanco.setText(currencyFormat.format(cashBal + bankBal));
+        if (lblTotalGlobal != null) lblTotalGlobal.setText(currencyFormat.format(cashBal + bankBal));
     }
 
     private double sumMov(ObservableList<MovementDTO> list, String tipo) {
@@ -383,7 +381,6 @@ public class AccountsController implements com.autollantas.gestion.shared.util.S
 
             if (controller.isSaved()) {
                 loadDatabaseData();
-                ToastNotification.success(lblTotalGlobal, "Transferencia registrada correctamente");
             }
 
         } catch (Exception ex) {

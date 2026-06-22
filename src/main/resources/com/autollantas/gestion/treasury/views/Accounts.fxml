@@ -34,18 +34,18 @@
         <TabPane fx:id="tabPaneCuentas" styleClass="accounts-tab-pane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
             <tabs>
 
-                <!-- ══════ TAB: CAJA GENERAL ══════ -->
-                <Tab text="Caja General">
+                <!-- ══════ TAB: GENERAL ══════ -->
+                <Tab text="General">
                     <content>
                         <VBox spacing="16.0" style="-fx-padding: 16;">
 
-                            <!-- Balance Total -->
+                            <!-- Balance Total Global -->
                             <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
                                 <Label alignment="CENTER" text="BALANCE TOTAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
                                 <Label fx:id="lblTotalGlobal" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #38a169;" />
                             </VBox>
 
-                            <!-- KPIs -->
+                            <!-- KPIs transferencias en fila -->
                             <GridPane hgap="16.0">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
@@ -53,14 +53,103 @@
                                     <ColumnConstraints hgrow="ALWAYS" percentWidth="33.34" />
                                 </columnConstraints>
                                 <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
-                                    <Label alignment="CENTER" text="SALDO ACTUAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
-                                    <Label fx:id="lblSaldoCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #7c3aed;" />
+                                    <Label alignment="CENTER" text="TRANSFERENCIAS TOTALES" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblTotalTransferencias" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;" />
                                 </VBox>
                                 <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
+                                    <Label alignment="CENTER" text="DESDE CAJA GENERAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblEnviadoCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #7c3aed;" />
+                                </VBox>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="2">
+                                    <Label alignment="CENTER" text="DESDE BANCOLOMBIA" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                    <Label fx:id="lblEnviadoBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
+                                </VBox>
+                            </GridPane>
+
+                            <!-- Tabla + filtros -->
+                            <HBox spacing="14" styleClass="accounts-tab-content" VBox.vgrow="ALWAYS">
+
+                                <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                                            <Label styleClass="section-title" text="Todas las transferencias" />
+                                        </VBox>
+                                    </HBox>
+                                    <Separator styleClass="acct-sep" />
+                                    <StyledTableView fx:id="tablaTransferencias" fixedCellSize="36" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="colTransFecha" prefWidth="100" text="Fecha" />
+                                            <TableColumn fx:id="colTransConcepto" prefWidth="180" text="Concepto" />
+                                            <TableColumn fx:id="colTransValor" prefWidth="130" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
+                                            <TableColumn fx:id="colTransOrigen" prefWidth="120" text="Origen" />
+                                            <TableColumn fx:id="colTransDestino" prefWidth="120" text="Destino" />
+                                        </columns>
+                                    </StyledTableView>
+                                </VBox>
+
+                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
+                                    <content>
+                                        <VBox spacing="10">
+                                            <padding><Insets bottom="2" top="2" /></padding>
+
+                                            <VBox spacing="9" styleClass="acct-action-card">
+                                                <HBox alignment="CENTER_LEFT">
+                                                    <Label styleClass="section-title" text="Filtros" />
+                                                </HBox>
+                                                <Label styleClass="stat-card-label" text="Periodo" />
+                                                <ComboBox fx:id="comboPeriodoTrans" maxWidth="Infinity" onAction="#onPeriodoTransChanged" promptText="Seleccionar" styleClass="acct-combo" />
+                                                <VBox fx:id="rangoTrans" managed="false" spacing="6" visible="false">
+                                                    <Label styleClass="stat-card-label" text="Desde" />
+                                                    <DatePicker fx:id="datesDesdeTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                    <Label styleClass="stat-card-label" text="Hasta" />
+                                                    <DatePicker fx:id="datesHastaTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
+                                                </VBox>
+                                                <HBox spacing="8">
+                                                    <Button maxWidth="Infinity" onAction="#resetFiltrosTrans" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
+                                                    <Button maxWidth="Infinity" onAction="#aplicarFiltrosTrans" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
+                                                </HBox>
+                                            </VBox>
+
+                                            <Button fx:id="btnNuevaTransferencia" contentDisplay="LEFT" maxWidth="Infinity" onAction="#abrirModalTransferencia" styleClass="acct-btn-transfer" text="  Nueva Transferencia">
+                                                <graphic>
+                                                    <ImageView fitHeight="24" fitWidth="24" preserveRatio="true" smooth="true">
+                                                        <image><Image url="@../../images/transferencia.png" /></image>
+                                                    </ImageView>
+                                                </graphic>
+                                            </Button>
+
+                                        </VBox>
+                                    </content>
+                                </ScrollPane>
+
+                            </HBox>
+
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <!-- ══════ TAB: CAJA GENERAL ══════ -->
+                <Tab text="Caja General">
+                    <content>
+                        <VBox spacing="16.0" style="-fx-padding: 16;">
+
+                            <!-- Saldo Actual Caja -->
+                            <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
+                                <Label alignment="CENTER" text="SALDO ACTUAL CAJA GENERAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                <Label fx:id="lblSaldoCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #7c3aed;" />
+                            </VBox>
+
+                            <!-- KPIs -->
+                            <GridPane hgap="16.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                </columnConstraints>
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
                                     <Label alignment="CENTER" text="INGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
                                     <Label fx:id="lblIngCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
                                 </VBox>
-                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="2">
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
                                     <Label alignment="CENTER" text="EGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
                                     <Label fx:id="lblEgrCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #dc2626;" />
                                 </VBox>
@@ -119,28 +208,23 @@
                     <content>
                         <VBox spacing="16.0" style="-fx-padding: 16;">
 
-                            <!-- Balance Total -->
+                            <!-- Saldo Actual Bancolombia -->
                             <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
-                                <Label alignment="CENTER" text="BALANCE TOTAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
-                                <Label fx:id="lblBalanceBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
+                                <Label alignment="CENTER" text="SALDO ACTUAL BANCOLOMBIA" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
+                                <Label fx:id="lblSaldoBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
                             </VBox>
 
                             <!-- KPIs -->
                             <GridPane hgap="16.0">
                                 <columnConstraints>
-                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
-                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.33" />
-                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="33.34" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
                                 </columnConstraints>
                                 <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
-                                    <Label alignment="CENTER" text="SALDO ACTUAL" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
-                                    <Label fx:id="lblSaldoBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
-                                </VBox>
-                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
                                     <Label alignment="CENTER" text="INGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
                                     <Label fx:id="lblIngBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #16a34a;" />
                                 </VBox>
-                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="2">
+                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
                                     <Label alignment="CENTER" text="EGRESOS DEL PERIODO" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
                                     <Label fx:id="lblEgrBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #dc2626;" />
                                 </VBox>
@@ -188,97 +272,6 @@
                                         </VBox>
                                     </content>
                                 </ScrollPane>
-                            </HBox>
-
-                        </VBox>
-                    </content>
-                </Tab>
-
-                <!-- ══════ TAB: TRANSFERENCIAS ══════ -->
-                <Tab text="Transferencias">
-                    <content>
-                        <VBox spacing="16.0" style="-fx-padding: 16;">
-
-                            <!-- Balance Total Transferencias -->
-                            <VBox alignment="CENTER" spacing="4.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 16;">
-                                <Label alignment="CENTER" text="TRANSFERENCIAS TOTALES" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
-                                <Label fx:id="lblTotalTransferencias" alignment="CENTER" text="\$ 0" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #9b59b6;" />
-                            </VBox>
-
-                            <!-- KPIs transferencias -->
-                            <GridPane hgap="16.0">
-                                <columnConstraints>
-                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
-                                </columnConstraints>
-                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="0">
-                                    <Label alignment="CENTER" text="DESDE CAJA" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
-                                    <Label fx:id="lblEnviadoCaja" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #7c3aed;" />
-                                </VBox>
-                                <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box,rgba(0,0,0,0.06),10,0,0,2); -fx-padding: 20;" GridPane.columnIndex="1">
-                                    <Label alignment="CENTER" text="DESDE BANCOLOMBIA" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
-                                    <Label fx:id="lblEnviadoBanco" alignment="CENTER" text="\$ 0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2563eb;" />
-                                </VBox>
-                            </GridPane>
-
-                            <!-- Tabla + panel lateral -->
-                            <HBox spacing="14" styleClass="accounts-tab-content" VBox.vgrow="ALWAYS">
-
-                                <!-- Tabla unificada -->
-                                <VBox spacing="10" styleClass="acct-table-card" HBox.hgrow="ALWAYS">
-                                    <HBox alignment="CENTER_LEFT">
-                                        <VBox spacing="2" HBox.hgrow="ALWAYS">
-                                            <Label styleClass="section-title" text="Todas las transferencias" />
-                                        </VBox>
-                                    </HBox>
-                                    <Separator styleClass="acct-sep" />
-                                    <StyledTableView fx:id="tablaTransferencias" fixedCellSize="36" VBox.vgrow="ALWAYS">
-                                        <columns>
-                                            <TableColumn fx:id="colTransFecha" prefWidth="100" text="Fecha" />
-                                            <TableColumn fx:id="colTransConcepto" prefWidth="180" text="Concepto" />
-                                            <TableColumn fx:id="colTransValor" prefWidth="130" style="-fx-alignment: CENTER-RIGHT;" text="Monto" />
-                                            <TableColumn fx:id="colTransOrigen" prefWidth="120" text="Origen" />
-                                            <TableColumn fx:id="colTransDestino" prefWidth="120" text="Destino" />
-                                        </columns>
-                                    </StyledTableView>
-                                </VBox>
-
-                                <!-- Panel lateral Trans (filtros + botón) -->
-                                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" maxWidth="300" minWidth="270" styleClass="acct-scroll-panel" vbarPolicy="AS_NEEDED">
-                                    <content>
-                                        <VBox spacing="10">
-                                            <padding><Insets bottom="2" top="2" /></padding>
-
-                                            <VBox spacing="9" styleClass="acct-action-card">
-                                                <HBox alignment="CENTER_LEFT">
-                                                    <Label styleClass="section-title" text="Filtros" />
-                                                </HBox>
-                                                <Label styleClass="stat-card-label" text="Periodo" />
-                                                <ComboBox fx:id="comboPeriodoTrans" maxWidth="Infinity" onAction="#onPeriodoTransChanged" promptText="Seleccionar" styleClass="acct-combo" />
-                                                <VBox fx:id="rangoTrans" managed="false" spacing="6" visible="false">
-                                                    <Label styleClass="stat-card-label" text="Desde" />
-                                                    <DatePicker fx:id="datesDesdeTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
-                                                    <Label styleClass="stat-card-label" text="Hasta" />
-                                                    <DatePicker fx:id="datesHastaTrans" maxWidth="Infinity" styleClass="acct-datepicker" />
-                                                </VBox>
-                                                <HBox spacing="8">
-                                                    <Button maxWidth="Infinity" onAction="#resetFiltrosTrans" styleClass="acct-btn-reset" text="Limpiar" HBox.hgrow="ALWAYS" />
-                                                    <Button maxWidth="Infinity" onAction="#aplicarFiltrosTrans" styleClass="acct-btn-apply" text="Aplicar" HBox.hgrow="ALWAYS" />
-                                                </HBox>
-                                            </VBox>
-
-                                            <Button fx:id="btnNuevaTransferencia" contentDisplay="LEFT" maxWidth="Infinity" onAction="#abrirModalTransferencia" styleClass="acct-btn-transfer" text="  Nueva Transferencia">
-                                                <graphic>
-                                                    <ImageView fitHeight="24" fitWidth="24" preserveRatio="true" smooth="true">
-                                                        <image><Image url="@../../images/transferencia.png" /></image>
-                                                    </ImageView>
-                                                </graphic>
-                                            </Button>
-
-                                        </VBox>
-                                    </content>
-                                </ScrollPane>
-
                             </HBox>
 
                         </VBox>
