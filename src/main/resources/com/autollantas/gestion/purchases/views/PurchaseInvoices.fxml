@@ -232,7 +232,7 @@
 
                         <Button fx:id="btnEliminar" contentDisplay="LEFT" disable="true" graphicTextGap="12.0"
                                 mnemonicParsing="false" onAction="#btnEliminarClick" prefHeight="48.0"
-                                styleClass="mini-card-btn,mini-card-red" text="Eliminar">
+                                styleClass="mini-card-btn,mini-card-red" text="Anular">
                             <graphic>
                                 <StackPane minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
                                            styleClass="mini-card-chip-red">
