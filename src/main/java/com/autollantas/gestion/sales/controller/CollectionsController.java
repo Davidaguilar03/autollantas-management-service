@@ -421,7 +421,7 @@ public class CollectionsController implements com.autollantas.gestion.shared.uti
                 loadDataFromDB();
                 ToastNotification.success(
                     MainLayoutController.getInstance().getContentArea(),
-                    "Pago registrado en factura " + numFactura + " correctamente"
+                    "Abono registrado en factura " + numFactura + " correctamente"
                 );
             }
 

@@ -22,7 +22,7 @@
 
         <HBox alignment="CENTER_LEFT">
             <VBox spacing="4">
-                <Label styleClass="lbl-titulo" text="Registrar Pago" />
+                <Label styleClass="lbl-titulo" text="Registrar Abono" />
                 <Label fx:id="lblNumeroFactura" text="#FAC-0000" textFill="#7f8c8d">
                     <font>
                         <Font size="12.0" />
@@ -64,7 +64,7 @@
                 <Label styleClass="lbl-campo" text="Método Pago" GridPane.rowIndex="2" />
                 <ComboBox fx:id="comboMetodoPago" maxWidth="1.7976931348623157E308" promptText="Seleccione..." styleClass="input-moderno" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label styleClass="lbl-campo" text="Valor a Pagar" GridPane.rowIndex="3" />
+                <Label styleClass="lbl-campo" text="Valor Abonado" GridPane.rowIndex="3" />
                 <TextField fx:id="txtValor" promptText="\$ 0.00" styleClass="input-moderno, input-total" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             </children>
             <rowConstraints>
@@ -90,7 +90,7 @@
             </Button>
             <Button defaultButton="true" contentDisplay="LEFT" graphicTextGap="12.0"
                     mnemonicParsing="false" onAction="#btnGuardarClick" prefHeight="48.0"
-                    styleClass="mini-card-btn,mini-card-green" text="Confirmar Pago">
+                    styleClass="mini-card-btn,mini-card-green" text="Confirmar Abono">
                 <graphic>
                     <StackPane alignment="CENTER" minWidth="28.0" minHeight="28.0" maxWidth="28.0" maxHeight="28.0"
                                styleClass="mini-card-chip-green">
