@@ -215,6 +215,14 @@ public class SalesService {
 
     @Transactional
     public Sale restoreSale(Sale sale) {
+        List<SaleDetail> details = saleDetailRepository.findBySale(sale);
+        for (SaleDetail detail : details) {
+            Product product = detail.getProduct();
+            if (product != null) {
+                product.setQuantity(product.getQuantity() - detail.getQuantity());
+                productRepository.save(product);
+            }
+        }
         sale.setStatus("PENDIENTE");
         return saleRepository.save(sale);
     }

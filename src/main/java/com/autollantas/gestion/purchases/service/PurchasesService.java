@@ -198,6 +198,14 @@ public class PurchasesService {
 
     @Transactional
     public Purchase restorePurchase(Purchase purchase) {
+        List<PurchaseDetail> details = purchaseDetailRepository.findByPurchase(purchase);
+        for (PurchaseDetail detail : details) {
+            Product product = detail.getProduct();
+            if (product != null) {
+                product.setQuantity(product.getQuantity() + detail.getQuantity());
+                productRepository.save(product);
+            }
+        }
         purchase.setStatus("PENDIENTE");
         return purchaseRepository.save(purchase);
     }

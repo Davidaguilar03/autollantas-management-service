@@ -388,6 +388,25 @@ public class PurchaseFormController implements com.autollantas.gestion.shared.ut
             return;
         }
 
+        if (!esCredito) {
+            Account cuenta = comboCuenta.getValue();
+            if (cuenta != null) {
+                double totalFactura = detailRows.stream()
+                        .filter(r -> r.getProduct() != null)
+                        .mapToDouble(PurchaseDetailRow::getLineTotal)
+                        .sum();
+                double saldoActual = cuenta.getCurrentBalance() != null
+                        ? cuenta.getCurrentBalance() : 0.0;
+                if (saldoActual < totalFactura) {
+                    ToastNotification.warning(comboCuenta,
+                            "Saldo insuficiente en " + cuenta.getName() +
+                            ". Saldo actual: " + currencyFormat.format(saldoActual) +
+                            " — Total factura: " + currencyFormat.format(totalFactura));
+                    return;
+                }
+            }
+        }
+
         if (editMode) {
             CustomDialog.confirm(rootFormulario,
                 "Guardar cambios",
