@@ -323,6 +323,25 @@ class SalesServiceTest {
         }
 
         @Test
+        @DisplayName("cancelSale contado devuelve el total a la cuenta")
+        void cancelSale_contado_devuelveMontoACuenta() {
+            Sale sale = new Sale();
+            sale.setStatus("PAGADA");
+            sale.setPaymentType("Contado");
+            sale.setTotal(100_000.0);
+            Account cuenta = new Account();
+            cuenta.setCurrentBalance(50_000.0);
+            sale.setAccount(cuenta);
+            when(saleDetailRepository.findBySale(sale)).thenReturn(Collections.emptyList());
+
+            salesService.cancelSale(sale);
+
+            ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+            verify(accountRepository).save(captor.capture());
+            assertThat(captor.getValue().getCurrentBalance()).isEqualTo(-50_000.0);
+        }
+
+        @Test
         void recaudo_deberia_crear_movimientoIngreso() {
             Sale sale = new Sale();
             sale.setPendingBalance(500000.0);
@@ -625,6 +644,28 @@ class SalesServiceTest {
             salesService.restoreSale(sale);
 
             verify(saleRepository, times(1)).save(sale);
+        }
+
+        @Test
+        @DisplayName("restoreSale descuenta el stock de los productos vendidos")
+        void restoreSale_descuentaStockDeProductos() {
+            Product product = new Product();
+            product.setQuantity(10);
+
+            SaleDetail detail = new SaleDetail();
+            detail.setProduct(product);
+            detail.setQuantity(3);
+
+            Sale sale = new Sale();
+            sale.setStatus("ANULADA");
+
+            when(saleDetailRepository.findBySale(sale)).thenReturn(List.of(detail));
+            when(saleRepository.save(sale)).thenReturn(sale);
+
+            salesService.restoreSale(sale);
+
+            assertEquals(7, product.getQuantity());
+            verify(productRepository).save(product);
         }
     }
 }

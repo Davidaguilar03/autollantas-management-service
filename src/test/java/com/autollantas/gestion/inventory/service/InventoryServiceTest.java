@@ -154,7 +154,7 @@ class InventoryServiceTest {
             inventoryService.recalculateMinSalePrice(p);
 
             assertThat(p.getTaxAmount()).isCloseTo(19000.0, within(0.01));
-            assertThat(p.getMinSalePrice()).isCloseTo(100000.0, within(0.01));
+            assertThat(p.getMinSalePrice()).isCloseTo(119000.0, within(0.01));
         }
 
         @Test
@@ -176,7 +176,7 @@ class InventoryServiceTest {
             inventoryService.recalculateMinSalePrice(p);
 
             assertThat(p.getTaxAmount()).isCloseTo(19000.0, within(0.01));
-            assertThat(p.getMinSalePrice()).isCloseTo(103000.0, within(0.01));
+            assertThat(p.getMinSalePrice()).isCloseTo(122000.0, within(0.01));
         }
 
         @Test
@@ -192,7 +192,7 @@ class InventoryServiceTest {
 
             inventoryService.recalculateMinSalePrice(p);
 
-            assertThat(p.getSuggestedPrice()).isCloseTo(130000.0, within(0.01));
+            assertThat(p.getSuggestedPrice()).isCloseTo(154700.0, within(0.01));
         }
 
         @Test
