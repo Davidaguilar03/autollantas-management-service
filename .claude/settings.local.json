@@ -46,7 +46,10 @@
       "Bash(Remove-Item *)",
       "PowerShell(Get-Process -Name \"java\" -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Name \"java\" -Force -ErrorAction SilentlyContinue)",
-      "Bash(powershell.exe -Command 'Get-Process -Name '\\\\''java'\\\\'' -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1 | ForEach-Object { Write-Output $_.Id }')"
+      "Bash(powershell.exe -Command 'Get-Process -Name '\\\\''java'\\\\'' -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 } | Select-Object -First 1 | ForEach-Object { Write-Output $_.Id }')",
+      "PowerShell(cd \"C:\\\\Users\\\\PC\\\\Desktop\\\\DW TRIAGE\\\\DW-C\\\\Autollantas\"; Select-String -Path \"target\\\\classes\\\\com\\\\autollantas\\\\gestion\\\\styles\\\\styles.css\" -Pattern \"font-size: 13px\" -Context 2,2 | Where-Object { $_.LineNumber -ge 388 -and $_.LineNumber -le 475 })",
+      "PowerShell(.\\\\mvnw.cmd compile -q 2>&1)",
+      "Bash(./mvnw.cmd clean *)"
     ]
   }
 }
