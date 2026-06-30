@@ -228,56 +228,80 @@
                                 <RowConstraints minHeight="52.0" />
                                 <RowConstraints minHeight="52.0" />
                             </rowConstraints>
-                            <Button contentDisplay="LEFT" graphicTextGap="12.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                                    mnemonicParsing="false" onAction="#actionNuevaVenta" prefHeight="56.0"
-                                    styleClass="mini-card-btn,mini-card-green" text="Nueva Venta" wrapText="true">
+                            <Button contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                    mnemonicParsing="false" onAction="#actionNuevaVenta" prefHeight="56.0" prefWidth="115.0"
+                                    styleClass="mini-card-btn,mini-card-green">
                                 <graphic>
-                                    <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
-                                               styleClass="mini-card-chip-green">
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
-                                            <image><Image url="@../../images/cuentas.png" /></image>
-                                            <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
-                                        </ImageView>
-                                    </StackPane>
+                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                        <StackPane alignment="CENTER" minWidth="24.0" minHeight="24.0" maxWidth="24.0" maxHeight="24.0"
+                                                   styleClass="mini-card-chip-green">
+                                            <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
+                                                <image><Image url="@../../images/cuentas.png" /></image>
+                                                <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                                            </ImageView>
+                                        </StackPane>
+                                        <VBox alignment="CENTER_LEFT" spacing="0.0">
+                                            <Label text="Nueva" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                            <Label text="Venta" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                        </VBox>
+                                    </HBox>
                                 </graphic>
                             </Button>
-                            <Button contentDisplay="LEFT" graphicTextGap="12.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                                    mnemonicParsing="false" onAction="#actionNuevaCompra" prefHeight="56.0"
-                                    styleClass="mini-card-btn,mini-card-blue" text="Nueva Compra" wrapText="true" GridPane.columnIndex="1">
+                            <Button contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                    mnemonicParsing="false" onAction="#actionNuevaCompra" prefHeight="56.0" prefWidth="115.0"
+                                    styleClass="mini-card-btn,mini-card-blue" GridPane.columnIndex="1">
                                 <graphic>
-                                    <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
-                                               styleClass="mini-card-chip-blue">
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
-                                            <image><Image url="@../../images/nuevacompra.png" /></image>
-                                            <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
-                                        </ImageView>
-                                    </StackPane>
+                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                        <StackPane alignment="CENTER" minWidth="24.0" minHeight="24.0" maxWidth="24.0" maxHeight="24.0"
+                                                   styleClass="mini-card-chip-blue">
+                                            <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
+                                                <image><Image url="@../../images/nuevacompra.png" /></image>
+                                                <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                                            </ImageView>
+                                        </StackPane>
+                                        <VBox alignment="CENTER_LEFT" spacing="0.0">
+                                            <Label text="Nueva" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                            <Label text="Compra" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                        </VBox>
+                                    </HBox>
                                 </graphic>
                             </Button>
-                            <Button contentDisplay="LEFT" graphicTextGap="12.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                                    mnemonicParsing="false" onAction="#actionNuevoGasto" prefHeight="56.0"
-                                    styleClass="mini-card-btn,mini-card-red" text="Nuevo Gasto" wrapText="true" GridPane.rowIndex="1">
+                            <Button contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                    mnemonicParsing="false" onAction="#actionNuevoGasto" prefHeight="56.0" prefWidth="115.0"
+                                    styleClass="mini-card-btn,mini-card-red" GridPane.rowIndex="1">
                                 <graphic>
-                                    <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
-                                               styleClass="mini-card-chip-red">
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
-                                            <image><Image url="@../../images/gastar.png" /></image>
-                                            <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
-                                        </ImageView>
-                                    </StackPane>
+                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                        <StackPane alignment="CENTER" minWidth="24.0" minHeight="24.0" maxWidth="24.0" maxHeight="24.0"
+                                                   styleClass="mini-card-chip-red">
+                                            <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
+                                                <image><Image url="@../../images/gastar.png" /></image>
+                                                <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                                            </ImageView>
+                                        </StackPane>
+                                        <VBox alignment="CENTER_LEFT" spacing="0.0">
+                                            <Label text="Nuevo" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                            <Label text="Gasto" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                        </VBox>
+                                    </HBox>
                                 </graphic>
                             </Button>
-                            <Button contentDisplay="LEFT" graphicTextGap="12.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                                    mnemonicParsing="false" onAction="#actionNuevoIngreso" prefHeight="56.0"
-                                    styleClass="mini-card-btn,mini-card-teal" text="Nuevo Ingreso" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Button contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                    mnemonicParsing="false" onAction="#actionNuevoIngreso" prefHeight="56.0" prefWidth="115.0"
+                                    styleClass="mini-card-btn,mini-card-teal" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                 <graphic>
-                                    <StackPane alignment="CENTER" minWidth="30.0" minHeight="30.0" maxWidth="30.0" maxHeight="30.0"
-                                               styleClass="mini-card-chip-teal">
-                                        <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
-                                            <image><Image url="@../../images/ingresar.png" /></image>
-                                            <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
-                                        </ImageView>
-                                    </StackPane>
+                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
+                                        <StackPane alignment="CENTER" minWidth="24.0" minHeight="24.0" maxWidth="24.0" maxHeight="24.0"
+                                                   styleClass="mini-card-chip-teal">
+                                            <ImageView fitHeight="16.0" fitWidth="16.0" preserveRatio="true" StackPane.alignment="CENTER">
+                                                <image><Image url="@../../images/ingresar.png" /></image>
+                                                <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                                            </ImageView>
+                                        </StackPane>
+                                        <VBox alignment="CENTER_LEFT" spacing="0.0">
+                                            <Label text="Nuevo" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                            <Label text="Ingreso" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #4a5568;" />
+                                        </VBox>
+                                    </HBox>
                                 </graphic>
                             </Button>
                         </GridPane>

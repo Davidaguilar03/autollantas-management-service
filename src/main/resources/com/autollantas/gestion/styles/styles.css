@@ -325,31 +325,6 @@
     -fx-border-color: #3e2723;
 }
 
-.sidebar-btn-logout {
-    -fx-background-color: rgba(160, 40, 40, 0.22);
-    -fx-text-fill: #2e1a00;
-    -fx-font-weight: bold;
-    -fx-font-size: 13px;
-    -fx-font-family: "Segoe UI", sans-serif;
-    -fx-alignment: CENTER;
-    -fx-padding: 11 26 11 26;
-    -fx-cursor: hand;
-    -fx-background-radius: 14px;
-    -fx-border-radius: 14px;
-    -fx-border-color: rgba(160, 40, 40, 0.30);
-    -fx-border-width: 1.5px;
-    -fx-effect: null;
-}
-.sidebar-btn-logout:hover {
-    -fx-background-color: rgba(160, 40, 40, 0.35);
-    -fx-border-color: rgba(160, 40, 40, 0.50);
-    -fx-text-fill: #2e1a00;
-    -fx-translate-y: -1;
-}
-.sidebar-btn-logout:pressed {
-    -fx-background-color: rgba(140, 30, 30, 0.45);
-    -fx-translate-y: 0;
-}
 
 .page-title {
     -fx-font-size: 28px;
@@ -390,7 +365,7 @@
 .sidebar-accordion .titled-pane > .title {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
-    -fx-font-size: 15px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-text-fill: #2e1a00;
@@ -412,23 +387,23 @@
 /* ── Superbotones: palito fijo + texto = color del palito ── */
 /* .titled-pane en el selector sube la especificidad sobre el base */
 .sidebar-accordion .titled-pane.sidebar-panel-control > .title {
-    -fx-border-color: transparent transparent transparent #9E6EE8;
+    -fx-border-color: transparent transparent transparent #7C5CDB;
     -fx-border-width: 0 0 0 6px;
 }
 .sidebar-accordion .titled-pane.sidebar-ingresos > .title {
-    -fx-border-color: transparent transparent transparent #27AE60;
+    -fx-border-color: transparent transparent transparent #2E9E5B;
     -fx-border-width: 0 0 0 6px;
 }
 .sidebar-accordion .titled-pane.sidebar-egresos > .title {
-    -fx-border-color: transparent transparent transparent #E85C5C;
+    -fx-border-color: transparent transparent transparent #D9534F;
     -fx-border-width: 0 0 0 6px;
 }
 .sidebar-accordion .titled-pane.sidebar-inventario > .title {
-    -fx-border-color: transparent transparent transparent #CC58C2;
+    -fx-border-color: transparent transparent transparent #D4894A;
     -fx-border-width: 0 0 0 6px;
 }
 .sidebar-accordion .titled-pane.sidebar-cuentas > .title {
-    -fx-border-color: transparent transparent transparent #4088D4;
+    -fx-border-color: transparent transparent transparent #3B7DC4;
     -fx-border-width: 0 0 0 6px;
 }
 
@@ -446,17 +421,17 @@
 
 /* Palito fijo por sección en submenú, texto negro */
 .sidebar-ingresos .submenu-btn {
-    -fx-border-color: transparent transparent transparent #27AE60;
+    -fx-border-color: transparent transparent transparent #2E9E5B;
     -fx-border-width: 0 0 0 6px;
     -fx-text-fill: #1a1a1a;
 }
 .sidebar-egresos .submenu-btn {
-    -fx-border-color: transparent transparent transparent #E85C5C;
+    -fx-border-color: transparent transparent transparent #D9534F;
     -fx-border-width: 0 0 0 6px;
     -fx-text-fill: #1a1a1a;
 }
 .sidebar-inventario .submenu-btn {
-    -fx-border-color: transparent transparent transparent #CC58C2;
+    -fx-border-color: transparent transparent transparent #D4894A;
     -fx-border-width: 0 0 0 6px;
     -fx-text-fill: #1a1a1a;
 }
@@ -464,7 +439,7 @@
 .submenu-btn {
     -fx-background-color: transparent;
     -fx-alignment: CENTER_LEFT;
-    -fx-font-size: 15px;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-cursor: hand;
@@ -2087,6 +2062,33 @@
     -fx-background-color: #f0f2f8;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 6, 0, 0, 1);
 }
+.sidebar-logout-btn {
+    -fx-background-color: white;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #e74c3c;
+    -fx-border-width: 1.5;
+    -fx-border-style: solid;
+    -fx-padding: 12 20 12 20;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #4a5568;
+    -fx-cursor: hand;
+    -fx-alignment: CENTER_LEFT;
+    -fx-effect: null;
+}
+.sidebar-logout-btn:hover {
+    -fx-background-color: #FFF0F0;
+    -fx-border-color: #d9453f;
+}
+.sidebar-logout-btn:pressed {
+    -fx-background-color: #FFE0E0;
+}
+.quick-action-btn {
+    -fx-font-size: 13px;
+    -fx-padding: 8 10 8 10;
+}
 
 .mini-card-cyan   { -fx-border-color: #4db6ac; }
 .mini-card-purple { -fx-border-color: #9b7eca; }
@@ -2107,6 +2109,12 @@
 .mini-card-chip-orange { -fx-background-color: #e67e22; -fx-background-radius: 8; }
 .mini-card-chip-red    { -fx-background-color: #e74c3c; -fx-background-radius: 8; }
 .mini-card-chip-teal   { -fx-background-color: #4db6ac; -fx-background-radius: 8; }
+
+.sidebar-chip-violeta  { -fx-background-color: #7C5CDB; -fx-background-radius: 8; }
+.sidebar-chip-esmeralda { -fx-background-color: #2E9E5B; -fx-background-radius: 8; }
+.sidebar-chip-rojo     { -fx-background-color: #D9534F; -fx-background-radius: 8; }
+.sidebar-chip-naranja  { -fx-background-color: #D4894A; -fx-background-radius: 8; }
+.sidebar-chip-azul     { -fx-background-color: #3B7DC4; -fx-background-radius: 8; }
 
 /* ── Tabla solo lectura ─────────────────────────────────────────────────── */
 .tabla-readonly .table-row-cell {

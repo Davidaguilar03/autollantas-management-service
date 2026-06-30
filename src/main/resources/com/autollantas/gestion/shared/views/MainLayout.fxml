@@ -3,7 +3,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.effect.ColorAdjust?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -51,23 +53,35 @@
             <Accordion styleClass="sidebar-accordion">
                <panes>
 
-                  <TitledPane fx:id="tpPanelControl" animated="true" expanded="false" graphicTextGap="15.0" onMouseClicked="#btnPanelControlClick" styleClass="titled-pane,sidebar-panel-control" text="PANEL CONTROL">
+                  <TitledPane fx:id="tpPanelControl" animated="true" expanded="false" graphicTextGap="0.0" onMouseClicked="#btnPanelControlClick" styleClass="titled-pane,sidebar-panel-control" text="">
                      <graphic>
-                        <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../images/control.png" />
-                           </image>
-                        </ImageView>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <StackPane alignment="CENTER" minWidth="44.0" minHeight="44.0" maxWidth="44.0" maxHeight="44.0" styleClass="sidebar-chip-violeta">
+                              <ImageView fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                                 <image>
+                                    <Image url="@../../images/control.png" />
+                                 </image>
+                                 <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                              </ImageView>
+                           </StackPane>
+                           <Label text="PANEL CONTROL" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2e1a00; -fx-font-family: 'Segoe UI', sans-serif;" />
+                        </HBox>
                      </graphic>
                   </TitledPane>
 
-                  <TitledPane fx:id="tpIngresos" animated="true" expanded="false" graphicTextGap="15.0" styleClass="titled-pane,sidebar-ingresos" text="INGRESOS">
+                  <TitledPane fx:id="tpIngresos" animated="true" expanded="false" graphicTextGap="0.0" styleClass="titled-pane,sidebar-ingresos" text="">
                      <graphic>
-                        <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../images/cart.png" />
-                           </image>
-                        </ImageView>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <StackPane alignment="CENTER" minWidth="44.0" minHeight="44.0" maxWidth="44.0" maxHeight="44.0" styleClass="sidebar-chip-esmeralda">
+                              <ImageView fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                                 <image>
+                                    <Image url="@../../images/cart.png" />
+                                 </image>
+                                 <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                              </ImageView>
+                           </StackPane>
+                           <Label text="INGRESOS" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2e1a00; -fx-font-family: 'Segoe UI', sans-serif;" />
+                        </HBox>
                      </graphic>
                      <content>
                         <VBox spacing="0.0" styleClass="submenu-container">
@@ -88,13 +102,19 @@
                      </content>
                   </TitledPane>
 
-                  <TitledPane fx:id="tpEgresos" animated="true" expanded="false" graphicTextGap="15.0" styleClass="titled-pane,sidebar-egresos" text="EGRESOS">
+                  <TitledPane fx:id="tpEgresos" animated="true" expanded="false" graphicTextGap="0.0" styleClass="titled-pane,sidebar-egresos" text="">
                      <graphic>
-                        <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../images/truck.png" />
-                           </image>
-                        </ImageView>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <StackPane alignment="CENTER" minWidth="44.0" minHeight="44.0" maxWidth="44.0" maxHeight="44.0" styleClass="sidebar-chip-rojo">
+                              <ImageView fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                                 <image>
+                                    <Image url="@../../images/truck.png" />
+                                 </image>
+                                 <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                              </ImageView>
+                           </StackPane>
+                           <Label text="EGRESOS" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2e1a00; -fx-font-family: 'Segoe UI', sans-serif;" />
+                        </HBox>
                      </graphic>
                      <content>
                         <VBox spacing="0.0" styleClass="submenu-container">
@@ -115,13 +135,19 @@
                      </content>
                   </TitledPane>
 
-                  <TitledPane fx:id="tpInventario" animated="true" expanded="false" graphicTextGap="15.0" styleClass="titled-pane,sidebar-inventario" text="INVENTARIO">
+                  <TitledPane fx:id="tpInventario" animated="true" expanded="false" graphicTextGap="0.0" styleClass="titled-pane,sidebar-inventario" text="">
                      <graphic>
-                        <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../images/box.png" />
-                           </image>
-                        </ImageView>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <StackPane alignment="CENTER" minWidth="44.0" minHeight="44.0" maxWidth="44.0" maxHeight="44.0" styleClass="sidebar-chip-naranja">
+                              <ImageView fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                                 <image>
+                                    <Image url="@../../images/box.png" />
+                                 </image>
+                                 <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                              </ImageView>
+                           </StackPane>
+                           <Label text="INVENTARIO" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2e1a00; -fx-font-family: 'Segoe UI', sans-serif;" />
+                        </HBox>
                      </graphic>
                      <content>
                         <VBox spacing="0.0" styleClass="submenu-container">
@@ -138,13 +164,19 @@
                      </content>
                   </TitledPane>
 
-                  <TitledPane fx:id="tpCuentas" animated="true" expanded="false" graphicTextGap="15.0" onMouseClicked="#btnCuentasClick" styleClass="titled-pane,sidebar-cuentas" text="CUENTAS">
+                  <TitledPane fx:id="tpCuentas" animated="true" expanded="false" graphicTextGap="0.0" onMouseClicked="#btnCuentasClick" styleClass="titled-pane,sidebar-cuentas" text="">
                      <graphic>
-                        <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../../images/cuentas.png" />
-                           </image>
-                        </ImageView>
+                        <HBox alignment="CENTER_LEFT" spacing="15.0">
+                           <StackPane alignment="CENTER" minWidth="44.0" minHeight="44.0" maxWidth="44.0" maxHeight="44.0" styleClass="sidebar-chip-azul">
+                              <ImageView fitHeight="26.0" fitWidth="26.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                                 <image>
+                                    <Image url="@../../images/cuentas.png" />
+                                 </image>
+                                 <effect><ColorAdjust brightness="1.0" saturation="-1.0" /></effect>
+                              </ImageView>
+                           </StackPane>
+                           <Label text="CUENTAS" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: #2e1a00; -fx-font-family: 'Segoe UI', sans-serif;" />
+                        </HBox>
                      </graphic>
                   </TitledPane>
 
@@ -157,7 +189,13 @@
                <VBox.margin>
                   <Insets bottom="24.0" top="8.0" />
                </VBox.margin>
-               <Button mnemonicParsing="false" onAction="#btnCerrarSesionClick" prefHeight="46.0" styleClass="sidebar-btn-logout" text="⏻  CERRAR SESIÓN" />
+               <Button mnemonicParsing="false" onAction="#btnCerrarSesionClick" contentDisplay="LEFT" graphicTextGap="12.0" prefHeight="56.0" maxWidth="Infinity" styleClass="sidebar-logout-btn" text="Cerrar Sesión">
+                  <graphic>
+                     <StackPane alignment="CENTER" minWidth="34.0" minHeight="34.0" maxWidth="34.0" maxHeight="34.0" styleClass="mini-card-chip-red">
+                        <Label text="⏻" style="-fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: white;" StackPane.alignment="CENTER" />
+                     </StackPane>
+                  </graphic>
+               </Button>
             </HBox>
          </children>
       </VBox>
