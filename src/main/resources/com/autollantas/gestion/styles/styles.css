@@ -439,7 +439,7 @@
 .submenu-btn {
     -fx-background-color: transparent;
     -fx-alignment: CENTER_LEFT;
-    -fx-font-size: 13px;
+    -fx-font-size: 15px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-cursor: hand;
@@ -2115,6 +2115,14 @@
 .sidebar-chip-rojo     { -fx-background-color: #D9534F; -fx-background-radius: 8; }
 .sidebar-chip-naranja  { -fx-background-color: #D4894A; -fx-background-radius: 8; }
 .sidebar-chip-azul     { -fx-background-color: #3B7DC4; -fx-background-radius: 8; }
+
+.sidebar-scroll {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+.sidebar-scroll > .viewport {
+    -fx-background-color: transparent;
+}
 
 /* ── Tabla solo lectura ─────────────────────────────────────────────────── */
 .tabla-readonly .table-row-cell {

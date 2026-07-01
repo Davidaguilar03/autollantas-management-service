@@ -43,7 +43,7 @@ public class AutollantasApplication extends Application {
         stage.setWidth(bounds.getWidth());
         stage.setHeight(bounds.getHeight());
         stage.setMinWidth(1220);
-        stage.setMinHeight(600);
+        stage.setMinHeight(550);
 
         try {
             Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/autollantas/gestion/images/logo_amarillo_negro.png")));
