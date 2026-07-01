@@ -26,7 +26,7 @@
     <children>
         <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>
-                <Insets bottom="15.0" left="7.0" right="7.0" top="15.0" />
+                <Insets bottom="15.0" left="18.0" right="18.0" top="15.0" />
             </padding>
             <children>
                 <VBox>

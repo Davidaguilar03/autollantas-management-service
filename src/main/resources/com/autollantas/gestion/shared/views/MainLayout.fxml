@@ -36,9 +36,9 @@
    </top>
 
    <left>
-      <ScrollPane fitToWidth="true" fitToHeight="false" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="sidebar-scroll" BorderPane.alignment="CENTER">
+      <ScrollPane fx:id="sidebarScrollPane" fitToWidth="true" fitToHeight="false" prefWidth="260.0" minWidth="260.0" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="sidebar-scroll" BorderPane.alignment="CENTER">
       <content>
-      <VBox fx:id="sidebarContainer" prefHeight="800.0" prefWidth="260.0" spacing="5.0" styleClass="sidebar">
+      <VBox fx:id="sidebarContainer" prefWidth="260.0" spacing="5.0" styleClass="sidebar">
          <children>
             <StackPane prefHeight="200.0" prefWidth="200.0">
                <children>
