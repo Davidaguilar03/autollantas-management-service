@@ -46,6 +46,7 @@ public class MainLayoutController {
 
     @FXML private StackPane contentArea;
     @FXML private VBox sidebarContainer;
+    @FXML private javafx.scene.control.ScrollPane sidebarScrollPane;
     @FXML private HBox topBar;
     @FXML private Button btnMenu;
     @FXML private ImageView imgLogoSidebar;
@@ -88,6 +89,8 @@ public class MainLayoutController {
     public void initialize() {
         instance = this;
         loadLogo();
+
+        sidebarContainer.minHeightProperty().bind(sidebarScrollPane.heightProperty());
 
         if (contentArea != null) {
             loadView("/com/autollantas/gestion/reporting/views/Dashboard.fxml");

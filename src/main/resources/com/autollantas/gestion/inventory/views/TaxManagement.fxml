@@ -25,12 +25,12 @@
     fx:controller="com.autollantas.gestion.inventory.controller.TaxManagementController">
 
     <VBox spacing="16.0"
-          AnchorPane.topAnchor="20" AnchorPane.bottomAnchor="20"
-          AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
+          AnchorPane.topAnchor="15" AnchorPane.bottomAnchor="15"
+          AnchorPane.leftAnchor="18" AnchorPane.rightAnchor="18">
         <children>
 
             <Label text="Impuestos y Márgenes"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                   styleClass="view-title" />
 
             <Separator />
 

@@ -25,8 +25,8 @@
 
         <!-- CABECERA GLOBAL -->
         <HBox alignment="CENTER_LEFT" prefWidth="1200.0" style="-fx-background-color: #ffffff; -fx-border-color: transparent transparent #e4e8ed transparent; -fx-border-width: 0 0 1 0;">
-            <padding><Insets bottom="16" left="28" right="28" top="16" /></padding>
-            <Label style="-fx-text-fill: #2d3748; -fx-font-size: 25; -fx-font-weight: bold;" text="Cuentas" />
+            <padding><Insets bottom="15" left="18" right="18" top="15" /></padding>
+            <Label styleClass="view-title" text="Cuentas" />
             <Region HBox.hgrow="ALWAYS" />
         </HBox>
 
